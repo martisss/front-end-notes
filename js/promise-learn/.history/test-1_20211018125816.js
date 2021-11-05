@@ -1,0 +1,1 @@
+const isFunction = obj => typeof 
