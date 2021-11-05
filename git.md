@@ -117,6 +117,8 @@ local branch "main" set to track remote branch "o/main"
 
 ### 我能自己指定这个属性吗？
 
+x'x'x'x
+
 当然可以啦！你可以让任意分支跟踪 `o/main`, 然后该分支会像 `main` 分支一样得到隐含的 push 目的地以及 merge 的目标。 这意味着你可以在分支 `totallyNotMain` 上执行 `git push`，将工作推送到远程仓库的 `main` 分支上。
 
 有两种方法设置这个属性，第一种就是通过远程分支检出一个新的分支，执行:
