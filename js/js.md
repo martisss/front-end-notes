@@ -1606,7 +1606,105 @@ p1().then((arg) => { //微任务
 console.log(10);//同步
 ```
 
+## 数组去重
 
+### indexOf
+
+```js
+let arr = [1, 2, 3, 3]
+
+function unique(array) {
+  let res = []
+  for(let i = 0; i < array.length; i++) {
+    if(res.indexOf(array[i]) === -1) res.push(array[i])
+  }
+  return res
+}
+
+console.log(unique(arr))
+```
+
+对象、NaN不去重
+
+简化：使用filter简化外层循环
+
+```js
+function unique(arr) {
+  return arr.filter((item, index, arr) => arr.indexOf(item) ===index)
+}
+```
+
+**对象不能去重**，忽略NaN
+
+### 先排序再去重 :bug:
+
+```js
+let arr = [1, 2, 3, 3,'234','23','23']
+
+function unique(array) {
+  let res = []
+  let pre
+  let sortedArray = array.concat().sort()  
+  for(let i = 0; i < sortedArray.length; i++) {
+    if(!i || pre !== sortedArray[i]) res.push(sortedArray[i])
+    pre = sortedArray[i]
+  }
+  return res
+}
+
+console.log(unique(arr))
+```
+
+对象、NaN不能去重，:bug:``let arr =  [2, '2', 2]``， 这样的情况其实用这种方法是不行的
+
+使用filter简化
+
+```js
+function unique(arr) {
+  return arr.concat().sort().filter((item, index, arr) => !index || item !== arr[index-1])
+}
+```
+
+对象、NaN不能去重，:bug:``let arr =  [2, '2', 2]``， 这样的情况其实用这种方法是不行的
+
+### Objext键值对(用ES6 map 方法更简单)
+
+```js
+function unique(arr) {
+  let obj = {}
+  return arr.filter((item, index, arr) => {
+    return obj.hasOwnProperty(typeof item + JSON.stringify(item)) ? false : (obj[typeof item + JSON.stringify(item)] = true)
+  })
+}
+```
+
+完美！！！！！:performing_arts:
+
+### ES6
+
+#### set
+
+```js
+function unique(arr) {
+  // return Array.from(new Set(arr))
+  return [...new Set(arr)]
+}
+
+let unique = (arr) => [...new Set(arr)]
+```
+
+对象不能去重
+
+#### map
+
+```js
+function unique(arr) {
+  let map = new Map()
+  return arr.filter(item => !map.has(item) && map.set(item, 1))
+}
+```
+
+对象不能去重
 
 # 模块化
 
