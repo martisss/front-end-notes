@@ -162,6 +162,8 @@ fragment表示 URI 所定位的资源内的一个锚点，浏览器可以根据�
 - 2. 明文传输
 - 3. 队头阻塞问题
 
+  由 HTTP 基本的 请求 - 应答 模型所导致
+
 ## 006： Accept字段
 
 ### 数据格式
@@ -280,13 +282,40 @@ Content-Type: multipart/byteranges;boundary=00000010101，它代表了信息量�
 
 - 图片等文件上传，采用什么方式，为什么？
 
-## 010：HTTP队头阻塞问题  TODO
+## 010：HTTP队头阻塞问题
 
 ### 并发连接
 
+同时对一个域名发起多个长连接，用数量来解决质量的问题 。
+
 ### 域名分片
 
+使用多个域名指向同一台服务器
+
+### 注意
+
+利用 HTTP 的长连接特性对服务器发起大量请求，导致服务器最终耗尽资源，拒绝服务，这就是常说的 DDos 攻击
+HTTP 的连接管理还有第三种方式 pipeline（管道或流水线），它在长连接的基础上又进了一步，可以批量发送请求批量接收响应，但因为存在一些问题，Chrome、Firefox 等浏览器都没有实现它，已经被事实上废弃了
+Connection 字段还有一个取值： Connection: Upgrade 配合状态码 101 表示协议升级，例如从 HTTP 切换到 WebSocket
+
 ## 011: cookie
+
+Cookie 并不属于 HTTP 标准（RFC6265，而不是 RFC2616/7230），所以语法上与其他字段不太一致，使用的分隔符是 ; ，与 Accept 等字段的 , 不同
+```js
+Set-Cookie: <cookie-name>=<cookie-value>
+Set-Cookie: <cookie-name>=<cookie-value>; Expires=<date>
+Set-Cookie: <cookie-name>=<cookie-value>; Max-Age=<non-zero-digit>
+Set-Cookie: <cookie-name>=<cookie-value>; Domain=<domain-value>
+Set-Cookie: <cookie-name>=<cookie-value>; Path=<path-value>
+Set-Cookie: <cookie-name>=<cookie-value>; Secure
+Set-Cookie: <cookie-name>=<cookie-value>; HttpOnly
+
+Set-Cookie: <cookie-name>=<cookie-value>; SameSite=Strict
+Set-Cookie: <cookie-name>=<cookie-value>; SameSite=Lax
+
+// Multiple directives are also possible, for example:
+Set-Cookie: <cookie-name>=<cookie-value>; Domain=<domain-value>; Secure; HttpOnly
+```
 
 ### Name/Value 
 
@@ -300,74 +329,6 @@ Content-Type: multipart/byteranges;boundary=00000010101，它代表了信息量�
 若 Cookie 过期，则这个 Cookie 会被删除，并不会发送给服务端。
 
 - Max-Age
-
-	- Cache-Control   (HTTP 1.1) 
-
-		- no-cache
-
-			- 必须先与服务器确认资源是否被更改过（依靠If-None-Match和Etag），然后再决定是否使用本地缓存。如果没有修改，返回304+空响应，浏览器更新本地资源过期时间
-
-		- no-store
-
-			- 绝对禁止缓存任何资源
-
-		- must-revalidate 
-
-			-   一旦资源过期（比如已经超过max-age），在成功向原始服务器验证之前，缓存不能用该资源响应后续请求
-
-		- proxy-revalidate 
-
-			-   与must-revalidate作用相同，但它仅适用于共享缓存（例如代理），并被私有缓存忽略。
-
-		- s-maxage
-
-			- 覆盖max-age或者Expires头，但是仅适用于共享缓存(比如各个代理)，私有缓存会忽略它。
-
-		- 缓存过期机制
-
-			- max-age
-
-			  max-age 指令出现在请求报文，并且缓存资源的缓存时间小于该指令指定的时间，那么就能接受该缓存。
-			  max-age 指令出现在响应报文，表示缓存资源在缓存服务器中保存的时间。
-
-			- Expires（首部字段，不是catch-control的）
-
-			  在 HTTP/1.1 中，会优先处理 max-age 指令；
-			  在 HTTP/1.0 中，max-age 指令会被忽略掉。
-
-		- 源服务器的缓存控制
-
-			- 私有缓存和公共缓存
-
-				- public
-
-					- 可以在代理中缓存，默认public
-
-				- private
-
-					- 只能在私有缓存中被缓存，适用于用户信息敏感的资源,一般存储在用户浏览器中。
-
-			- 缓存过期
-
-			  must-revalidate的意思是客户端缓存过期就去源服务器获取，而proxy-revalidate则表示代理服务器的缓存过期后到源服务器获取。
-
-				- proxy-revalidate
-				- must-revalidate
-
-			- s-maxage
-
-			  s是share的意思，限定了缓存在代理服务器中可以存放多久，和限制客户端缓存时间的max-age并不冲突。
-
-		- 客户端的缓存控制
-
-			- max-stale 和 min-fresh
-
-			  在客户端的请求头中，可以加入这两个字段，来对代理服务器上的缓存进行宽容和限制操作
-
-			- only-if-cached
-
-			  表示客户端只会接受代理缓存，而不会接受源服务器的响应。如果代理缓存无效，则直接返回504（Gateway Timeout）
-
 - Expires
 
 	- Expires  (HTTP 1.0)
@@ -402,7 +363,7 @@ Content-Type: multipart/byteranges;boundary=00000010101，它代表了信息量�
 
 - Secure
 
-  只能通过 HTTPS 传输 cookie
+  表示这个 Cookie 仅能用 HTTPS 协议加密传输 ，明文的 HTTP 协议会禁止发送。但 Cookie 本身不是加密的，浏览器里还是以明文的形式存在。
 
 - HttpOnly  (预防XSS攻击)
 
@@ -418,7 +379,7 @@ Content-Type: multipart/byteranges;boundary=00000010101，它代表了信息量�
 
 	  默认， 允许部分第三方请求携带 Cookie
 	  
-	  就宽松一点了，但是只能在 get 方法提交表单况或者a 标签发送 get 请求的情况下可以携带 Cookie，其他情况均不能。
+	  就宽松一点了，但是只能允许 GET/HEAD 等安全方法，a 标签发送 get 请求的情况下可以携带 Cookie，但禁止 POST 跨站发送。
 
 	- None （默认）
 
@@ -480,83 +441,42 @@ Cookie 存储在浏览器中，容易被恶意查看。如果非要将一些隐�
 缓存代理。将内容缓存到代理服务器，使得客户端可以直接从代理服务器获得而不用到源服务器那里。下一节详细拆解。
 
 - 负载均衡
-- 保障安全
+
+  轮询负载均衡算法
+  在upstream模块设置权重，权重越大，分发的请求到该服务器的上的数量越大。
+  最少连接数负载均衡算法
+  根据打开连接数实现负载均衡，nginx根据连接数判读服务器当前性能好坏，将请求分配给性能最好(连接最少)的服务器
+  最短响应时间负载均衡算法
+  nginx会将请求分发给平均响应时间更短的应用服务器。
+  基于Hash负载均衡算法
+  根据请求方法不同，分配不同的服务器。当有服务器被添加或者删除的时候会重新添加hash值进行分发，这个算法就是使用的是一致性hash算法。
+  IP_Hash负载均衡算法
+  这个算法基于Hash负载均衡算法对访问者的ip求hash,从而实现负载均衡。这个可以保证没有办法存储session 或者session丢失的请求，只要ip不发生改变，
+  并且服务器可用的情况下，请求永远都负载同一台服务器上。
+
 - 缓存代理
+- 安全防护
+- 数据处理
 
 ### 相关头部字段
 
-- Via
-
-  现在中间有两台代理服务器，在客户端发送请求后会经历这样一个过程:
-  
-  客户端 -> 代理1 -> 代理2 -> 源服务器
-  复制代码
-  在源服务器收到请求后，会在请求头拿到这个字段:
-  
-  Via: proxy_server1, proxy_server2
-  复制代码
-  而源服务器响应时，最终在客户端会拿到这样的响应头:
-  
-  Via: proxy_server2, proxy_server1
-  
-  Via中代理的顺序即为在 HTTP 传输中报文传达的顺序
-
-- X-Forwarded-For
-
-  字面意思就是为谁转发, 它记录的是请求方的IP地址(注意，和Via区分开，X-Forwarded-For记录的是请求方这一个IP)。
-
-	- 产生的问题
-
-	  由此产生了代理协议，一般使用明文版本，只需要在 HTTP 请求行上面加上这样格式的文本即可:
-	  
-	  // PROXY + TCP4/TCP6 + 请求方地址 + 接收方地址 + 请求端口 + 接收端口
-	  PROXY TCP4 0.0.0.1 0.0.0.2 1111 2222
-	  GET / HTTP/1.1
-	  ...
-
-		- 意味着代理必须解析 HTTP 请求头，然后修改，比直接转发数据性能下降。
-		- 在 HTTPS 通信加密的过程中，原始报文是不允许修改的。
-
-- X-Real-IP
-- X-Forwarded-Host
-- X-Forwarded-Proto
-
-### 缓存控制-  catch-control
-
-通过cache-control中相关字段控制
-
-- 源服务器的缓存控制
-
-	- 私有缓存和公共缓存
-
-		- public
-
-			- 可以在代理中缓存，默认public
-
-		- private
-
-			- 只能在私有缓存中被缓存，适用于用户信息敏感的资源,一般存储在用户浏览器中。
-
-	- 缓存过期
-
-	  must-revalidate的意思是客户端缓存过期就去源服务器获取，而proxy-revalidate则表示代理服务器的缓存过期后到源服务器获取。
-
-		- proxy-revalidate
-		- must-revalidate
-
-	- s-maxage
-
-	  s是share的意思，限定了缓存在代理服务器中可以存放多久，和限制客户端缓存时间的max-age并不冲突。
-
-- 客户端的缓存控制
-
-	- max-stale 和 min-fresh
-
-	  在客户端的请求头中，可以加入这两个字段，来对代理服务器上的缓存进行宽容和限制操作
-
-	- only-if-cached
-
-	  表示客户端只会接受代理缓存，而不会接受源服务器的响应。如果代理缓存无效，则直接返回504（Gateway Timeout）
+Via
+X-Forwarded-For
+	产生的问题
+		意味着代理必须解析 HTTP 请求头，然后修改，比直接转发数据性能下降。
+		在 HTTPS 通信加密的过程中，原始报文是不允许修改的。
+	:question: 如何解决？
+代理协议有 v1 和 v2 两个版本，v1 和 HTTP 差不多，也是明文，而 v2 是二进制格式。
+开头必须是 PROXY 五个大写字母，然后是 TCP4 或者 TCP6 ，表示客户端的 IP 地址类型，再后面是请求方地址、应答方地址、请求方端口号、应答方端口号，最后用一个回车换行（\r\n）结束。
+```bash
+PROXY TCP4 1.1.1.1 2.2.2.2 55555 80\r\n
+GET / HTTP/1.1\r\n
+Host: www.xxx.com\r\n
+\r\n
+```
+X-Real-IP
+X-Forwarded-Host
+X-Forwarded-Proto
 
 ## 013: 跨域
 
@@ -647,7 +567,7 @@ Accept-charset
 
 ps:在大多数编程语言里 ; 的断句语气要强于 , ，而在 HTTP 的内容协商里却恰好反了过来，; 的意义是小于 , 的。
 Accept: text/html,application/xml;q=0.9,*/*;q=0.8
-
+ 
 
 Vary 字段，记录服务器在内容协商时参考的请求头字段，给出一点信息，例如：
 Vary: Accept-Encoding,User-Agent,Accept
@@ -657,6 +577,9 @@ Vary: Accept-Encoding,User-Agent,Accept
 ### 数据压缩
 
 通常只对文本有着较好的压缩率
+
+gzip: 压缩率通常能够超过 60%
+br： 专门为 HTML 设计的，压缩效率和性能比 gzip 还要好，能够再提高 20% 的压缩密度
 
 ### 分块传输
 
@@ -668,11 +591,13 @@ Vary: Accept-Encoding,User-Agent,Accept
 
   分块传输也可以用于流式数据 ，例如由数据库动态生成的表单页面，这种情况下 body 数据的长度是未知的 ，无法在头字段 Content-Length 里给出确切的长度，所以也只能用 chunked 方式分块发送。
   Transfer-Encoding: chunked 和 Content-Length 这两个字段是 互斥的 ，也就是说响应报文里这两个字段不能同时出现，一个响应报文的传输要么是长度已知，要么是长度未知（chunked）
+  Transfer-Encoding 字段最常见的值是 chunked，但也可以用 gzip、deflate 等，表示传输时使用了压缩编码。注意这与 Content-Encoding 不同，Transfer-Encoding 在传输后会被自动解码还原出原始数据，而 Content-Encoding 则必须由应用自行解码
+  Trailer 是一个响应首部，允许发送方在分块发送的消息后面添加额外的元信息，这些元信息可能是随着消息主体的发送动态生成的，比如消息的完整性校验，消息的数字签名，或者消息经过处理之后的最终状态等。
 
 - 数据传输格式
 
   每个分块包含两个部分，长度头和数据块；
-  长度头是以 CRLF（回车换行，即 \r\n ）结尾的一行明文，用 16 进制数字表示长度；
+  长度头是以 CRLF（回车换行，即 \r\n ）结尾的一行明文，用 16 进制数字表示长度；因此数据中包含回车换行并不影响数据传输
   数据块紧跟在长度头后，最后也用 CRLF 结尾，但数据不包含 CRLF；
   最后用一个长度为 0 的块表示结束，即 0\r\n\r\n。
   ![image.png](https://i.loli.net/2021/11/15/O5czh2uy716JqLH.png)
@@ -689,7 +614,10 @@ Vary: Accept-Encoding,User-Agent,Accept
 ### 多段数据
 
 Range 头里使用多个 x-y，一次性获取多个片段数据。
-需要使用一种特殊的 MIME 类型：multipart/byteranges，表示报文的 body 是由多段字节序列组成的，并且还要用一个参数 boundary=xxx 给出段之间的分隔标记。
+注意：  Range 是针对原文件，不是压缩后的文件
+
+使用一种特殊的 MIME 类型：multipart/byteranges，表示报文的 body 是由多段字节序列组成的
+要用一个参数 boundary=xxx 给出段之间的分隔标记。
 ![image.png](https://i.loli.net/2021/11/15/Cj3rslD2vZRewuW.png)
 例子：
 GET /16-2 HTTP/1.1
@@ -700,20 +628,128 @@ Content-Type: multipart/byteranges; boundary=00000000001
 Content-Length: 189
 Connection: keep-alive
 Accept-Ranges: bytes
-
-
-
+ 
+ 
 --00000000001
 Content-Type: text/plain
 Content-Range: bytes 0-9/96
-
+ 
 // this is
 --00000000001
 Content-Type: text/plain
 Content-Range: bytes 20-29/96
-
+ 
 ext json d
 --00000000001--
+
+## 018： HTTP的重定向和跳转
+
+### 大致流程
+
+浏览器收到 301/302 报文，会检查响应头里有没有 Location 。如果有，就从字段值里提取出 URI，发出新的 HTTP 请求，相当于自动替我们点击了这个链接。
+
+在 Location 里的 URI 既可以使用 绝对 URI，也可以使用 相对 URI ：
+
+### 重定向状态码
+
+301 俗称 永久重定向（Moved Permanently）
+意思是原 URI 已经「永久」性地不存在了，今后的所有请求都必须改用新的 URI。
+浏览器看到 301，就知道原来的 URI「过时」了，就会做适当的优化。比如历史记录、更新书签，下次可能就会直接用新的 URI 访问，省去了再次跳转的成本。搜索引擎的爬虫看到 301，也会更新索引库，不再使用老的 URI。
+302 俗称 临时重定向（Moved Temporarily），意思是原 URI 处于 临时维护 状态，新的 URI 是起顶包作用的临时工。
+浏览器或者爬虫看到 302，会认为原来的 URI 仍然有效，但暂时不可用，所以只会执行简单的跳转页面，不记录新的 URI，也不会有其他的多余动作，下次访问还是用原 URI。
+301/302 是最常用的重定向状态码，在 3×× 里剩下的几个还有：
+
+303 See Other：类似 302，但要求重定向后的请求改为 GET 方法，访问一个结果页面，避免 POST/PUT 重复操作；
+307 Temporary Redirect：类似 302，但重定向后请求里的方法和实体不允许变动，含义比 302 更明确；
+308 Permanent Redirect：类似 307，不允许重定向后的请求变动，但它是 301 永久重定向的含义。
+
+### 重定向的相关问题
+
+性能损耗
+大量的跳转对服务器的影响也是不可忽视的。站内重定向还好说，可以长连接复用，站外重定向就要开两个连接，如果网络连接质量差，那成本可就高多了，会严重影响用户的体验。
+循环跳转
+如果重定向的策略设置欠考虑，可能会出现 A=>B=>C=>A 的无限循环，不停地在这个链路里转圈圈，后果可想而知。
+所以 HTTP 协议特别规定，浏览器必须具有检测 循环跳转 的能力，在发现这种情况时应当停止发送请求并给出错误提示。
+
+## 019： HTTP  缓存控制
+
+通过cache-control中相关字段控制
+注意：
+请求 - 应答的双方都可以用这个字段进行缓存控制，互相协商缓存的使用策略
+，源服务器在设置完 Cache-Control 后必须要为报文加上 Last-modified 或 ETag 字段
+```sh
+private, max-age=5
+public, max-age=5, s-maxage=10
+max-age=30, proxy-revalidate, no-transform
+```
+流程：
+浏览器发现缓存无数据，于是发送请求，向服务器获取资源；
+服务器响应请求，返回资源，同时标记资源的有效期；
+浏览器缓存资源，等待下次重用。
+
+### 
+
+- 源服务器的缓存控制
+
+	- 是否缓存
+
+	  no_store ：不允许缓存 ，用于某些变化非常频繁的数据，例如秒杀页面；
+	  no_cache ：它的字面含义容易与 no_store 搞混，实际的意思并不是不允许缓存，而是 可以缓存,但在使用之前必须要去服务器验证是否过期，是否有最新的版本；
+
+	- 私有缓存和公共缓存
+
+	  public
+	  	可以在代理中缓存，默认public
+	  private
+	  	只能在私有缓存中被缓存，适用于用户信息敏感的资源,一般存储在用户浏览器中。
+
+	- 缓存过期
+
+	  must-revalidate的意思是客户端缓存过期就去源服务器获取，而proxy-revalidate则表示代理服务器的缓存过期后到源服务器获取。
+	  immutable 表示响应正文不会随时间而改变。资源（如果未过期）在服务器上不发生改变，因此客户端不应发送重新验证请求头（例如If-None-Match或If-Modified-Since）来检查更新，
+
+	- s-maxage
+
+	  s是share的意思，限定了缓存在代理服务器中可以存放多久，和限制客户端缓存时间的max-age并不冲突。
+
+- 客户端的缓存控制
+
+  点 「刷新」按钮的时候，浏览器会在请求头里加一个 Cache-Control: max-age=0
+
+	- max-stale 和 min-fresh
+
+	  在客户端的请求头中，可以加入这两个字段，来对代理服务器上的缓存进行宽容和限制操作
+
+	- only-if-cached
+
+	  表示客户端只会接受代理缓存，而不会接受源服务器的响应。如果代理缓存无效，则直接返回504（Gateway Timeout）
+
+	- no-transform
+
+	  不得对资源进行转换或转变。Content-Encoding、Content-Range、Content-Type等HTTP头不能由代理修改。例如，非透明代理或者如Google's Light Mode可能对图像格式进行转换，以便节省缓存空间或者减少缓慢链路上的流量。no-transform指令不允许这样做。
+
+	- 条件请求
+
+	  条件请求一共有 5 个头字段：
+	  
+	  if-Modified-Since：和 Last-modified 比较
+	  和 Last-modified 对比，是否已经修改了
+	  If-None-Match ：和 ETag 比较
+	  和 ETag 比较是否不匹配
+	  If-Unmodified-Since
+	  和 Last-modified 对比，是否已未修改
+	  If-Match
+	  和 ETag 比较是否匹配
+	  If-Range
+	  我们最常用的是 if-Modified-Since 和 If-None-Match 这两个。需要第一次的响应报文预先提供 Last-modified 和 ETag ，然后第二次请求时就可以带上缓存里的原值，验证资源是否是最新的。
+	  如果资源没有变，服务器就回应一个 304 Not Modified ，表示缓存依然有效，浏览器就可以更新一下有效期，然后放心大胆地使用缓存了。
+	  
+	  
+	  PS: 
+	  ETag 是 实体标签（Entity Tag） 的缩写，是资源的一个唯一标识 ，主要是用来解决修改时间无法准确区分文件变化的问题。
+	  强 ETag 要求资源在字节级别必须完全相符 ，弱 ETag 在值前有个 W/ 标记 ，只要求资源在语义上没有变化，但内部可能会有部分发生了改变（例如 HTML 里的标签顺序调整，或者多了几个空格）。
+
+- catch和cookie的异同
 
 ## ：注意
 
@@ -728,6 +764,4 @@ IOS 12 的 Safari 以及老版本的一些 Chrome 会把 SameSite=none 识别成
 ## todo: UA检测？
 
 ## todo:  在httponly为false 的情况下获取cookie
-
-## 自由主题
 
