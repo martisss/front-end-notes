@@ -421,8 +421,6 @@ public:
 
 **前缀是指不包含最后一个字符的所有以第一个字符开头的连续子串**；**后缀是指不包含第一个字符的所有以最后一个字符结尾的连续子串**。
 
-![KMP精讲2](https://camo.githubusercontent.com/f5aadbb7a3741a53880549d136351d0c6a71348052f0be9f997d6f97e6e07684/68747470733a2f2f636f64652d7468696e6b696e672e63646e2e626365626f732e636f6d2f676966732f4b4d50254537254232254245254538254145254232322e676966)
-
 模式串与前缀表对应位置的数字表示的就是：**下标i之前（包括i）的字符串中，有多大长度的相同前缀后缀。**
 
 next数组就可以是前缀表，但是很多实现都是把前缀表统一减一（右移一位，初始位置为-1）之后作为next数组。
@@ -492,6 +490,108 @@ let strStr = function(haystack, needle) {
     }
   }
   return -1
+}
+```
+
+# 回溯法
+
+回溯的本质是穷举
+
+**组合是不强调元素顺序的，排列是强调元素顺序**。
+
+所有回溯法的问题都可以抽象为树形结构！
+
+## 回溯三部曲
+
+- 回溯函数模板返回值以及参数
+
+  返回值一般为void
+
+- 回溯函数终止条件
+
+  搜索到叶子节点，存储答案，结束本层递归
+
+  ```
+  if (终止条件) {
+      存放结果;
+      return;
+  }
+  ```
+
+- 回溯搜索的遍历过程
+
+  回溯是在结合中递归搜索，因此集合的大小构成了树的宽度，递归的深度决定了树的深度
+
+伪代码：
+
+```
+for (选择：本层集合中元素（树中节点孩子的数量就是集合的大小）) {
+    处理节点;
+    backtracking(路径，选择列表); // 递归
+    回溯，撤销处理结果
+}
+```
+
+**for循环横向遍历，backtracking纵向遍历（递归）**
+
+- 回溯模板
+
+```
+void backtracking(参数) {
+    if (终止条件) {
+        存放结果;
+        return;
+    }
+
+    for (选择：本层集合中元素（树中节点孩子的数量就是集合的大小）) {
+        处理节点;
+        backtracking(路径，选择列表); // 递归
+        回溯，撤销处理结果
+    }
+}
+```
+
+## 组合问题
+
+#### [77. 组合](https://leetcode-cn.com/problems/combinations/)
+
+```ts
+function combine(n: number, k: number): number[][] {
+    let res = []
+    let path = []
+    const backtracking = (startIndex: number): number[][] => {
+        if(path.length === k) {
+            res.push([...path])
+            return
+        }
+        for(let i=startIndex; i<=n; i++) {
+            path.push(i)
+            backtracking(i+1)
+            path.pop()
+        }
+        return res
+    }
+    return backtracking(1)
+};
+
+
+// 剪枝
+function combine(n: number, k: number): number[][] {
+    let res = []
+    let path = []
+    const backtracking = (startIndex: number): number[][] => {
+        if(path.length === k) {
+            res.push([...path])
+            return
+        }
+        for(let i = startIndex; i <= n; i++) {
+            path.push(i)
+            backtracking(i+1)
+            path.pop()
+        }
+    }
+    backtracking(1)
+    return res
 }
 ```
 
