@@ -924,7 +924,6 @@ const check = (s: string, startIndex: number, endIndex: number): boolean => {
         // let c = s.slice(startIndex, endIndex)
         // let temp = c
         // return c === temp.split('').reverse().join('')
-        let c = s.slice(startIndex, endIndex)
         for(let i = startIndex, j=endIndex -1; i < j; i++,j--) {
             if(s[i] !== s[j]) return false
         }
