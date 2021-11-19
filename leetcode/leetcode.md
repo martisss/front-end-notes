@@ -715,3 +715,220 @@ function letterCombinations(digits: string): string[] {
 };
 ```
 
+#### [39. 组合总和](https://leetcode-cn.com/problems/combination-sum/)
+
+给定一个无重复元素的正整数数组 candidates 和一个正整数 target ，找出 candidates 中所有可以使数字和为目标数 target 的唯一组合。
+
+candidates 中的数字可以无限制重复被选取。如果至少一个所选数字数量不同，则两种组合是唯一的。 
+
+对于给定的输入，保证和为 target 的唯一组合数少于 150 个。
+
+ 
+
+示例 1：
+
+输入: candidates = [2,3,6,7], target = 7
+输出: [[7],[2,2,3]]
+示例 2：
+
+输入: candidates = [2,3,5], target = 8
+输出: [[2,2,2,2],[2,3,3],[3,5]]
+示例 3：
+
+输入: candidates = [2], target = 1
+输出: []
+示例 4：
+
+输入: candidates = [1], target = 1
+输出: [[1]]
+示例 5：
+
+输入: candidates = [1], target = 2
+输出: [[1,1]]
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/combination-sum
+
+```js
+var combinationSum = function(candidates, target) {
+    let res = []
+    let path = []
+    const backtrack = (sum, startIndex) => {
+        //终止条件
+        if(sum < 0) return
+        if(sum === 0) {
+            res.push([...path])
+            return
+        }
+        for(let i = startIndex; i < candidates.length; i++) {
+            path.push(candidates[i])
+            backtrack(sum-candidates[i], i)  // i 表示下一层可以重复选取，此外，这一步也隐藏了回溯
+            path.pop() //回溯，
+        }
+    }
+    backtrack(target, 0)
+    return res
+};
+```
+
+剪枝：
+
+```js
+var combinationSum = function(candidates, target) {
+    let res = []
+    let path = []
+    // 排序 剪枝
+    candidates.sort((a,b) => a -b)
+    const backtrack = (sum, startIndex) => {
+        //终止条件
+        if(sum === 0) {
+            res.push([...path])
+            return
+        }
+        for(let i = startIndex; i < candidates.length && sum - candidates[i] >= 0; i++) {
+            path.push(candidates[i])
+            backtrack(sum-candidates[i], i)  // i 表示下一层可以重复选取，此外，这一步也隐藏了回溯
+            path.pop() //回溯，
+        }
+    }
+    backtrack(target, 0)
+    return res
+};
+```
+
+
+
+#### [40. 组合总和 II](https://leetcode-cn.com/problems/combination-sum-ii/)
+
+给定一个数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。
+
+candidates 中的每个数字在每个组合中只能使用一次。
+
+注意：解集不能包含重复的组合。 
+
+ 
+
+示例 1:
+
+输入: candidates = [10,1,2,7,6,1,5], target = 8,
+输出:
+[
+[1,1,6],
+[1,2,5],
+[1,7],
+[2,6]
+]
+示例 2:
+
+输入: candidates = [2,5,2,1,2], target = 5,
+输出:
+[
+[1,2,2],
+[5]
+]
+
+
+提示:
+
+1 <= candidates.length <= 100
+1 <= candidates[i] <= 50
+1 <= target <= 30
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/combination-sum-ii
+
+```js
+var combinationSum2 = function(candidates, target) {
+    let source = candidates.sort((a, b) => a - b)
+    let res = []
+    let path = []
+    const backtrack = (startIndex, sum) => {
+        if(sum === 0) {
+            res.push([...path])
+            return
+        }
+        for(let i = startIndex; i < source.length && sum - candidates[i] >= 0; i++) { //剪枝，小于0的话就没必要再进入下一层递归
+            if(i > startIndex && source[i] === source[i-1]) continue //同一层不选择重复的元素
+            pre = source[i]
+            path.push(source[i])
+            backtrack(i+1, sum - source[i]) // i+1代表不选择上一层已经选择过的【同一个】元素，表现为【candidates 中的每个数字在每个组合中只能使用一次】，但还是可以选择数值上重复，但未在本层使用过的【重复元素】，表现为每个path中可以有重复元素
+            path.pop()
+        }
+    }
+    backtrack(0, target)
+    return res
+};
+```
+
+
+
+
+
+而在[77.组合](https://programmercarl.com/0077.组合.html)和[216.组合总和III](https://programmercarl.com/0216.组合总和III.html) 中都可以知道要递归K层，因为要取k个元素的组合。
+
+我举过例子，如果是一个集合来求组合的话，就需要startIndex，例如：[77.组合](https://programmercarl.com/0077.组合.html)，[216.组合总和III](https://programmercarl.com/0216.组合总和III.html)。
+
+如果是多个集合取组合，各个集合之间相互不影响，那么就不用startIndex，例如：[17.电话号码的字母组合](https://programmercarl.com/0017.电话号码的字母组合.html)
+
+## 分割问题
+
+#### [131. 分割回文串](https://leetcode-cn.com/problems/palindrome-partitioning/)
+
+给你一个字符串 s，请你将 s 分割成一些子串，使每个子串都是 回文串 。返回 s 所有可能的分割方案。
+
+回文串 是正着读和反着读都一样的字符串。
+
+ 
+
+示例 1：
+
+输入：s = "aab"
+输出：[["a","a","b"],["aa","b"]]
+示例 2：
+
+输入：s = "a"
+输出：[["a"]]
+
+
+提示：
+
+1 <= s.length <= 16
+s 仅由小写英文字母组成
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/palindrome-partitioning
+
+```ts
+function partition(s: string): string[][] {
+    let res: string[][] = []
+    let path: string[] = []
+    const backtrack = (startIndex: number): void => {
+        // if(path.join('').length === s.length) {
+        if(startIndex >= s.length) {
+            res.push([...path])
+            return
+        }
+        for(let i = startIndex; i < s.length; i++) {
+            if(check(s, startIndex, i+1)) {
+                path.push(s.slice(startIndex,i+1))
+            } else continue
+            backtrack(i + 1)
+            path.pop()
+        }
+    }
+    backtrack(0)
+    return res
+};
+
+const check = (s: string, startIndex: number, endIndex: number): boolean => {
+        // let c = s.slice(startIndex, endIndex)
+        // let temp = c
+        // return c === temp.split('').reverse().join('')
+        let c = s.slice(startIndex, endIndex)
+        for(let i = startIndex, j=endIndex -1; i < j; i++,j--) {
+            if(s[i] !== s[j]) return false
+        }
+        return true
+    }
+```
+
