@@ -798,7 +798,7 @@ var combinationSum = function(candidates, target) {
 
 
 
-#### [40. 组合总和 II](https://leetcode-cn.com/problems/combination-sum-ii/)
+#### [40. 组合总和 II](https://leetcode-cn.com/problems/combination-sum-ii/)<a name = '40'></a>
 
 给定一个数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。
 
@@ -864,39 +864,35 @@ var combinationSum2 = function(candidates, target) {
 
 
 
-而在[77.组合](https://programmercarl.com/0077.组合.html)和[216.组合总和III](https://programmercarl.com/0216.组合总和III.html) 中都可以知道要递归K层，因为要取k个元素的组合。
 
-我举过例子，如果是一个集合来求组合的话，就需要startIndex，例如：[77.组合](https://programmercarl.com/0077.组合.html)，[216.组合总和III](https://programmercarl.com/0216.组合总和III.html)。
-
-如果是多个集合取组合，各个集合之间相互不影响，那么就不用startIndex，例如：[17.电话号码的字母组合](https://programmercarl.com/0017.电话号码的字母组合.html)
 
 ## 分割问题
 
 #### [131. 分割回文串](https://leetcode-cn.com/problems/palindrome-partitioning/)
 
-给你一个字符串 s，请你将 s 分割成一些子串，使每个子串都是 回文串 。返回 s 所有可能的分割方案。
-
-回文串 是正着读和反着读都一样的字符串。
-
- 
-
-示例 1：
-
-输入：s = "aab"
-输出：[["a","a","b"],["aa","b"]]
-示例 2：
-
-输入：s = "a"
-输出：[["a"]]
-
-
-提示：
-
-1 <= s.length <= 16
-s 仅由小写英文字母组成
-
-来源：力扣（LeetCode）
-链接：https://leetcode-cn.com/problems/palindrome-partitioning
+> 给你一个字符串 s，请你将 s 分割成一些子串，使每个子串都是 回文串 。返回 s 所有可能的分割方案。
+>
+> 回文串 是正着读和反着读都一样的字符串。
+>
+>  
+>
+> 示例 1：
+>
+> 输入：s = "aab"
+> 输出：[["a","a","b"],["aa","b"]]
+> 示例 2：
+>
+> 输入：s = "a"
+> 输出：[["a"]]
+>
+>
+> 提示：
+>
+> 1 <= s.length <= 16
+> s 仅由小写英文字母组成
+>
+> 来源：力扣（LeetCode）
+> 链接：https://leetcode-cn.com/problems/palindrome-partitioning
 
 ```ts
 function partition(s: string): string[][] {
@@ -931,3 +927,259 @@ const check = (s: string, startIndex: number, endIndex: number): boolean => {
     }
 ```
 
+#### [93. 复原 IP 地址](https://leetcode-cn.com/problems/restore-ip-addresses/)
+
+> 有效 IP 地址 正好由四个整数（每个整数位于 0 到 255 之间组成，且不能含有前导 0），整数之间用 '.' 分隔。
+>
+> 例如："0.1.2.201" 和 "192.168.1.1" 是 有效 IP 地址，但是 "0.011.255.245"、"192.168.1.312" 和 "192.168@1.1" 是 无效 IP 地址。
+> 给定一个只包含数字的字符串 s ，用以表示一个 IP 地址，返回所有可能的有效 IP 地址，这些地址可以通过在 s 中插入 '.' 来形成。你不能重新排序或删除 s 中的任何数字。你可以按 任何 顺序返回答案。
+>
+>  
+>
+> 示例 1：
+>
+> 输入：s = "25525511135"
+> 输出：["255.255.11.135","255.255.111.35"]
+> 示例 2：
+>
+> 输入：s = "0000"
+> 输出：["0.0.0.0"]
+> 示例 3：
+>
+> 输入：s = "1111"
+> 输出：["1.1.1.1"]
+> 示例 4：
+>
+> 输入：s = "010010"
+> 输出：["0.10.0.10","0.100.1.0"]
+> 示例 5：
+>
+> 输入：s = "101023"
+> 输出：["1.0.10.23","1.0.102.3","10.1.0.23","10.10.2.3","101.0.2.3"]
+>
+>
+> 提示：
+>
+> 0 <= s.length <= 20
+> s 仅由数字组成
+>
+> 来源：力扣（LeetCode）
+> 链接：https://leetcode-cn.com/problems/restore-ip-addresses
+
+```ts
+function restoreIpAddresses(s: string): string[] {
+    let res: string[] = []
+    let path: string[] = []
+    const backtrack = (startIndex: number): void => {
+        const len = path.length;
+        // 注意终止条件，光有startIndex === s.length并不能确定终止
+        if(len > 4) return;
+        if(len === 4 && startIndex === s.length) {
+            res.push(path.join("."));
+            return;
+        }
+        for(let i = startIndex; i < s.length; i++) {
+            if(check(s, startIndex, i+1)) {
+                path.push(s.slice(startIndex, i+1))
+            } else continue
+            backtrack(i+1)
+            path.pop()
+        }
+    }
+    backtrack(0)
+    return res
+};
+
+const check = (s: string, startIndex: number, endIndex: number): boolean => {
+    let temp = s.slice(startIndex, endIndex)
+    // let num = parseInt(temp)
+    // if(num.toString() === temp && num <= 255 && num >= 0) return true
+    // return false
+    if(temp.length > 3 || +temp > 255) return false
+    if(temp.length > 1 && temp[0] === '0') return false
+    return true
+}
+```
+
+## 求子集问题
+
+#### [78. 子集](https://leetcode-cn.com/problems/subsets/)
+
+> 给你一个整数数组 nums ，数组中的元素 互不相同 。返回该数组所有可能的子集（幂集）。
+>
+> 解集 不能 包含重复的子集。你可以按 任意顺序 返回解集。
+>
+>  
+>
+> 示例 1：
+>
+> 输入：nums = [1,2,3]
+> 输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+> 示例 2：
+>
+> 输入：nums = [0]
+> 输出：[[],[0]]
+>
+>
+> 提示：
+>
+> 1 <= nums.length <= 10
+> -10 <= nums[i] <= 10
+> nums 中的所有元素 互不相同
+>
+> 来源：力扣（LeetCode）
+> 链接：https://leetcode-cn.com/problems/subsets
+>
+> 
+>
+> **注意：子集问题需要收集路径上的所有节点**
+>
+> ```ts
+> function subsets(nums: number[]): number[][] {
+>     let res: number[][] = []
+>     let path: number[] = []
+>     const backtrack = (startIndex: number): void => {
+>         res.push([...path])
+>         // 收集子集，要放在终止添加的上面，否则会漏掉自己
+>         // 终止条件可不加
+>         // if(startIndex >= nums.length) {
+>         //     return
+>         // }
+>         for(let i = startIndex; i < nums.length; i++) {
+>             path.push(nums[i])
+>             backtrack(i+1)
+>             path.pop()
+>         }
+>     }
+>     backtrack(0)
+>     return res
+> };
+> ```
+>
+> 示例 1：
+>
+> 输入：nums = [1,2,2]
+> 输出：[[],[1],[1,2],[1,2,2],[2],[2,2]]
+> 示例 2：
+>
+> 输入：nums = [0]
+> 输出：[[],[0]]
+>
+>
+> 提示：
+>
+> 1 <= nums.length <= 10
+> -10 <= nums[i] <= 10
+>
+> 来源：力扣（LeetCode）
+> 链接：https://leetcode-cn.com/problems/subsets-ii
+
+```js
+function subsetsWithDup(nums: number[]): number[][] {
+    // 给定数组中有重复元素，而解集中不能有重复子集，但子集中允许有重复元素，这说明同一层中元素不能重复，纵向递归的过程中不能重复选取【同一】元素，也就是backtrack(i+1), 但选取的元素的【值】允许一样。
+    // 将原数组做原位排序
+    nums.sort((a, b) => a-b)
+    let res: number[][] = []
+    let path: number[] = []
+    const backtrack = (startIndex: number): void => {
+        res.push([...path])
+        for(let i = startIndex; i < nums.length; i++) {
+            if(i !== startIndex && nums[i] === nums[i-1]) continue
+            path.push(nums[i])
+            backtrack(i+1)
+            path.pop()
+        }
+    }
+    backtrack(0)
+    return res
+};
+```
+
+
+
+#### [90. 子集 II](https://leetcode-cn.com/problems/subsets-ii/)
+
+给你一个整数数组 nums ，其中可能包含重复元素，请你返回该数组所有可能的子集（幂集）。
+
+解集 不能 包含重复的子集。返回的解集中，子集可以按 任意顺序 排列。
+
+> 示例 1：
+>
+> 输入：nums = [1,2,2]
+> 输出：[[],[1],[1,2],[1,2,2],[2],[2,2]]
+> 示例 2：
+>
+> 输入：nums = [0]
+> 输出：[[],[0]]
+>
+>
+> 提示：
+>
+> 1 <= nums.length <= 10
+> -10 <= nums[i] <= 10
+>
+> 来源：力扣（LeetCode）
+> 链接：https://leetcode-cn.com/problems/subsets-ii
+
+#### [491. 递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/)
+
+给你一个整数数组 nums ，找出并返回所有该数组中不同的递增子序列，递增子序列中 至少有两个元素 。你可以按 任意顺序 返回答案。
+
+数组中可能含有重复元素，如出现两个整数相等，也可以视作递增序列的一种特殊情况。
+
+> 示例 1：
+>
+> 输入：nums = [4,6,7,7]
+> 输出：[[4,6],[4,6,7],[4,6,7,7],[4,7],[4,7,7],[6,7],[6,7,7],[7,7]]
+> 示例 2：
+>
+> 输入：nums = [4,4,3,2,1]
+> 输出：[[4,4]]
+>
+>
+> 提示：
+>
+> 1 <= nums.length <= 15
+> -100 <= nums[i] <= 100
+> 通过次数50,425提交次数92,827
+>
+> 来源：力扣（LeetCode）
+> 链接：https://leetcode-cn.com/problems/increasing-subsequences
+
+```ts
+function findSubsequences(nums: number[]): number[][] {
+    let res: number[][] = []
+    let path: number[] = []
+    const backtrack = (startIndex: number): void => {
+        if(path.length >= 2) res.push([...path])
+        //不能对原数组本身进行排序，同时又要保证res中不能有重复元素
+        //因此使用set来记录本层中已经使用过的元素，进行去重
+        let set = new Set()
+        for(let i = startIndex; i < nums.length; i++) {
+            // 保证是递增序列，同时保证同一层没有使用相同数值的元素，即去重
+            if(path.length && path[path.length - 1] > nums[i] || set.has(nums[i])) continue
+            set.add(nums[i])
+            // 回溯
+            path.push(nums[i])
+            backtrack(i+1)
+            path.pop()
+        }
+    }
+    backtrack(0)
+    return res
+};
+```
+
+
+
+在[回溯算法：求子集问题！](https://programmercarl.com/0078.子集.html)的基础上原数组增加了重复元素，也就是相比上一问题增加了去重的操作，如何去重在[组合总和II](#40)，去重可以使用set或者数组进行记录，如果可以对原数组进行排序，也可以排序后直接比较前后值大小以去重。
+
+而在[77.组合](https://programmercarl.com/0077.组合.html)和[216.组合总和III](https://programmercarl.com/0216.组合总和III.html) 中都可以知道要递归K层，因为要取k个元素的组合。
+
+我举过例子，如果是一个集合来求组合的话，就需要startIndex，例如：[77.组合](https://programmercarl.com/0077.组合.html)，[216.组合总和III](https://programmercarl.com/0216.组合总和III.html)。
+
+如果是多个集合取组合，各个集合之间相互不影响，那么就不用startIndex，例如：[17.电话号码的字母组合](https://programmercarl.com/0017.电话号码的字母组合.html)
+
+
+
+子集问题和组合问题、分割问题的的区别，**子集是收集树形结构中树的所有节点的结果**。**而组合问题、分割问题是收集树形结构中叶子节点的结果**。
