@@ -1121,6 +1121,71 @@ function subsetsWithDup(nums: number[]): number[][] {
 > 来源：力扣（LeetCode）
 > 链接：https://leetcode-cn.com/problems/subsets-ii
 
+```ts
+function subsetsWithDup(nums: number[]): number[][] {
+    // 给定数组中有重复元素，而解集中不能有重复子集，但子集中允许有重复元素，这说明同一层中元素不能重复，纵向递归的过程中不能重复选取【同一】元素，也就是backtrack(i+1), 但选取的元素的【值】允许一样。
+    // 将原数组做原位排序
+    nums.sort((a, b) => a-b)
+    let res: number[][] = []
+    let path: number[] = []
+    const backtrack = (startIndex: number): void => {
+        res.push([...path])
+        for(let i = startIndex; i < nums.length; i++) {
+            // 因为递归的时候下一个startIndex是i+1而不是0。
+            // 如果要是全排列的话，每次要从0开始遍历，为了跳过已入栈的元素，需要使用used。
+            if(i !== startIndex && nums[i] === nums[i-1]) continue
+            path.push(nums[i])
+            backtrack(i+1)
+            path.pop()
+        }
+    }
+    backtrack(0)
+    return res
+};
+
+// set去重
+function subsetsWithDup(nums: number[]): number[][] {
+    nums.sort((a, b) => a -b)
+    let res: number[][] = []
+    let path: number[] = []
+    const backtrack = (startIndex: number): void => {
+        res.push([...path])
+        let set = new Set()
+        for(let i = startIndex; i < nums.length; i++) {
+            if(set.has(nums[i])) continue
+            set.add(nums[i])
+            path.push(nums[i])
+            backtrack(i+1)
+            path.pop()
+        }
+    }
+    backtrack(0)
+    return res
+}
+
+// used 数组记录
+function subsetsWithDup(nums: number[]): number[][] {
+    nums.sort((a, b) => a -b)
+    let res: number[][] = []
+    let path: number[] = []
+    const backtrack = (startIndex: number, used: boolean[]): void => {
+        res.push([...path])
+        for(let i = startIndex; i < nums.length; i++) {
+            if(i > 0 && nums[i] === nums[i-1] && !used[i-1]) continue
+            used[i] = true
+            path.push(nums[i])
+            backtrack(i+1, used)
+            path.pop()
+            used[i] = false
+        }
+    }
+    backtrack(0, [])
+    return res
+}
+```
+
+ps: 本题没有使用used数组来去重，因为递归的时候下一个startIndex是i+1而不是0。
+
 #### [491. 递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/)
 
 给你一个整数数组 nums ，找出并返回所有该数组中不同的递增子序列，递增子序列中 至少有两个元素 。你可以按 任意顺序 返回答案。
@@ -1169,6 +1234,161 @@ function findSubsequences(nums: number[]): number[][] {
     return res
 };
 ```
+
+## 排列问题
+
+- 每层都是从0开始搜索而不是startIndex
+- 需要used数组记录path里都放了哪些元素了
+
+#### [46. 全排列](https://leetcode-cn.com/problems/permutations/)
+
+给定一个不含重复数字的数组 nums ，返回其 所有可能的全排列 。你可以 按任意顺序 返回答案。
+
+ 
+
+示例 1：
+
+输入：nums = [1,2,3]
+输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+示例 2：
+
+输入：nums = [0,1]
+输出：[[0,1],[1,0]]
+示例 3：
+
+输入：nums = [1]
+输出：[[1]]
+
+
+提示：
+
+1 <= nums.length <= 6
+-10 <= nums[i] <= 10
+nums 中的所有整数 互不相同
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/permutations
+
+```ts
+function permute(nums: number[]): number[][] {
+    let res: number[][] = []
+    let path: number[] = []
+    // 记录数组中哪些元素已经使用过了，一个排列中不能重复
+    let used: number[] = new Array(nums.length).fill(0)
+    const backtrack = (used: number[]): void => {
+        // 终止条件
+        if(path.length === nums.length) {
+            res.push(path.slice())
+            return
+        }
+        // 每次都从头开始搜索， [1, 3], [3, 1]
+        for(let i = 0; i < nums.length; i++) {
+            // 
+            if(used[i]) continue
+            used[i] = 1
+            path.push(nums[i])
+            backtrack(used)
+            path.pop()
+            used[i] = 0
+        }
+    }
+    backtrack(used)
+    return res
+};
+```
+
+
+
+#### [47. 全排列 II](https://leetcode-cn.com/problems/permutations-ii/)
+
+给定一个可包含重复数字的序列 nums ，按任意顺序 返回所有不重复的全排列。
+
+ 
+
+示例 1：
+
+输入：nums = [1,1,2]
+输出：
+[[1,1,2],
+ [1,2,1],
+ [2,1,1]]
+示例 2：
+
+输入：nums = [1,2,3]
+输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+
+
+提示：
+
+1 <= nums.length <= 8
+-10 <= nums[i] <= 10
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/permutations-ii
+
+```ts
+function permuteUnique(nums: number[]): number[][] {
+    nums.sort((a, b) => a - b)
+    let res: number[][] = []
+    let path: number[] = []
+    const backtrack = (used: boolean[]):void => {
+        if(path.length === nums.length) {
+            res.push(path.slice())
+            return
+        }
+        // 去重的前提是对原数组进行排序，这样方便通过相邻元素的比较进行去重
+        for(let i = 0; i < nums.length; i++) {
+            // i>0 : 第一个元素肯定不会重的
+            // 当 nums[i] === nums[i-1] 为true 时，说明该层相邻的两个元素重复了，但是否属于在同一层重复选取呢？
+            // used[i-1] 为false时，因为元素是从左到右选取的说明该值已经在nums[i-1]处选取过了，再选就重复了
+            // 如果为true, 说明虽然值相同，但 i-1 处的元素是上一层选取的，本层可以选取 nums[i]
+            if(i > 0 && nums[i] === nums[i-1] && !used[i-1]) continue
+            if(!used[i]) {
+                used[i] = true
+                path.push(nums[i])
+                backtrack(used)
+                path.pop()
+                used[i] = false
+            }
+        }
+    }
+    backtrack([])
+    return res
+};
+
+
+
+//setj
+function permuteUnique(nums: number[]): number[][] {
+    nums.sort((a, b) => a - b)
+    let res: number[][] = []
+    let path: number[] = []
+    const backtrack = (used: boolean[]):void => {
+        if(path.length === nums.length) {
+            res.push(path.slice())
+            return
+        }
+        let set = new Set()
+        for(let i = 0; i < nums.length; i++) {
+            if(set.has(nums[i])) continue
+            if(!used[i]) {
+                set.add(nums[i])
+                used[i] = true
+                path.push(nums[i])
+                backtrack(used)
+                path.pop()
+                used[i] = false
+            }
+        }
+    }
+    backtrack([])
+    return res
+};
+```
+
+
+
+
 
 
 
