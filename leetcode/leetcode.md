@@ -1403,3 +1403,133 @@ function permuteUnique(nums: number[]): number[][] {
 
 
 子集问题和组合问题、分割问题的的区别，**子集是收集树形结构中树的所有节点的结果**。**而组合问题、分割问题是收集树形结构中叶子节点的结果**。
+
+## 棋盘问题
+
+#### [51. N 皇后](https://leetcode-cn.com/problems/n-queens/)
+
+n 皇后问题 研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+
+给你一个整数 n ，返回所有不同的 n 皇后问题 的解决方案。
+
+每一种解法包含一个不同的 n 皇后问题 的棋子放置方案，该方案中 'Q' 和 '.' 分别代表了皇后和空位。
+
+ 
+
+示例 1：
+
+![image-20211122193920343](D:\NOTES\leetcode\leetcode.assets\image-20211122193920343.png)
+
+输入：n = 4
+输出：[[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]
+解释：如上图所示，4 皇后问题存在两个不同的解法。
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/n-queens
+著作权归领扣网络所有。商业转载请联系官方授权，
+
+```ts
+function solveNQueens(n: number): string[][] {
+    const isValid = (row: number, col:number, board: string[][]): boolean => {
+        // 同列
+        for(let i=0; i<row; i++) {
+            if(board[i][col] === 'Q') return false
+        }
+        // 45°
+        for(let i=row-1, j=col+1; i>=0 && j<n; i--, j++) {
+            if(board[i][j] === 'Q') return false
+        }
+        // 135°
+        for(let i=row-1, j=col-1; i>=0 && j>=0; i--, j--) {
+            if(board[i][j] === 'Q') return false
+        }
+        return true
+    }
+
+    const transform = (arr: string[][]): string[] => {
+        return arr.map(item => item.join(''))
+    }
+
+    const backtrack = (row: number, board: string[][], n: number): boolean => {
+        if(row === n) {
+            res.push([...transform(board)])
+            return
+        }
+        for(let col = 0; col < n; col++){
+            if(isValid(row, col, board)) {
+                board[row][col] = 'Q'
+                backtrack(row+1, board, n)
+                board[row][col] = '.'
+            }
+        } 
+    }
+
+    let res: string[][] = []
+    let board: string[][] = new Array(n).fill(0).map(()=> new Array(n).fill('.'))
+    backtrack(0, board, n)
+    return res 
+
+};
+```
+
+#### [37. 解数独](https://leetcode-cn.com/problems/sudoku-solver/)
+
+编写一个程序，通过填充空格来解决数独问题。
+
+数独的解法需 遵循如下规则：
+
+数字 1-9 在每一行只能出现一次。
+数字 1-9 在每一列只能出现一次。
+数字 1-9 在每一个以粗实线分隔的 3x3 宫内只能出现一次。（请参考示例图）
+数独部分空格内已填入了数字，空白格用 '.' 表示。
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/sudoku-solver
+
+```ts
+/**
+ Do not return anything, modify board in-place instead.
+ */
+function solveSudoku(board: string[][]): void {
+    const isValid = (row: number, col: number, cur: string, board: string[][]): boolean => {
+        // 同一行不能重复
+        for(let i=0; i < board.length; i++) {
+            if(board[row][i] === cur) return false
+        }
+        // 同一列不能重复
+        for(let i=0; i < board.length; i++) {
+            if(board[i][col] === cur) return false
+        }
+        // 同一个小九宫格内不能重复
+        let rowStart = Math.floor(row/3)*3
+        let colStart = Math.floor(col/3)*3
+        for(let i=rowStart; i<rowStart+3; i++) {
+            for(let j=colStart; j<colStart+3; j++) {
+                if(board[i][j] === cur) return false
+            }
+        }
+        return true
+    }
+    
+    const backtrack = (board: string[][]): boolean => {
+        for(let i=0; i<board.length; i++) {
+            for(let j=0; j<board[0].length; j++) {
+                // 该位为数字，跳过
+                if(board[i][j] !== '.') continue
+                for(let s=1; s<=9; s++) {
+                    if(isValid(i, j, `${s}`, board)) {
+                        board[i][j] = `${s}`
+                        if(backtrack(board)) return true //找到合适的一组，立刻返回
+                        board[i][j] = '.'
+                    }
+                }
+                //如果某一位上1-9都不满足要求，说明不存在这样的解
+                return false
+            }
+        }
+        return true
+    }
+    backtrack(board)
+};
+```
+
