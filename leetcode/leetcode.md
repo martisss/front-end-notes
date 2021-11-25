@@ -1,3 +1,90 @@
+# 链表
+
+## 单链表
+
+> with dummyHead
+
+```js
+class Node {
+  constructor(value, next=null) {
+    this.value = value
+    this.next = next
+  }
+}
+
+class LinkedList {
+  constructor() {
+    this.head = new Node(0)
+    this.length = 0
+  }
+  get(pos) {
+    if(pos<0 || pos>=this.length) return null
+    let cur = this.head
+    while(pos+1 > 0) {
+      cur = cur.next
+      pos--
+    }
+    return cur.value
+  }
+  insert(pos, val) {
+    if(pos<0 || pos> this.length) return null
+    this.length++
+    let cur = this.head
+    while(pos > 0) {
+      cur = cur.next
+      pos--
+    }
+    let newNode = new Node(val)
+    newNode.next = cur.next
+    cur.next = newNode
+  }
+  addHead(val) {
+    this.insert(0, val)
+  }
+  addTail(val) {
+    this.insert(this.length, val)
+  }
+  deleteAtIndex(pos) {
+    if(pos<0 || pos>=this.length) return null
+    let cur = this.head
+    this.length--
+    while(pos > 0) {
+      cur = cur.next
+      pos--
+    }
+    deletedNode = cur.next
+    cur.next = cur.next.next
+    return deletedNode
+  }
+  deleteHead(){
+    this.deleteAtIndex(0)
+  }
+  deleteTail() {
+    this.deleteAtIndex(this.length-1)
+  }
+}
+```
+
+## 技巧
+
+### 反转链表
+
+```js
+const reverse = (list) => {
+  let pre = null
+  let cur = list.head
+  while(cur) {
+    next = cur.next
+    cur.next = pre
+    cur = next
+    pre = cur
+  }
+  return pre
+}
+```
+
+
+
 # 二叉树
 
 ## **:sparkles: 二叉树：递归函数究竟什么时候需要返回值，什么时候不要返回值？:sparkles:**
@@ -495,11 +582,17 @@ let strStr = function(haystack, needle) {
 
 # 回溯法
 
-回溯的本质是穷举
+回溯的本质是穷举，所有回溯法的问题都可以抽象为树形结构！
 
-**组合是不强调元素顺序的，排列是强调元素顺序**。
+**组合是不强调元素顺序的，排列是强调元素顺序**
 
-所有回溯法的问题都可以抽象为树形结构！
+剪枝:for 后续的数可能已经不满足题目要求，因此没有必要全部遍历
+
+如果是一个集合来求组合的话，就需要startIndex，如果是多个集合取组合，各个集合之间相互不影响，那么就不用startIndex
+
+子集问题需要记录所有节点的结果，而组合问题是记录叶子节点的结果。
+
+如果原始数组中有重复元素，要注意进行去重，一般都需要对原数组进行排序，有数组或者set记录已经使用过的元素。
 
 ## 回溯三部曲
 
@@ -1001,6 +1094,64 @@ const check = (s: string, startIndex: number, endIndex: number): boolean => {
 }
 ```
 
+#### [306. 累加数](https://leetcode-cn.com/problems/additive-number/)
+
+累加数是一个字符串，组成它的数字可以形成累加序列。
+
+一个有效的累加序列必须至少包含 3 个数。除了最开始的两个数以外，字符串中的其他数都等于它之前两个数相加的和。
+
+给定一个只包含数字 '0'-'9' 的字符串，编写一个算法来判断给定输入是否是累加数。
+
+说明: 累加序列里的数不会以 0 开头，所以不会出现 1, 2, 03 或者 1, 02, 3 的情况。
+
+示例 1:
+
+输入: "112358"
+输出: true 
+解释: 累加序列为: 1, 1, 2, 3, 5, 8 。1 + 1 = 2, 1 + 2 = 3, 2 + 3 = 5, 3 + 5 = 8
+示例 2:
+
+输入: "199100199"
+输出: true 
+解释: 累加序列为: 1, 99, 100, 199。1 + 99 = 100, 99 + 100 = 199
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/additive-number
+
+
+```js
+var isAdditiveNumber = function(num) {
+    const backtrack = (index, sum, pre, count, n) => {
+        // 字符串已经遍历完，且分割出至少三个数
+        if(index === n) {
+            return count >= 3
+        }
+        for(let i=index; i<n; i++) {
+            // 以0开头的非‘0’字符串,不满足要求，也没有必要继续向后拼接
+            if( i> index && num[index] === '0') break
+            let value = +num.slice(index, i+1)
+            // 如果分割出的数字个数大于2，验证value是否满足累加序列
+            if(count >= 2) {
+                // 小于前两个数之和，继续向后拼接
+                if(value < sum) continue
+                // 停止拼接，因为向后拼接之后越来越大
+                else if(value > sum) break
+            }
+            // 继续向后递归，隐藏着回溯， value+pre, count+1
+            if(backtrack(i+1, value+pre, value, count+1, n)) {
+                return true
+            }
+        }
+        return false
+    }
+    return backtrack(0, 0, 0, 0, num.length)
+}
+```
+
+
+
+
+
 ## 求子集问题
 
 #### [78. 子集](https://leetcode-cn.com/problems/subsets/)
@@ -1184,7 +1335,7 @@ function subsetsWithDup(nums: number[]): number[][] {
 }
 ```
 
-ps: 本题没有使用used数组来去重，因为递归的时候下一个startIndex是i+1而不是0。
+
 
 #### [491. 递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/)
 
@@ -1392,13 +1543,7 @@ function permuteUnique(nums: number[]): number[][] {
 
 
 
-在[回溯算法：求子集问题！](https://programmercarl.com/0078.子集.html)的基础上原数组增加了重复元素，也就是相比上一问题增加了去重的操作，如何去重在[组合总和II](#40)，去重可以使用set或者数组进行记录，如果可以对原数组进行排序，也可以排序后直接比较前后值大小以去重。
 
-而在[77.组合](https://programmercarl.com/0077.组合.html)和[216.组合总和III](https://programmercarl.com/0216.组合总和III.html) 中都可以知道要递归K层，因为要取k个元素的组合。
-
-我举过例子，如果是一个集合来求组合的话，就需要startIndex，例如：[77.组合](https://programmercarl.com/0077.组合.html)，[216.组合总和III](https://programmercarl.com/0216.组合总和III.html)。
-
-如果是多个集合取组合，各个集合之间相互不影响，那么就不用startIndex，例如：[17.电话号码的字母组合](https://programmercarl.com/0017.电话号码的字母组合.html)
 
 
 
@@ -1530,6 +1675,60 @@ function solveSudoku(board: string[][]): void {
         return true
     }
     backtrack(board)
+};
+```
+
+#### [79. 单词搜索](https://leetcode-cn.com/problems/word-search/)
+
+给定一个 m x n 二维字符网格 board 和一个字符串单词 word 。如果 word 存在于网格中，返回 true ；否则，返回 false 。
+
+单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
+
+ 
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/word-search
+
+```js
+/**
+ * @param {character[][]} board
+ * @param {string} word
+ * @return {boolean}
+ */
+var exist = function(board, word) {
+    const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+    // 记录已经找到的字符在单元格中的位置
+    const used = new Array(board.length).fill(0).map(() => new Array(board[0].length).fill(false))
+    // 判断从当前位置开始寻找，是否可以在相邻单元格内找到下一个字符
+    const check = (row, col, s, k) => {
+        if(board[row][col] !== s[k]) return false
+        else if(k === s.length-1) return true
+        let result = false
+        used[row][col] = true
+        for(const [dx, dy] of directions) {
+            let new_row = row + dx
+            let new_col = col + dy
+            // 保证不超出网格位置
+            if(new_row>=0 && new_row < board.length && new_col >= 0 && new_col < board[0].length) {
+                // 确保这个字符没有被使用过
+                if(!used[new_row][new_col]) {
+                    let flag = check(new_row, new_col, s, k+1)
+                    if(flag) {
+                        result = true
+                        break
+                    }
+                }
+            }
+        }
+        used[row][col] = false  // 回溯
+        return result
+    }
+    for(let i = 0; i<board.length; i++) {
+        for(let j = 0; j<board[0].length; j++) {
+            if(check(i, j, word, 0)) return true
+        }
+    }
+    return false
 };
 ```
 
