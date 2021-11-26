@@ -67,6 +67,8 @@ class LinkedList {
 
 ## 技巧
 
+后面三个都使用了双指针的技巧,注意体会.
+
 ### 反转链表
 
 ```js
@@ -80,6 +82,172 @@ const reverse = (list) => {
     pre = cur
   }
   return pre
+}
+```
+
+### 链表的合并
+
+1. 迭代实现
+
+```js
+var mergeTwoLists = function(list1, list2) {
+    let res = new ListNode(0)
+    let cur = res
+   let m = list1
+   let n = list2
+   while(m !== null && n !== null) {
+       if(m.val <= n.val) {
+           cur.next = m
+           m = m.next
+       } else {
+           cur.next = n
+           n = n.next
+       }
+       cur = cur.next
+   }
+   cur.next = m === null ? n : m
+   return res.next
+};
+```
+
+2. 递归实现
+
+```js
+var mergeTwoLists = function(list1, list2) {
+    if(list1 === null) {
+        return list2
+    } else if(list2 === null) {
+        return list1
+    } else if(list1.val <= list2.val) {
+        list1.next = mergeTwoLists(list1.next, list2)
+        return list1
+    } else {
+        list2.next = mergeTwoLists(list1, list2.next)
+        return list2
+    }
+}
+```
+
+### 检测链表中的环
+
+1. 使用哈希表
+
+```js
+var hasCycle = function(head) {
+    let set = new Set()
+    let cur = head
+    while(cur) {
+        if(set.has(cur)) return true
+        set.add(cur)
+        cur = cur.next
+    }
+    return false
+};
+```
+
+2. 使用快慢指针
+
+   快指针走两步，慢指针走一步，如果有环，快指针先进入环中，慢指针一定会被快指针追上；如果没有环，那么快指针就会先一步到达链表末尾。
+
+   ```js
+   var hasCycle = function(head) {
+       if(head == null || head.next == null) return false
+       // 想象有一个虚拟头节点,慢指针从该节点移动一步到head,快指针移动两步到head.next
+       //如果都从head开始,那while就行不下去了,当然也可以使用do-while解决
+       let slow = head
+       let fast = head.next
+       while(slow !== fast) {
+           if(fast == null || fast.next == null) return false
+           slow = slow.next
+           fast = fast.next.next
+       }
+       return true
+   }
+   ```
+
+
+
+### 删除链表的倒数第 N 个结点
+
+1. 使用栈
+
+```js
+var removeNthFromEnd = function(head, n) {
+    // 哨兵节点，不用单独处理头节点
+    let dummy = new ListNode(-1, head)
+    let arr = []
+    let cur = dummy
+    while(cur) {
+        arr.push(cur)
+        cur = cur.next
+    }
+    for(let i=0; i<n; i++) {
+        arr.pop()
+    }
+    // 得到待删除节点的前驱节点
+    let pre = arr.pop()
+    pre.next = pre.next.next
+    return dummy.next
+};
+```
+
+2. 双指针
+
+```js
+var removeNthFromEnd = function(head, n) {
+    // first比second提前n个节点，当first到达最后一个节点时，
+    // second 刚好到达倒数第n个节点，
+    // 那么让second初始值为dummy，first到达最后一个节点时，
+    // second刚好到达待删除节点的前驱节点
+    let dummy = new ListNode(-1, head)
+    let first = head
+    let second = dummy
+    for(let i=0; i<n; i++) {
+        first = first.next
+    }
+    while(first) {
+        first = first.next
+        second = second.next
+    }
+    second.next = second.next.next
+    return dummy.next
+}
+```
+
+### [链表的中间结点](https://leetcode-cn.com/problems/middle-of-the-linked-list/)
+
+1. 单指针  (n, 1)
+
+```js
+var middleNode = function(head) {
+    let cur = head
+    let len = 0
+    while(cur) {
+        len++
+        cur = cur.next
+    }
+    let dummy = new ListNode(-1, head)
+    let num = Math.floor(len/2)
+    let pre=dummy
+    while(num > 0) {
+        num--
+        pre = pre.next
+    }
+    return pre.next
+};
+```
+
+2. 快慢指针
+
+```js
+var middleNode = function(head) {
+    let slow = head
+    let fast = head
+    while(fast !== null && fast.next !== null) {
+        slow = slow.next
+        fast = fast.next.next
+    }
+    return slow
 }
 ```
 
