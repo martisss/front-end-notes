@@ -71,6 +71,8 @@ class LinkedList {
 
 ### 反转链表
 
+1. 递归
+
 ```js
 const reverse = (list) => {
   let pre = null
@@ -85,7 +87,43 @@ const reverse = (list) => {
 }
 ```
 
-### 链表的合并
+2. 迭代
+
+```js
+/* var reverseList = function(head) {
+    let pre = null
+    let cur = head
+    while(cur) {
+        let next = cur.next
+        cur.next = pre
+        pre = cur 
+        cur = next
+    }
+    return pre
+}; 
+```
+
+**反转部分链表**
+
+反转（start, end）之间的链表
+
+```js
+function reverse(start, end) {
+    let [pre, cur] = [start, start.next]
+    while(cur !== end) { //这里的end节点并没有被反转
+        let next = cur.next
+        cur.next = pre
+        pre = cur
+        cur = next
+    }
+}
+```
+
+注意: 这里的反转后pre指向反转后链表的第一个节点，原链表的第一个节点变为反转后链表的最后一个节点
+
+### 链表的拼接
+
+#### 两个升序链表的合并
 
 1. 迭代实现
 
@@ -128,7 +166,15 @@ var mergeTwoLists = function(list1, list2) {
 }
 ```
 
-### 检测链表中的环
+#### abcd | 找到待反转链表的前驱和后继
+
+[92. 反转链表 II](https://leetcode-cn.com/problems/reverse-linked-list-ii/)  链表反转的方法同前，注意反转后的拼接过程，看作a, b, c ,d四点， [25. K 个一组翻转链表](https://leetcode-cn.com/problems/reverse-nodes-in-k-group/)中处理方法相同，不同的是要在同一个链表中处理K组
+
+[61. 旋转链表](https://leetcode-cn.com/problems/rotate-list/)其实并没有涉及链表的反转，其实就是链表的拼接，找到倒数第n个节点，修改指针的指向，修改后要注意断开，否则会形成环，另外要注意空链表的处理
+
+### 快慢指针
+
+#### 检测链表中的环
 
 1. 使用哈希表
 
@@ -165,9 +211,7 @@ var hasCycle = function(head) {
    }
    ```
 
-
-
-### 删除链表的倒数第 N 个结点
+#### 删除链表的倒数第 N 个结点
 
 1. 使用栈
 
@@ -214,7 +258,7 @@ var removeNthFromEnd = function(head, n) {
 }
 ```
 
-### [链表的中间结点](https://leetcode-cn.com/problems/middle-of-the-linked-list/)
+#### [链表的中间结点](https://leetcode-cn.com/problems/middle-of-the-linked-list/)
 
 1. 单指针  (n, 1)
 
@@ -249,6 +293,63 @@ var middleNode = function(head) {
     }
     return slow
 }
+```
+
+### 例题
+
+给你一个链表，每 k 个节点一组进行翻转，请你返回翻转后的链表。
+
+k 是一个正整数，它的值小于或等于链表的长度。
+
+如果节点总数不是 k 的整数倍，那么请将最后剩余的节点保持原有顺序。
+
+进阶：
+
+你可以设计一个只使用常数额外空间的算法来解决此问题吗？
+你不能只是单纯的改变节点内部的值，而是需要实际进行节点交换。
+
+![image-20211127115027039](D:\NOTES\leetcode\leetcode.assets\image-20211127115027039.png)
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/reverse-nodes-in-k-group
+
+#### [25. K 个一组翻转链表](https://leetcode-cn.com/problems/reverse-nodes-in-k-group/)
+
+```js
+//  虚拟头节点的使用；反转链表；尤其是在链表内部反转部分链表，以及反转后链表的拼接
+var reverseKGroup = function(head, k) {
+    let dummy = new ListNode(-1, head)
+    let [start, end] = [dummy, dummy.next]
+    let count = 0
+    //达到数量k的要求后就反转, 剩下的不足k就结束，返回结果
+    while(end) {
+        count++
+        if(count % k === 0) {
+            // 真正需要的是start.next 到 end， start被当作哨兵节点
+            // 还原成初始状态，start指向前一段的最后一个节点，end指向下一组待翻转链表的第一个节点
+            start = reverseList(start, end.next)
+            end = start.next  
+        } else {
+            end = end.next
+        }
+    }
+    return dummy.next
+
+    function reverseList(start, end){
+        let [pre, cur] = [start, start.next]
+        let first = cur
+        while(cur !== end) {
+            let next = cur.next
+            cur.next = pre
+            pre = cur
+            cur = next
+        }
+        // 拼接链表 a b c d
+        start.next = pre
+        first.next = cur //  同 first.next = cur
+        return first
+    }
+};
 ```
 
 
@@ -481,6 +582,32 @@ var postorderTraversal = function(root, res = []) {
 
 ### 层序遍历
 
+BFS模板
+
+```js
+const visited = {}
+function bfs() {
+	let q = new Queue()
+	q.push(初始状态)
+	while(q.length) {
+		let i = q.pop()
+        if (visited[i]) continue
+        if (i 是我们要找的目标) return 结果
+		for (i的可抵达状态j) {
+			if (j 合法) {
+				q.push(j)
+			}
+		}
+    }
+    return 没找到
+}
+
+```
+
+
+
+1. 带有层标记信息 (相当于对距离指定节点距离为0的节点进行操作)
+
 ```javascript
 var levelOrder = function(root) {
     //二叉树的层序遍历
@@ -496,7 +623,7 @@ var levelOrder = function(root) {
         let curLevel=[];
         for(let i=0;i<length;i++){
             let node=queue.shift();
-            curLevel.push(node.val);
+            curLevel.push(node.val);  // 这一步就对距离指定节点为0的节点进行了操作
             // 存放当前层下一层的节点
             node.left&&queue.push(node.left);
             node.right&&queue.push(node.right);
@@ -507,6 +634,67 @@ var levelOrder = function(root) {
     return res;
 };
 ```
+
+ps：特别地，需要求距离某个节点距离等于k的所有节点
+
+```js
+class Solution:
+    def bfs(k):
+        # 使用双端队列，而不是数组。因为数组从头部删除元素的时间复杂度为 N，双端队列的底层实现其实是链表。
+        queue = collections.deque([root])
+        # 记录层数
+        steps = 0
+        # 需要返回的节点
+        ans = []
+        # 队列不空，生命不止！
+        while queue:
+            size = len(queue)
+            # 遍历当前层的所有节点
+            for _ in range(size):
+                node = queue.popleft()
+                if (step == k) ans.append(node)
+                if node.right:
+                    queue.append(node.right)
+                if node.left:
+                    queue.append(node.left)
+            # 遍历完当前层所有的节点后 steps + 1
+            steps += 1
+        return ans
+
+```
+
+
+
+1. 不带层标记信息
+
+```js
+class Solution:
+    def bfs(k):
+        # 使用双端队列，而不是数组。因为数组从头部删除元素的时间复杂度为 N，双端队列的底层实现其实是链表。
+        queue = collections.deque([root])
+        # 队列不空，生命不止！
+        while queue:
+            node = queue.popleft()
+            # 由于没有记录 steps，因此我们肯定是不需要根据层的信息去判断的。否则就用带层的模板了。
+            if (node 是我们要找到的) return node
+            if node.right:
+                queue.append(node.right)
+            if node.left:
+                queue.append(node.left)
+        return -1
+```
+
+## 题型
+
+### 搜索类
+
+两种解法： DFS 和 BFS
+
+所有搜索类的题目只要把握三个核心点，即**开始点**，**结束点** 和 **目标**即可。
+
+#### DFS搜索
+
+DFS 搜索类的基本套路就是从入口开始做 dfs，然后在 dfs 内部判断是否是结束点，这个结束点通常是**叶子节点**或**空节点**
 
 ## 求二叉树的属性
 
