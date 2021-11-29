@@ -606,6 +606,133 @@ function bfs() {
 
 
 
+带有层标记信息 (相当于对距离指定节点距离为0的节点进行操作) => **层序遍历**
+
+```javascript
+var levelOrder = function(root) {
+    //二叉树的层序遍历
+    let res=[],queue=[];
+    queue.push(root);
+    if(root===null){
+        return res;
+    }
+    while(queue.length!==0){
+        // 记录当前层级节点数
+        let length=queue.length;
+        //存放每一层的节点 
+        let curLevel=[];
+        for(let i=0;i<length;i++){
+            let node=queue.shift();
+            curLevel.push(node.val);  // 这一步就对距离指定节点为0的节点进行了操作
+            // 存放当前层下一层的节点
+            node.left&&queue.push(node.left);
+            node.right&&queue.push(node.right);
+        }
+        //把每一层的结果放到结果数组
+        res.push(curLevel);
+    }
+    return res;
+};
+```
+
+ps：特别地，需要求距离某个节点距离等于k的所有节点
+
+```js
+class Solution:
+    def bfs(k):
+        # 使用双端队列，而不是数组。因为数组从头部删除元素的时间复杂度为 N，双端队列的底层实现其实是链表。
+        queue = collections.deque([root])
+        # 记录层数
+        steps = 0
+        # 需要返回的节点
+        ans = []
+        # 队列不空，生命不止！
+        while queue:
+            size = len(queue)
+            # 遍历当前层的所有节点
+            for _ in range(size):
+                node = queue.popleft()
+                if (step == k) ans.append(node)
+                if node.right:
+                    queue.append(node.right)
+                if node.left:
+                    queue.append(node.left)
+            # 遍历完当前层所有的节点后 steps + 1
+            steps += 1
+        return ans
+
+```
+
+
+
+## 题型
+
+### 搜索类
+
+两种解法： DFS 和 BFS
+
+所有搜索类的题目只要把握三个核心点，即**开始点**，**结束点** 和 **目标**即可。
+
+#### DFS搜索
+
+DFS 搜索类的基本套路就是从入口开始做 dfs，然后在 dfs 内部判断是否是结束点，这个结束点通常是**叶子节点**或**空节点**
+
+```js
+# 其中 path 是树的路径， 如果需要就带上，不需要就不带
+def dfs(root, path):
+    # 空节点
+    if not root: return
+    # 叶子节点
+    if not root.left and not root.right: return
+    path.append(root)
+    # 逻辑可以写这里，此时是前序遍历
+    dfs(root.left)
+    dfs(root.right)
+    # 需要弹出，不然会错误计算。
+    # 比如对于如下树：
+    """
+              5
+             / \
+            4   8
+           /   / \
+          11  13  4
+         /  \    / \
+        7    2  5   1
+    """
+    # 如果不 pop，那么 5 -> 4 -> 11 -> 2 这条路径会变成 5 -> 4 -> 11 -> 7 -> 2，其 7 被错误地添加到了 path
+
+    path.pop()
+    # 逻辑也可以写这里，此时是后序遍历
+
+    return 你想返回的数据
+```
+
+#### BFS 搜索	
+
+BFS模板
+
+```js
+const visited = {}
+function bfs() {
+	let q = new Queue()
+	q.push(初始状态)
+	while(q.length) {
+		let i = q.pop()
+        if (visited[i]) continue
+        if (i 是我们要找的目标) return 结果
+		for (i的可抵达状态j) {
+			if (j 合法) {
+				q.push(j)
+			}
+		}
+    }
+    return 没找到
+}
+
+```
+
+
+
 1. 带有层标记信息 (相当于对距离指定节点距离为0的节点进行操作)
 
 ```javascript
@@ -684,17 +811,110 @@ class Solution:
         return -1
 ```
 
-## 题型
+####  二叉树构建
 
-### 搜索类
+1. 根据DFS的结果构建
 
-两种解法： DFS 和 BFS
+注意分界点的选择，主要思路是首先找到根节点，然后用根节点去分割另外一个数组，然后进行递归，时间空间复杂度均为n
 
-所有搜索类的题目只要把握三个核心点，即**开始点**，**结束点** 和 **目标**即可。
+- [105. 从前序与中序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+- [106. 从中序与后序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
+- [889. 根据前序和后序遍历构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-postorder-traversal/)
 
-#### DFS搜索
+2. 根据BFS的结果构建
 
-DFS 搜索类的基本套路就是从入口开始做 dfs，然后在 dfs 内部判断是否是结束点，这个结束点通常是**叶子节点**或**空节点**
+[剑指 Offer 37. 序列化二叉树](https://leetcode-cn.com/problems/xu-lie-hua-er-cha-shu-lcof/)
+
+```js
+var serialize = function(root) {
+    if(!root) return ''
+    let queue = [root]
+    let res = []
+    while(queue.length) {
+        let node = queue.shift()
+        // 要注意记录树的完整信息，不要漏掉空节点
+        if(node) {
+            res.push(node.val)
+            queue.push(node.left)
+            queue.push(node.right)
+        } else {
+            res.push('null')
+        }
+    }
+    return res.join(',')
+}
+
+var deserialize = function(data) {
+    if(data === '') return null
+    let arr = data.split(',')
+    let i = 1
+    let root = new TreeNode(parseInt(arr[0]))
+    let queue = [root]
+    while(queue.length) {
+        let node = queue.shift()
+        if(arr[i] !== 'null') {
+            node.left = new TreeNode(arr[i])
+            queue.push(node.left)
+        } else node.left = null
+        i++
+        if(arr[i] !== 'null') {
+            node.right = new TreeNode(arr[i])
+            queue.push(node.right)
+        } else node.right = null
+        i++
+    }
+    return root
+}
+```
+
+> 前序
+
+```js
+var serialize = function(root) {
+    return rserialize(root, '')
+};
+
+var deserialize = function(data) {
+    let arr = data.split(',')
+    return rdeserialize(arr)
+};
+
+
+const rserialize = (root, str) => {
+    if (root === null) {
+        str += 'None,';
+    } else {
+        str += root.val + '' + ',';
+        str = rserialize(root.left, str);
+        str = rserialize(root.right, str);
+    }
+    return str
+}
+
+const rdeserialize = (dataList) => {
+    if (dataList[0] === "None") {
+        dataList.shift();
+        return null;
+    }
+    const root = new TreeNode(parseInt(dataList[0]));
+    dataList.shift();
+    root.left = rdeserialize(dataList);
+    root.right = rdeserialize(dataList);
+    return root;
+}
+```
+
+
+
+
+
+
+
+对于入口是任意节点的题目，我们都可以方便地使用**双递归**来完成，关于这个，我会在**七个技巧中的单/双递归部分**展开。
+
+对于这种交错类的题目，一个好用的技巧是使用 -1 和 1 来记录方向，这样我们就可以通过乘以 -1 得到另外一个方向。
+
+> [886. 可能的二分法](https://github.com/azl397985856/leetcode/blob/master/problems/886.possible-bipartition.md) 和 [785. 判断二分图](https://github.com/azl397985856/leetcode/blob/master/problems/785.is-graph-bipartite.md) 都用了这个技巧。
 
 ## 求二叉树的属性
 
