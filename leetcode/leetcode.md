@@ -811,7 +811,9 @@ class Solution:
         return -1
 ```
 
-####  二叉树构建
+### 二叉树构建
+
+#### 普通二叉树的构建
 
 1. 根据DFS的结果构建
 
@@ -904,9 +906,9 @@ const rdeserialize = (dataList) => {
 }
 ```
 
+#### 二叉搜索树构建
 
-
-
+#### [1008. 前序遍历构造二叉搜索树](https://leetcode-cn.com/problems/construct-binary-search-tree-from-preorder-traversal/)
 
 
 
