@@ -908,7 +908,111 @@ const rdeserialize = (dataList) => {
 
 #### 二叉搜索树构建
 
-#### [1008. 前序遍历构造二叉搜索树](https://leetcode-cn.com/problems/construct-binary-search-tree-from-preorder-traversal/)
+[1008. 前序遍历构造二叉搜索树](https://leetcode-cn.com/problems/construct-binary-search-tree-from-preorder-traversal/)
+
+### 二叉树的修改
+
+ [116. 填充每个节点的下一个右侧节点指针](https://leetcode-cn.com/problems/populating-next-right-pointers-in-each-node/)
+
+ [450. 删除二叉搜索树中的节点](https://leetcode-cn.com/problems/delete-node-in-a-bst/) 
+
+ [669. 修剪二叉搜索树](https://leetcode-cn.com/problems/trim-a-binary-search-tree/)
+
+
+
+> 算法需要，自己修改
+
+ [863. 二叉树中所有距离为 K 的结点](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/)
+
+## 重要概念
+
+### 二叉搜索树
+
+- 若左子树不空，则左子树上所有节点的值均小于它的根节点的值；
+- 若右子树不空，则右子树上所有节点的值均大于它的根节点的值；
+- 左、右子树也分别为二叉排序树；
+- 没有键值相等的节点。
+
+注意：平衡二叉树中序遍历是有序，遍历的值单调递增
+
+平衡二叉树：
+
+**平衡二叉树**（Balanced Binary Tree）又被称为AVL树（有别于AVL算法），且具有以下性质：它是**一 棵空树**或它的左右两个子树的高度差的绝对值不超过1，并且左右两个子树都是一棵平衡二叉树。这个方案很好的解决了**二叉查找树退化成链表**的问题，把插入，查找，删除的时间复杂度最好情况和最坏情况都维持在O(logN)
+
+
+
+### 完全二叉树
+
+完全二叉树不一定是满二叉树，而满二叉树一定是完全二叉树，完全二叉树从根节点到倒数第二层都满足满二叉树的定义，只是最底下一层没有填满，且这一层的所有结点都靠左。
+
+给完全二叉树编号，这样父子之间就可以通过编号轻松求出。给所有节点从左到右从上到下依次从 1 开始编号。那么已知一个节点的编号是 i，那么其左子节点就是 2 _*i，右子节点就是 2 *i + 1，父节点就是 i / 2。
+
+#### [222. 完全二叉树的节点个数](https://leetcode-cn.com/problems/count-complete-tree-nodes/)
+
+```js
+var countNodes = function(root) {
+    /* 初始值设置为0是为了后面求值方便 */
+    //设根节点的深度为1，总深度为n, 节点个数为2^n-1
+    //如果是满二叉树直接返回节点个数,如果不是满二叉树，继续递归其左右节点
+    if(!root) return 0
+    let [leftlength, rightlength] = [0, 0]
+    let left = root.left
+    let right = root.right
+    while(left) {
+        left = left.left
+        leftlength++
+    }
+    while(right) {
+        right = right.right
+        rightlength++
+    }
+    // 是满二叉树
+    if(leftlength === rightlength) {
+        return (2 << leftlength) - 1
+    }
+    // 不是满二叉树
+    return 1 + countNodes(root.left) + countNodes(root.right)
+}
+```
+
+### 路径
+
+#### [124. 二叉树中的最大路径和](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/)
+
+:sparkles:**树的题目，基本都是考察递归思想的。因此我们需要思考如何去定义我们的递归函数**，在这里我定义了一个递归函数，它的功能是，`返回以当前节点为根节点的MaxPath`但是有两个条件:
+
+1. 根节点必须选择
+2. 左右子树只能选择一个
+
+````
+### 解题思路
+树的题目大多涉及到递归，需要思考如何设计递归函数
+dfs函数的作用：返回以给定节点为根节点的二叉树最大路径和
+需要注意：
+- 最大路径可以从树中任意节点出发
+- 路径至少包含一个节点
+- 以某个节点为根节点的最大路径和有可能为负数。因为`-1000 <= Node.val <= 1000`
+### 代码
+
+//  从任意节点出发 => 选择记录max全局最大值
+// dfs记录以当前节点为根节点的最大路径和，递归左右子节点，更新全局最大值的同时返回以当前节点为根节点的最大路径和
+var maxPathSum = function(root) {
+    let max = -Infinity
+    const dfs = (root) => {
+        if(!root) return 0
+        let left = dfs(root.left) //以左节点为根节点的二叉树最大路径和
+        let right = dfs(root.right) // 以右节点为根节点的二叉树最大路径和
+        max = Math.max(max, Math.max(left, 0) + Math.max(right, 0)+root.val) // 在对子节点进行递归的过程中可能已经出现了原二叉树的最大路径和，因此需要进行比较，更新最大路径和max
+        // 此外，dfs的功能就是计算以当前节点为根节点的最大路径和，因此将 当前节点的值（即root.val） 与 以当前节点的子节点为根节点的子树的最大路径和（即 Math.max(left, right)）返回
+        return Math.max(left, right, 0) + root.val
+    }
+    dfs(root)
+    return max
+};
+```
+````
+
+
 
 
 
@@ -1077,6 +1181,18 @@ public:
 
 - 递归：前序，数组中间节点分割
 - 迭代：较复杂，通过三个队列来模拟
+
+## todolist
+
+[99. 恢复二叉搜索树](https://leetcode-cn.com/problems/recover-binary-search-tree/)
+
+ [116. 填充每个节点的下一个右侧节点指针](https://leetcode-cn.com/problems/populating-next-right-pointers-in-each-node/)
+
+ [450. 删除二叉搜索树中的节点](https://leetcode-cn.com/problems/delete-node-in-a-bst/) 
+
+ [669. 修剪二叉搜索树](https://leetcode-cn.com/problems/trim-a-binary-search-tree/)
+
+[662. 二叉树最大宽度](https://leetcode-cn.com/problems/maximum-width-of-binary-tree/)
 
 # 字符串
 
