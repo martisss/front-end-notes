@@ -1186,6 +1186,73 @@ public:
 
 [99. 恢复二叉搜索树](https://leetcode-cn.com/problems/recover-binary-search-tree/)
 
+时间复杂度 O(N)，空间复杂度O(N)
+
+```js
+var recoverTree = function(root) {
+    const dfs = (root) => {
+        if(!root) return null
+        dfs(root.left)
+        res.push(root)
+        dfs(root.right)
+    } 
+    let res = []
+    dfs(root)
+    let x = null, y = null
+    for(let i=0; i<res.length-1; i++) {
+        if(res[i].val > res[i+1].val) {
+            y = i+1
+            if(x === null) x = i
+        }
+    }
+    [res[x].val, res[y].val ] = [res[y].val, res[x].val]
+    return root
+};
+```
+
+时间复杂度 O(N)，空间复杂度O(H), H为二叉树高度
+
+```js
+var recoverTree = function(root) {
+    let x = null, y = null
+    let stack = []
+    let pre = null
+    while(stack.length || root) {
+        // while(root) {
+        //     stack.push(root)
+        //     root = root.left
+        // }
+        // root = stack.pop()
+        // if(pre !== null && pre.val > root.val) {
+        //     y = root
+        //     if(x === null) {
+        //         x = pre
+        //     }
+        // }
+        // pre = root
+        // root = root.right
+        if(root) {
+            stack.push(root)
+            root = root.left
+        } else {
+            root = stack.pop()
+            if(pre !== null && pre.val > root.val) {
+                y = root
+                if(x === null) {
+                    x = pre
+                }
+            }
+            pre = root
+            root = root.right
+        }
+    }
+    [x.val, y.val] = [y.val, x.val]
+    return root
+};
+```
+
+
+
  [116. 填充每个节点的下一个右侧节点指针](https://leetcode-cn.com/problems/populating-next-right-pointers-in-each-node/)
 
  [450. 删除二叉搜索树中的节点](https://leetcode-cn.com/problems/delete-node-in-a-bst/) 
