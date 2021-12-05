@@ -910,7 +910,13 @@ const rdeserialize = (dataList) => {
 
 [1008. 前序遍历构造二叉搜索树](https://leetcode-cn.com/problems/construct-binary-search-tree-from-preorder-traversal/)
 
-### 二叉树的修改
+### 二叉树的修改 
+
+[1325. 删除给定值的叶子节点](https://leetcode-cn.com/problems/delete-leaves-with-a-given-value/)
+
+[814. 二叉树剪枝](https://leetcode-cn.com/problems/binary-tree-pruning/)
+
+### todo
 
  [116. 填充每个节点的下一个右侧节点指针](https://leetcode-cn.com/problems/populating-next-right-pointers-in-each-node/)
 
@@ -977,7 +983,7 @@ var countNodes = function(root) {
 
 ### 路径
 
-#### [124. 二叉树中的最大路径和](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/)
+[124. 二叉树中的最大路径和](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/)
 
 :sparkles:**树的题目，基本都是考察递归思想的。因此我们需要思考如何去定义我们的递归函数**，在这里我定义了一个递归函数，它的功能是，`返回以当前节点为根节点的MaxPath`但是有两个条件:
 
@@ -1014,13 +1020,161 @@ var maxPathSum = function(root) {
 
 
 
+### 距离 todo
 
+[834.树中距离之和](https://leetcode-cn.com/problems/sum-of-distances-in-tree/description/)
+
+[863.二叉树中所有距离为 K 的结点](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/description/)
+
+## 技巧
+
+### 双递归
+
+**如果题目有类似，任意节点开始 xxxx 或者所有 xxx**这样的说法，就可以考虑使用双递归。但是如果递归中有重复计算，则可以使用双递归 + 记忆化 或者直接单递归。
+
+一个典型的加法双递归
+
+```js
+def dfs_inner(root):
+    # 这里写你的逻辑，就是前序遍历
+    dfs_inner(root.left)
+    dfs_inner(root.right)
+    # 或者在这里写你的逻辑，那就是后序遍历
+def dfs_main(root):
+    return dfs_inner(root) + dfs_main(root.left) + dfs_main(root.right)
+
+```
+
+
+
+[面试题 04.12. 求和路径](https://leetcode-cn.com/problems/paths-with-sum-lcci/)
+
+```js
+// 将每个节点都当作根节点进行递归
+function dfs(root, sum) {
+    if(!root) return 0
+    sum -= root.val
+    return (sum === 0) + dfs(root.left, sum) + dfs(root.right, sum)
+}
+
+var pathSum = function(root, sum) {
+    if(!root) return 0
+    // 选择当前节点，不选择当前节点
+    return dfs(root, sum) + pathSum(root.left, sum) + pathSum(root.right, sum)
+}
+```
+
+### 前后序
+
+- 大多数树的题使用后序遍历比较简单，并且大多需要依赖左右子树的返回值。比如 [1448. 统计二叉树中好节点的数目](https://leetcode-cn.com/problems/count-good-nodes-in-binary-tree/)
+- 不多的问题需要前序遍历，而前序遍历通常要结合参数扩展技巧。比如 [1022. 从根到叶的二进制数之和](https://leetcode-cn.com/problems/sum-of-root-to-leaf-binary-numbers/)
+- 如果能使用参数和节点本身的值来决定什么应该是**传递给它子节点的参数，那就用前序遍历**。
+- 如果对于树中的任意一个节点，知**道它子节点的答案，能计算出当前节点的答案，那就用后序遍历**。
+- 如果遇到二叉搜索树则考虑**中序遍历**
+
+#### [1022. 从根到叶的二进制数之和](https://leetcode-cn.com/problems/sum-of-root-to-leaf-binary-numbers/)
+
+> 给出一棵二叉树，其上每个结点的值都是 0 或 1 。每一条从根到叶的路径都代表一个从最高有效位开始的二进制数。例如，如果路径为 0 -> 1 -> 1 -> 0 -> 1，那么它表示二进制数 01101，也就是 13 。
+>
+> 对树上的每一片叶子，我们都要找出从根到该叶子的路径所表示的数字。
+>
+> 返回这些数字之和。题目数据保证答案是一个 32 位 整数。
+>
+>  
+>
+> 示例 1：![img](https://assets.leetcode.com/uploads/2019/04/04/sum-of-root-to-leaf-binary-numbers.png)
+>
+
+> 前序
+
+```js
+var sumRootToLeaf = function(root) {
+    let sum = 0
+    const dfs = (root, pre) => {
+        pre = (pre << 1) + root.val
+        if(!root.left && !root.right) {
+            sum += pre
+        }
+        root.left && dfs(root.left, pre)
+        root.right && dfs(root.right, pre)
+    }
+    dfs(root, 0)
+    return sum
+};
+```
+
+
+
+[563. 二叉树的坡度](https://leetcode-cn.com/problems/binary-tree-tilt/)
+
+### 边界
+
+### 参数扩展
+
+一个最简单的 dfs 通常是下面这样：
+
+```
+def dfs(root):
+    # do something
+```
+
+而有时候，我们需要 dfs 携带更多的有用信息。典型的有以下三种情况：
+
+1. 携带父亲或者爷爷的信息。
+
+```js
+def dfs(root, parent):
+    if not root: return
+    dfs(root.left, root)
+    dfs(root.right, root)
+```
+
+2. 携带路径信息，可以是路径和或者具体的路径数组等。
+
+路径和：
+
+```js
+def dfs(root, path_sum):
+    if not root:
+        # 这里可以拿到根到叶子的路径和
+        return path_sum
+    dfs(root.left, path_sum + root.val)
+    dfs(root.right, path_sum + root.val)
+```
+
+路径：
+
+```js
+def dfs(root, path):
+    if not root:
+        # 这里可以拿到根到叶子的路径
+        return path
+    path.append(root.val)
+    dfs(root.left, path)
+    dfs(root.right, path)
+    # 撤销
+    path.pop()
+```
+
+3. 二叉搜索树的搜索题大多数都需要扩展参考，甚至怎么扩展都是固定的。
+
+#### todo [783. 二叉搜索树节点最小距离](https://leetcode-cn.com/problems/minimum-distance-between-bst-nodes/)
+
+二叉搜索树的搜索总是将最大值和最小值通过参数传递到左右子树，类似 `dfs(root, lower, upper)`，然后在递归过程更新最大和最小值即可。
 
 对于入口是任意节点的题目，我们都可以方便地使用**双递归**来完成，关于这个，我会在**七个技巧中的单/双递归部分**展开。
 
 对于这种交错类的题目，一个好用的技巧是使用 -1 和 1 来记录方向，这样我们就可以通过乘以 -1 得到另外一个方向。
 
 > [886. 可能的二分法](https://github.com/azl397985856/leetcode/blob/master/problems/886.possible-bipartition.md) 和 [785. 判断二分图](https://github.com/azl397985856/leetcode/blob/master/problems/785.is-graph-bipartite.md) 都用了这个技巧。
+
+### 返回元组/列表
+
+通常，dfs 函数的返回值是一个单值。而有时候为了方便计算，会返回一个数组或者元组
+
+#### todo [865. 具有所有最深节点的最小子树](https://leetcode-cn.com/problems/smallest-subtree-with-all-the-deepest-nodes/)
+
+#### todo [1530.好叶子节点对的数量](https://leetcode-cn.com/problems/number-of-good-leaf-nodes-pairs/description/)
 
 ## 求二叉树的属性
 
@@ -1260,6 +1414,17 @@ var recoverTree = function(root) {
  [669. 修剪二叉搜索树](https://leetcode-cn.com/problems/trim-a-binary-search-tree/)
 
 [662. 二叉树最大宽度](https://leetcode-cn.com/problems/maximum-width-of-binary-tree/)
+
+- [剑指 Offer 55 - I. 二叉树的深度](https://leetcode-cn.com/problems/er-cha-shu-de-shen-du-lcof/)
+- [剑指 Offer 34. 二叉树中和为某一值的路径](https://leetcode-cn.com/problems/er-cha-shu-zhong-he-wei-mou-yi-zhi-de-lu-jing-lcof/)
+- [101. 对称二叉树](https://github.com/azl397985856/leetcode/blob/master/problems/101.symmetric-tree.md)
+- [226. 翻转二叉树](https://github.com/azl397985856/leetcode/blob/master/problems/226.invert-binary-tree.md)
+- [543. 二叉树的直径](https://leetcode-cn.com/problems/diameter-of-binary-tree/)
+- [662. 二叉树最大宽度](https://leetcode-cn.com/problems/maximum-width-of-binary-tree/)
+- [971. 翻转二叉树以匹配先序遍历](https://leetcode-cn.com/problems/flip-binary-tree-to-match-preorder-traversal/)
+- [987. 二叉树的垂序遍历](https://leetcode-cn.com/problems/vertical-order-traversal-of-a-binary-tree/)
+- [863. 二叉树中所有距离为 K 的结点](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/)
+- [面试题 04.06. 后继者](https://leetcode-cn.com/problems/successor-lcci/)
 
 # 字符串
 
