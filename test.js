@@ -1,51 +1,76 @@
-var arr = [1, '1', 1, '1',2, '2', 2, null,undefined, null, undefined, new String('1'), {value:1}, new String('1'), /a/, {value:1},/a/, NaN, 2,NaN];
+class Heap {
+  constructor(arr) {
+    this.data = [...arr]
+    this.size = this.data.length
+  }
+  left(i) {
+    return (i*2) + 1
+  }
 
-// let arr =  [2, '2', 2]
+  right(i) {
+    return (i*2) + 2
+  }
 
+  swap(m, n) {
+    [this.data[m], this.data[n]] = [this.data[n], this.data[m]]
+  }
 
-// function unique(array) {
-//   let res = []
-//   for(let i = 0; i < array.length; i++) {
-//     if(res.indexOf(array[i]) === -1) res.push(array[i])
-//   }
-//   return res
-// }
+  rebuildHead() {
+    const L = Math.floor(this.size / 2)
+    for(let i=L-1; i>=0; i--) {
+      this.maxHeapify(i)
+    }
+  }
 
+  maxHeapify(i) {
+    let max = i
+    if(i>=this.size) return
+    const l = this.left(i)
+    const r = this.right(i)
+    if(l < this.size && this.data[l] > this.data[max]) max = l
+    if(r < this.size && this.data[i] > this.data[max]) max = r
+    if(max === i) return
+    swap(i, max)
+    // 递归向下执行
+    return this.maxHeapify(max) //todo
+  }
 
-// function unique(arr) {
-//   return arr.filter((item, index, arr) => arr.indexOf(item) ===index)
-// }
+  isHeap() {
+    const L = Math.floor(this.size / 2)
+    for(let i=L-1; i>=0; i--) {
+      const l = this.data[this.left(i)] || Number.MIN_SAFE_INTEGER
+      const r =this.data[this.right(i)] || Number.MIN_SAFE_INTEGER
+      const max = Math.max(this.data[i], l, r)
+      if(max !== this.data[i]) return false
+      return true
+    }
+  }
 
-// function unique(array) {
-//   let res = []
-//   let pre
-//   let sortedArray = array.concat().sort((a, b) => a - b)
-//   for(let i = 0; i < sortedArray.length; i++) {
-//     if(!i || pre !== sortedArray[i]) res.push(sortedArray[i])
-//     pre = sortedArray[i]
-//   }
-//   return res
-// }
-function unique(arr) {
-  return arr.concat().sort().filter((item, index, arr) => !index || item !== arr[index-1])
+  sort() {
+    for(let i=this.size-1; i>0; i--) {
+      this.swap(0, i)
+      this.size--
+      this.maxHeapify(0)
+    }
+  }
+
+  insert(key) {
+    this.data[this.size++] = key;
+    if (this.isHeap()) {
+      return;
+    }
+    this.rebuildHeap();
+  }
+
+  delete(index) {
+    if (index >= this.size) {
+      return;
+    }
+    this.data.splice(index, 1);
+    this.size--;
+    if (this.isHeap()) {
+      return;
+    }
+    this.rebuildHeap();
+  }
 }
-
-console.log(arr.sort((a,b) => a-b))
-
-// function unique(arr) {
-//   let obj = {}
-//   return arr.filter((item, index, arr) => {
-//     return obj.hasOwnProperty(typeof item + JSON.stringify(item)) ? false : (obj[typeof item + JSON.stringify(item)] = true)
-//   })
-// }
-
-// function unique(arr) {
-//   // return Array.from(new Set(arr))
-//   return [...new Set(arr)]
-// }
-
-// function unique(arr) {
-//   let map = new Map()
-//   return arr.filter(item => !map.has(item) && map.set(item, 1))
-// }
-console.log(unique(arr))
