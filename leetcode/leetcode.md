@@ -1095,6 +1095,52 @@ var maxPathSum = function(root) {
 ```
 ````
 
+#### [437. 路径总和 III](https://leetcode-cn.com/problems/path-sum-iii/)
+
+> 给定一个二叉树的根节点 root ，和一个整数 targetSum ，求该二叉树里节点值之和等于 targetSum 的 路径 的数目。
+>
+> 路径 不需要从根节点开始，也不需要在叶子节点结束，但是路径方向必须是向下的（只能从父节点到子节点）。
+>
+>  
+>
+> 示例 1：![img](https://assets.leetcode.com/uploads/2021/04/09/pathsum3-1-tree.jpg)
+>
+> 
+>
+> 输入：root = [10,5,-3,3,2,null,11,3,-2,null,1], targetSum = 8
+> 输出：3
+> 解释：和等于 8 的路径有 3 条，如图所示。
+> 示例 2：
+>
+> 输入：root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22
+> 输出：3
+>
+> 来源：力扣（LeetCode）
+> 链接：https://leetcode-cn.com/problems/path-sum-iii
+
+```js
+var pathSum = function(root, targetSum) {
+    // dfs计算以当前节点为根节点的二叉树里节点值之和等于targetSum的路径的数目
+    const dfs = (root, target) => {
+        let num = 0
+        if(!root ) return 0
+        // 路径不需要在叶子节点结束，只需要路径方向向下，满足targetSum的要求
+        if(root.val === target) {
+            num++
+        }
+        num += dfs(root.left, target - root.val)
+        num += dfs(root.right, target - root.val)
+        return num
+    }
+    if(!root) return 0
+    // 因为路径不需要从根节点开始，因此递归地对子节点调用pathSum方法
+    let count = dfs(root, targetSum)
+    count += pathSum(root.left, targetSum)
+    count +=  pathSum(root.right, targetSum)
+    return  count
+};
+```
+
 
 
 ### 距离 todo
