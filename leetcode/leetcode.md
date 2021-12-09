@@ -1549,6 +1549,32 @@ var recoverTree = function(root) {
 - [863. 二叉树中所有距离为 K 的结点](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/)
 - [面试题 04.06. 后继者](https://leetcode-cn.com/problems/successor-lcci/)
 
+
+
+# 二分
+
+## 定义
+
+二分查找又称`折半搜索算法`。 狭义地来讲，二分查找是一种在有序数组查找某一特定元素的搜索算法。这同时也是大多数人所知道的一种说法。实际上， 广义的二分查找是将问题的规模缩小到原有的一半。类似的，三分法就是将问题规模缩小为原来的 1/3。
+
+## 模板
+
+```js
+
+var search = function(nums, target) {
+    let left = 0, right = nums.length -1
+    while(left <= right) {
+        let mid = left + Math.floor((right - left)/2)
+        if(nums[mid] < target) left = mid+1
+        else if(nums[mid] > target) right = mid - 1
+        else return mid
+    } 
+    return -1
+};
+```
+
+
+
 # 字符串
 
 ## KMP算法
