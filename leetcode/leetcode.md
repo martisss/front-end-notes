@@ -1559,6 +1559,8 @@ var recoverTree = function(root) {
 
 ## 模板
 
+> 寻找符合条件的值
+
 ```js
 
 var search = function(nums, target) {
@@ -1570,6 +1572,101 @@ var search = function(nums, target) {
         else return mid
     } 
     return -1
+};
+```
+
+>  寻找最左插入位置
+
+```python
+def bisect_left(nums, x):
+    # 内置 api
+    bisect.bisect_left(nums, x)
+    # 手写
+    l, r = 0, len(A) - 1
+    while l <= r:
+        mid = (l + r) // 2
+        if A[mid] >= x: r = mid - 1
+        else: l = mid + 1
+    return l
+```
+
+> 寻找最右插入位置
+
+```python
+
+def bisect_right(nums, x):
+    # 内置 api
+    bisect.bisect_right(nums, x)
+    # 手写
+    l, r = 0, len(A) - 1
+    while l <= r:
+        mid = (l + r) // 2
+        if A[mid] <= x: l = mid + 1
+        else: r = mid - 1
+    return l
+```
+
+
+
+1. 最左二分不断收缩右边界，最终返回左边界
+2. 最右二分不断收缩左边界，最终返回右边界
+
+## 应用
+
+### 能力检测二分
+
+[875. 爱吃香蕉的珂珂](https://leetcode-cn.com/problems/koko-eating-bananas/)
+
+解的是有序的，不断收缩解集的空间，如果possible(k)不满足要求，那么小于k的解也不会满足要求
+
+使用最左二分，不断收缩右边界
+
+```js
+var minEatingSpeed = function(piles, h) {
+    const canEat = (piles, h, mid) => {
+        let time = 0
+        for(let pile of piles) {
+            time += Math.ceil(pile/mid)
+        }
+        return time <= h
+    }
+
+    let l = 1
+    let r = Math.max(...piles)
+    while(l<=r) {
+        let mid = l + ((r-l) >>> 1)
+        if(canEat(piles, h, mid)) r = mid -1
+        else l = mid+1
+    }
+    return l
+};
+```
+
+[475. 供暖器](https://leetcode-cn.com/problems/heaters/)
+
+```js
+var findRadius = function(houses, heaters) {
+    houses.sort((a, b) => a - b);
+    heaters.sort((a, b) => a - b);
+    const helpers = (mid) => {
+        let i = 0
+        for(let j = 0; j < houses.length; j++) {
+            while(i < heaters.length && (houses[j] < (heaters[i] - mid) ||  houses[j]> (heaters[i] + mid))) {
+                i++
+            }
+            if( i === heaters.length) return false
+        }
+        return true
+    }
+
+    let l = 0
+    let r = 1e9+1
+    while(l <= r) {
+        let mid = l + ((r-l) >>> 1)
+        if(helpers(mid)) r = mid -1
+        else l = mid+1
+    }
+    return l
 };
 ```
 

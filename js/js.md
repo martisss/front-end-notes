@@ -1,4 +1,4 @@
-# others
+# kothers
 ## 判断是否是数组
 - Array.isArray()
 - Object.prototype.toString.call(arr)
@@ -108,6 +108,7 @@ a2(); //100
 ## call, apply, bind 的模拟实现
 call
 在非严格模式下，不传参数或传递 null/undefined，this 都指向 window。传递的是原始值，原始值会被包装。严格模式下，call 的第一个参数是谁就指向谁
+
 ```js
 Function.prototype.call = function(context) {
   var context = context || window
@@ -726,6 +727,21 @@ console.log(typeof date); // object
 console.log(typeof error); // object
 ```
 
+```js
+typeof function() {} === 'function';
+typeof class C {} === 'function'
+typeof Math.sin === 'function';
+```
+
+```js
+// JavaScript 诞生以来便如此
+typeof null === 'object';
+```
+
+
+
+在 JavaScript 最初的实现中，JavaScript 中的值是由一个表示类型的标签和实际数据值表示的。对象的类型标签是 0。由于 `null` 代表的是空指针（大多数平台下值为 0x00），因此，null 的类型标签是 0，`typeof null` 也因此返回 `"object"`。
+
 ### instanceof
 
 **`instanceof`** **运算符**用于检测构造函数的 `prototype` 属性是否出现在某个实例对象的原型链上。
@@ -1032,7 +1048,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                   
+> >                      
 > >    ```
 > >
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
@@ -1634,6 +1650,16 @@ function unique(arr) {
 }
 ```
 
+使用reduce
+
+```js
+function unique(arr) {
+  return arr.reduce((acc, item, index) => [].concat(acc, arr.indexOf(item) === index ? item : []))
+}
+```
+
+
+
 **对象不能去重**，忽略NaN
 
 ### 先排序再去重 :bug:
@@ -1705,6 +1731,80 @@ function unique(arr) {
 ```
 
 对象不能去重
+
+## JSON
+
+### JSON.stringify()
+
+**JSON.stringify()**方法将一个 JavaScript 对象或值转换为 JSON 字符串，如果指定了一个 replacer 函数，则可以选择性地替换值，或者指定的 replacer 是数组，则可选择性地仅包含数组指定的属性。
+
+```js
+JSON.stringify(value[, replacer [, space]])
+```
+
+- 转换值如果有 toJSON() 方法，该方法定义什么值将被序列化。
+
+>  如果一个被序列化的对象拥有 `toJSON` 方法，那么该 `toJSON` 方法就会覆盖该对象默认的序列化行为：不是该对象被序列化，而是调用 `toJSON` 方法后的返回值会被序列化，
+
+- 非数组对象的属性不能保证以特定的顺序出现在序列化后的字符串中。
+- 布尔值、数字、字符串的包装对象在序列化过程中会自动转换成对应的原始值。
+
+```js
+console.log(JSON.stringify([new Number(3), new String('false'), new Boolean(false)]));
+// expected output: "[3,"false",false]"
+```
+
+- `undefined`、任意的函数以及 symbol 值，在序列化过程中会被忽略（出现在非数组对象的属性值中时）或者被转换成 `null`（出现在数组中时）。函数、undefined 被单独转换时，会返回 undefined，如`JSON.stringify(function(){})` or `JSON.stringify(undefined)`.
+
+```js
+console.log(JSON.stringify({ x: [10, undefined, function(){}, Symbol('')] }));
+// expected output: "{"x":[10,null,null,null]}"
+
+JSON.stringify({x: undefined, y: Object, z: Symbol("")});
+// '{}'
+
+JSON.stringify([undefined, Object, Symbol("")]);
+// '[null,null,null]'
+
+JSON.stringify({[Symbol("foo")]: "foo"});
+// '{}'
+```
+
+- 对包含循环引用的对象（对象之间相互引用，形成无限循环）执行此方法，会抛出错误。
+- 所有以 symbol 为属性键的属性都会被完全忽略掉，即便 `replacer` 参数中强制指定包含了它们。
+
+```js
+JSON.stringify({[Symbol.for("foo")]: "foo"}, [Symbol.for("foo")]);
+// '{}'
+
+JSON.stringify(
+    {[Symbol.for("foo")]: "foo"},
+    function (k, v) {
+        if (typeof k === "symbol"){
+            return "a symbol";
+        }
+    }
+);
+```
+
+- Date 日期调用了 toJSON() 将其转换为了 string 字符串（同Date.toISOString()），因此会被当做字符串处理。
+- NaN 和 Infinity 格式的数值及 null 都会被当做 null。
+- 其他类型的对象，包括 Map/Set/WeakMap/WeakSet，仅会序列化可枚举的属性。
+
+```js
+// 不可枚举的属性默认会被忽略：
+JSON.stringify(
+    Object.create(
+        null,
+        {
+            x: { value: 'x', enumerable: false },
+            y: { value: 'y', enumerable: true }
+        }
+    )
+);
+```
+
+
 
 # 模块化
 
@@ -1789,6 +1889,99 @@ CMD加载完某个依赖模块后并不执行，只是下载而已，在所有�
 var fs = require('fs');
 var chalk = require('chalk');
 ```
+
+# 浏览器
+
+## 事件
+
+## 冒泡和捕获
+
+[DOM 事件](http://www.w3.org/TR/DOM-Level-3-Events/)标准描述了事件传播的 3 个阶段：
+
+1. 捕获阶段（Capturing phase）—— 事件（从 Window）向下走近元素。
+2. 目标阶段（Target phase）—— 事件到达目标元素。
+3. 冒泡阶段（Bubbling phase）—— 事件从元素上开始冒泡。
+
+**对于一个点击事件发生在具有父元素的元素上，现代浏览器运行两个阶段：捕获和冒泡。**
+
+**捕获阶段：浏览器检查元素的最外层祖先<html>是否注册了一个捕获阶段的onClick事件,如果是，运行它。接着来到html中单击元素的下一个祖先元素，执行相同的操作，直到到达目标元素。**
+
+**在冒泡阶段，恰恰相反:**
+
+- **浏览器检查实际点击的元素是否在冒泡阶段中注册了一个`onclick`事件处理程序，如果是，则运行它**
+- **然后它移动到下一个直接的祖先元素，并做同样的事情，然后是下一个，等等，直到它到达`<html>`元素。**
+
+>  当一个事件发生时 —— 发生该事件的嵌套最深的元素被标记为“目标元素”（`event.target`）。
+>
+> - 然后，事件从文档根节点向下移动到 `event.target`，并在途中调用分配了 `addEventListener(..., true)` 的处理程序（`true` 是 `{capture: true}` 的一个简写形式）。
+> - 然后，在目标元素自身上调用处理程序。
+> - 然后，事件从 `event.target` 冒泡到根，调用使用 `on<event>`、HTML 特性（attribute）和没有第三个参数的，或者第三个参数为 `false/{capture:false}` 的 `addEventListener` 分配的处理程序。
+>
+> 每个处理程序都可以访问 `event` 对象的属性：
+>
+> - `event.target` —— 引发事件的层级最深的元素。
+> - `event.currentTarget`（=`this`）—— 处理事件的当前元素（具有处理程序的元素）
+> - `event.eventPhase` —— 当前阶段（capturing=1，target=2，bubbling=3）。
+
+**为了在捕获阶段捕获事件，我们需要将处理程序的 `capture` 选项设置为 `true`：**
+
+```javascript
+elem.addEventListener(..., {capture: true})
+// 或者，用 {capture: true} 的别名 "true"
+elem.addEventListener(..., true)
+```
+
+```html
+<!DOCTYPE html> 
+<html> 
+ 
+  <head> 
+    <meta charset="UTF-8"> 
+    <title></title> 
+    <style type="text/css"> 
+      #box { 
+        width: 300px; 
+        height: 300px; 
+        background: red; 
+        display: none; 
+      } 
+    </style> 
+  </head> 
+ 
+  <body> 
+    <Form>Form
+      <div>DIV
+        <p>P
+        </p>
+      </div>
+    </Form>
+  </body> 
+<style>
+  div, Form, p {
+    border: solid black 2px
+  }
+</style>
+<script>
+  for(let item of document.querySelectorAll("*")) {
+    item.addEventListener('click', (e) => console.log(`capturing:${item.tagName}--${event.eventPhase}`), true)
+    item.addEventListener('click', (e) => console.log(`bubbling:${item.tagName}--${event.eventPhase}`))
+  }
+</script>
+</html> 
+```
+
+- `event.target` —— 引发事件的层级最深的元素。
+- `event.currentTarget`（=`this`）—— 处理事件的当前元素（具有处理程序的元素）
+- `event.eventPhase` —— 当前阶段（capturing=1，target=2，bubbling=3）。
+
+阻止事件 冒泡的方法：
+
+```js
+event.stopPropagation()
+event.cancelBubble = true
+```
+
+
 
 # 垃圾回收 & 内存管理
 
