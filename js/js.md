@@ -1981,7 +1981,7 @@ event.stopPropagation()
 event.cancelBubble = true
 ```
 
-
+## 浏览器默认行为
 
 # 垃圾回收 & 内存管理
 
