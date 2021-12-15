@@ -1,4 +1,4 @@
-# kothers
+# others
 ## 判断是否是数组
 - Array.isArray()
 - Object.prototype.toString.call(arr)
@@ -820,7 +820,7 @@ function isArrayLike(obj) {
     return false
   }
   
-  return Array.isArray(obj) || length === 0 || typeof length === 'number' && length > 0 (length - 1) in obj
+  return Array.isArray(obj) || length === 0 || typeof length === 'number' && length > 0 && (length - 1) in obj
 }
 ```
 
@@ -1032,25 +1032,23 @@ console.log(Number(new Error('a'))) // NaN
 
 > > 按照规范的步骤进行分析：
 >>
-> > 1. lprim = ToPrimitive(null) 因为null是基本类型，直接返回，所以 lprim = null
+> > 1. lprim = ToPrimitive(value1)
 > >
-> > 2. rprim = ToPrimitive(1) 因为 1 是基本类型，直接返回，所以 rprim = null
+> > 2. rprim = ToPrimitive(value2)
 > >
-> > 3. lprim 和 rprim 都不是字符串
+> > 3. 如果 lprim 是字符串或者 rprim 是字符串，那么返回 ToString(lprim) 和 ToString(rprim)的拼接结果
 > >
-> > 4. 返回 ToNumber(null) 和 ToNumber(1) 的运算结果
-> >
-> >    案例：
+> > 4. 返回 ToNumber(lprim) 和 ToNumber(rprim)的运算结果
 > >
 > >    ```js
-> >    console.log(null + 1); //1
+> >   console.log(null + 1); //1
 > >    console.log([] + []); //""
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                      
+> >    
 > >    ```
-> >
+> >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
 
 #### == 相等
@@ -1216,6 +1214,57 @@ document.all == undefined
 document.ll == undefined
 
 [Why is `0` less than `Number.MIN_VALUE` in JavaScript?”](https://stackoverflow.com/questions/26614728/why-is-0-less-than-number-min-value-in-javascript)
+
+#### parseInt
+
+```js
+parseInt(021)  //17
+parseInt('021') //21
+parseInt('021', 8) //17
+```
+
+**parseInt(string, radix)**  解析一个**字符串**并返回**指定基数**的**十进制整数**， `radix` 是**2-36**之间的整数，表示被解析字符串的基数。
+
+- 解析的目标值是**字符串**，如果不是的话，会先进行`toString`转换(默认转换为十进制)，如果不能转换为数字，返回`NaN`
+
+- 返回值是一个**十进制整数** 或者 **`NaN`**
+
+- 在任何情况下都最好指定基数，范围是2-36
+
+- 如果 `parseInt `遇到的字符不是指定 `radix `参数中的数字，它将忽略该字符以及所有后续字符，并返回到该点为止已解析的整数值。 `parseInt` 将数字截断为整数值。 允许前导和尾随空格。
+
+  ```js
+  parseInt("15e2", 10); //15
+  parseInt("15px", 10); //15
+  parseInt(4.7, 10); //4
+  parseInt(4.7 * 1e22, 10); // 非常大的数值变成 4
+  parseInt(0.00000000000434, 10); // 非常小的数值变成 4
+  ```
+
+  > 如果 `radix` 是 `undefined`、`0`或未指定的
+  >
+  > 1. 在解析以0开头的字符串时，有很多实现环境仍然把以 0 开头的数值字符串（numeric string）解释为一个八进制数，但**ECMAScript 5 已经禁止了这种做法**
+  >
+  > ```js
+  > parseInt("0e0");
+  > // 0
+  > 
+  > parseInt("08");
+  > // 8
+  > ```
+  >
+  > 2. 如果输入的 `string`以 "`0x`"或 "`0x`"（一个0，后面是小写或大写的X）开头，那么radix被假定为16，字符串的其余部分被当做十六进制数去解析
+
+```js
+parseInt(021)  //17
+// (021).toString() -->  '17' --> 17
+parseInt('021') //21
+//未指定radix, 默认radix=10
+parseInt('021', 8) //17
+//指定 radix=8,
+```
+
+
 
 ## 迭代器与生成器
 

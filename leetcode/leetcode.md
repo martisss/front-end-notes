@@ -989,13 +989,90 @@ const rdeserialize = (dataList) => {
 
 ### 二叉树的修改 
 
+> 本质上是删除叶子节点
+
 [1325. 删除给定值的叶子节点](https://leetcode-cn.com/problems/delete-leaves-with-a-given-value/)
+
+```js
+var removeLeafNodes = function(root, target) {
+    if(!root) return null
+    root.left = removeLeafNodes(root.left, target)
+    root.right = removeLeafNodes(root.right, target)
+    if(!root.left && !root.right && root.val === target) return null
+    return root
+}
+```
 
 [814. 二叉树剪枝](https://leetcode-cn.com/problems/binary-tree-pruning/)
 
-### todo
+```js
+var pruneTree = function(root) {
+    if(root === null) return null
+    root.left = pruneTree(root.left)
+    root.right = pruneTree(root.right)
+    if(!root.left && !root.right && root.val === 0) return null
+    return root
+};
+```
+
+> 改变节点直接的关系
 
  [116. 填充每个节点的下一个右侧节点指针](https://leetcode-cn.com/problems/populating-next-right-pointers-in-each-node/)
+
+```js
+// 层次遍历
+// 将每一层加入队列之后不断弹出节点，并不断更新pre 与 cur，
+// 同时将pre.next指向cur
+var connect = function(root) {
+    if(!root) return root
+    let queue = [root]
+    while(queue.length) {
+        let size = queue.length
+        let pre = null
+        let cur = null
+        for(let i=0; i<size; i++) {
+            if(i===0) {
+                pre = queue.shift()
+                cur = pre
+            } else {
+                cur = queue.shift()
+                pre.next = cur
+                pre = pre.next
+            }
+            cur.left && queue.push(cur.left)
+            cur.right && queue.push(cur.right)
+        }
+    }
+    return root
+};
+
+
+// 时间复杂度O(n), 空间复杂度O(1)
+var connect = function(root) {
+    if(!root) return root
+    let leftmost = root
+    while(leftmost.left) {
+        let head = leftmost
+        // 可以通过该层的next指针遍历该层，
+        // 遍历的过程中建立下一层节点之间的关系
+        while(head) {
+            head.left.next = head.right
+            if(head.next) {
+                head.right.next = head.next.left
+            }
+            head = head.next
+        }
+        leftmost = leftmost.left
+    }
+    return root
+}
+```
+
+
+
+### todo
+
+
 
  [450. 删除二叉搜索树中的节点](https://leetcode-cn.com/problems/delete-node-in-a-bst/) 
 
@@ -1016,9 +1093,9 @@ const rdeserialize = (dataList) => {
 - 左、右子树也分别为二叉排序树；
 - 没有键值相等的节点。
 
-注意：平衡二叉树中序遍历是有序，遍历的值单调递增
+注意：平衡二叉树**中序遍历**是有序，遍历的值单调递增
 
-平衡二叉树：
+### 平衡二叉树
 
 **平衡二叉树**（Balanced Binary Tree）又被称为AVL树（有别于AVL算法），且具有以下性质：它是**一 棵空树**或它的左右两个子树的高度差的绝对值不超过1，并且左右两个子树都是一棵平衡二叉树。这个方案很好的解决了**二叉查找树退化成链表**的问题，把插入，查找，删除的时间复杂度最好情况和最坏情况都维持在O(logN)
 
@@ -1030,7 +1107,7 @@ const rdeserialize = (dataList) => {
 
 给完全二叉树编号，这样父子之间就可以通过编号轻松求出。给所有节点从左到右从上到下依次从 1 开始编号。那么已知一个节点的编号是 i，那么其左子节点就是 2 _*i，右子节点就是 2 *i + 1，父节点就是 i / 2。
 
-#### [222. 完全二叉树的节点个数](https://leetcode-cn.com/problems/count-complete-tree-nodes/)
+[222. 完全二叉树的节点个数](https://leetcode-cn.com/problems/count-complete-tree-nodes/)
 
 ```js
 var countNodes = function(root) {
