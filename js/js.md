@@ -6,20 +6,51 @@
 ## 原型、原型链
 ![原型、原型链.png](https://i.loli.net/2021/09/12/QauU3fYzjZJ9hdn.png)
 
-- constructor
-```
-function Person() {
 
-}
-var person = new Person();
-console.log(person.constructor === Person); // true
+
+```js
+class A{}
+class B extends A{}
+const a = new A()
+const b = new B()
+a.__proto__
+b.__proto__
+B. __proto__
+B. prototype.__proto__
+b.__proto__.__proto__
 ```
-person 本身没有constructor，而是从Person.prototype中读取
+
+![image.png](https://s2.loli.net/2021/12/18/8SoZ6Jn9vxBaKCy.png)
+
+### prototype
+
+每个函数都有`prototype`属性，它并不指向该函数的原型。实际上，该属性指向一个对象，这个对象是**调用该构造函数而创建的实例的原型。**
+
+### ` __proto__`
+
+指向该对象的原型，对于实例来说，指向构造函数的prototype
+
+### constructor
+
+指向构造函数
+
+### **注意：**
+
+- 某个构造函数的实例本身并没有constructor
+
+  ```js
+  function Person() {
+  
+  }
+  var person = new Person();
+  console.log(person.constructor === Person); // true
+  ```
+
 - ``__proto__``
-  实际来源于 ``Object.__proto__`` ，可以理解成返回了 Object.getPrototypeOf(obj)
-
+  并不存在于``prototype``上，可以理解成返回了Object.getPrototypeOf(obj)
 - 继承？
-   JavaScript 默认并不会复制对象的属性，相反，JavaScript 只是在两个对象之间创建一个关联，这样，一个对象就可以通过委托访问另一个对象的属性和函数，
+   **JavaScript 默认并不会复制对象的属性**，相反，JavaScript 只是在两个对象之间创建一个关联，这样，一个对象就可以通过委托访问另一个对象的属性和函数，
+- `Function.__proto__ === Function.prototype //true`
 ## 词法作用域与动态作用域
 [地址](https://github.com/mqyqingfeng/Blog/issues/3)
 作用域就是定义变量的区域
@@ -79,6 +110,7 @@ checkscope();
 
 从理论角度讲，所有的js函数都是闭包，
 从实践角度来说，要满足以下两点：
+
 1. 即使创建它的上下文对象已经销毁，它依然存在
 2. 代码中引用了自由变量
 
@@ -106,6 +138,7 @@ a1(); //99
 a2(); //100
 ```
 ## call, apply, bind 的模拟实现
+
 call
 在非严格模式下，不传参数或传递 null/undefined，this 都指向 window。传递的是原始值，原始值会被包装。严格模式下，call 的第一个参数是谁就指向谁
 
@@ -182,16 +215,71 @@ Function.prototype.bind = function (context) {
 }
 ```
 ## 模拟new实现
+
+### 使用new时发生了什么
+
+**`new`** 关键字会进行如下的操作：
+
+1. 创建一个空的简单JavaScript对象（即`**{}**`）；
+2. 为步骤1新创建的对象添加属性**__proto__**，将该属性链接至构造函数的原型对象 ；
+3. 将步骤1新创建的对象作为`**this**`的上下文 ；
+4. 如果该函数没有返回对象，则返回`**this**`。
+
+**当代码 `new Foo(...)` 执行时，会发生以下事情：**
+
+1. 一个继承自 `*Foo*.prototype` 的新对象被创建。
+2. 使用指定的参数调用构造函数 *`Foo`*，并将 `this` 绑定到新创建的对象。`new *Foo*` 等同于 *`new Foo`*`()`，也就是没有指定参数列表，*`Foo`* 不带任何参数调用的情况。
+3. 由构造函数返回的对象就是 `new` 表达式的结果。如果构造函数没有显式返回一个对象，则使用步骤1创建的对象。（一般情况下，构造函数不返回值，但是用户可以选择主动返回对象，来覆盖正常的对象创建步骤）
+
 ```js
 // 实现 new
 function myNew(fn, ...args) {
   var obj = Object.create(fn.prototype);
   var ret = fn.apply(obj, args);
-  return ret instanceof Object ? res : obj;
+  return ret instanceof Object ? res : obj`;
 };
 ```
 
+**注意：**下面这个例子，要能清楚new时发生了什么，同时要注意成员访问运算符(.)的优先级大于`new`,小括号()的优先级又大于(.)
+
+```js
+function test() {           
+    getName = function() { 
+        Promise.resolve().then(() => console.log(0)); 
+        console.log(1);               
+    };
+
+    return this; 
+}
+test.getName = function() { 
+     setTimeout(() => console.log(2), 0); 
+     console.log(3);               
+};
+test.prototype.getName = function() {    
+
+     console.log(4); 
+};       
+var getName = function() { 
+     console.log(5);             
+};
+function getName() {
+
+     console.log(6); 
+}      
+      
+test.getName(); 
+getName(); 
+test().getName(); 
+getName();  
+new test.getName();
+new test().getName();
+new new test().getName();
+```
+
+
+
 ## 类数组对象与arguments
+
 ### 类数组
 - 拥有一个 length 属性和若干索引属性的对象
 - 调用数组方法 Function.call
@@ -1041,12 +1129,12 @@ console.log(Number(new Error('a'))) // NaN
 > > 4. 返回 ToNumber(lprim) 和 ToNumber(rprim)的运算结果
 > >
 > >    ```js
-> >   console.log(null + 1); //1
+> >     console.log(null + 1); //1
 > >    console.log([] + []); //""
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >    
+> >             
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
