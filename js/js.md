@@ -663,13 +663,12 @@ person2.getName();  // daisy
 ## 继承
 
 ### 原型链继承
+
+> 将父类的实例作为子类实例的原型
+
 ```js
 function Parent () {
-    this.name = 'kevin';
-}
-
-Parent.prototype.getName = function () {
-    console.log(this.name);
+    this.names = ['kevin', 'daisy'];
 }
 
 function Child () {
@@ -680,15 +679,27 @@ Child.prototype = new Parent();
 
 var child1 = new Child();
 
-console.log(child1.getName()) // kevin
+child1.names.push('yayu');
+
+console.log(child1.names); // ["kevin", "daisy", "yayu"]
+
+var child2 = new Child();
+
+console.log(child2.names); // ["kevin", "daisy", "yayu"]
 
 ```
 问题：
 
-1.引用类型的属性被所有实例共享，举个例子
-2. 在创建 Child 的实例时，不能向Parent传参
+1. 父类**引用类型**的属性被所有实例共享
 
-- 借用构造函数
+2. 创建子类型实例时不能给父类型构造函数传参
+
+   > 可以看到Child其实是 ‘’空’‘ 的，自然无法传参
+
+### 借用构造函数
+
+> 在子类构造函数中调用父类构造函数，可以在子类构造函数中使用`call()`和`apply()`方法
+
 ```js
 function Parent () {
     this.names = ['kevin', 'daisy'];
@@ -716,10 +727,14 @@ console.log(child2.names); // ["kevin", "daisy"]
 2. 可以在 Child 中向 Parent 传参
 
 缺点：
-1. 方法都在构造函数中定义，每次创建实例都会创建一遍方法。
-2. 无法继承父类原型中的方法
 
-- 组合继承
+1. 子类不能访问父类`prototype`（这里即`Parent.prototype`）上的方法
+2. 所有方法属性都写在构造函数中，每次创建实例都会初始化
+
+### 组合继承 *
+
+> 基本的思路就是使用原型链继承父类prototype上的属性和方法，而通过构造函数继承实例属性，这样既可以实现方法重用，又可以让每个实例都有自己的属性
+
 ```js
 function Parent (name) {
     this.name = name;
@@ -756,18 +771,24 @@ console.log(child2.age); // 20
 console.log(child2.colors); // ["red", "blue", "green"]
 
 ```
-- 原型式继承
-缺点与原型链继承一样
+组合继承结合了原型链继承和借用构造函数继承的优点，这很棒，但是也存在一个小问题，在上述过程中父类构造函数执行了两次，带来的后果是什么呢？后果是子类实例和其原型上存在同名属性，最后子类属性会屏蔽原型上的属性，这虽然不影响使用，但却不够优雅，后面的寄生式组合继承会解决这个问题。
+
+### 原型式继承
+
+> 就是 ES5 Object.create 的模拟实现，**将传入的对象作为创建的对象的原型**
+
 ```js
 function createObj(o) {
     function F(){}
     F.prototype = o;
     return new F();
 }
-
 ```
-- 寄生式继承
-创建一个仅用于封装继承过程的函数，该函数在内部以某种形式来做增强对象，最后返回对象。
+缺点: 与原型链继承一样, 引用类型的属性会被所有实例共享，同时不能
+
+### 寄生式继承
+创建一个仅用于封装继承过程的函数，该函数在内部以某种形式来做增强对象，最后返回对象。可以看到内部使用了`Object.create()`，因此其本质上是在原型式继承返回的新对象上增加了新的属性和方法，实现**增强**效果。
+
 ```js
 function createObj (o) {
     var clone = Object.create(o);
@@ -777,7 +798,88 @@ function createObj (o) {
     return clone;
 }
 ```
-- 寄生组合式继承
+缺点： 同借用构造函数继承，每次都会重新创建方法，且`Object.create()`执行浅复制，多个实例的引用类型指向相同，造成污染。
+
+### 寄生组合式继承 *
+
+> 组合式继承
+>
+> ```js
+> function Parent (name) {
+>     this.name = name;
+>     this.colors = ['red', 'blue', 'green'];
+> }
+> 
+> Parent.prototype.getName = function () {
+>     console.log(this.name)
+> }
+> 
+> function Child (name, age) {
+>     Parent.call(this, name);   
+>     this.age = age;
+> }
+> 
+> Child.prototype = new Parent();
+> Child.prototype.constructor = Child;
+> 
+> ```
+
+组合式继承中父类构造函数`Parent()`调用了两次
+
+一次是设置子类实例的原型，
+
+```js
+Child.prototype = new Parent()
+```
+
+ 一次是调用子类构造函数，为什么在这里也调用了一次Parent()呢？
+
+```js
+let child1 = new Child('kevin', '18');
+```
+
+因为首先Child是这样的：
+
+```js
+function Child (name, age) {
+    Parent.call(this, name); 
+    this.age = age;
+}
+```
+
+在用`new`创建`Child`实例的过程中会经历如下阶段：
+
+- 生成一个以`Child.prototype`为原型的对象
+- 使用给定的参数调用构造函数`Child`, 然后将`this`指向新创建的对象
+- 返回新创建的对象（`Child`中并没有return语句指定返回哪个对象，因此默认返回新创建的对象）
+
+因此在第二步调用构造函数的过程中又调用了一次父类构造函数`Parent`
+
+而`寄生组合式继承 `就是为了避免重复调用父类构造函数:
+
+```js
+Child.prototype = Object.create(Parent.prototype);
+// Child.prototype = Parent.prototype
+// 直接这样的话会存在隐患，如果修改Child.prototype的话会影响Parent.prototype
+Child.prototype.constructor = Child;
+```
+
+这样就避免了在设置子类实例的原型时调用父类构造函数。
+
+> Object.create(o)的作用是返回一个新对象，该对象以给定对象`o`为原型
+>
+> 其实现类似：
+>
+> ```js
+> function createObj(o) {
+>     function F(){}
+>     F.prototype = o;
+>     return new F();
+> }
+> ```
+>
+> 可以理解为原型式继承
+
 ```js
 function Parent (name) {
     this.name = name;
@@ -789,18 +891,33 @@ Parent.prototype.getName = function () {
 }
 
 function Child (name, age) {
-
-    Parent.call(this, name);
-    
+    Parent.call(this, name); 
     this.age = age;
-
 }
 
 Child.prototype = Object.create(Parent.prototype);
 // Child.prototype = Parent.prototype
 // 直接这样的话会存在隐患，如果修改Child.prototype的话会影响Parent.prototype
 Child.prototype.constructor = Child;
+
+
+
+// 可以封装一下
+// function prototype(child, parent) {
+//   var prototype = Object.create(parent.prototype);
+//   prototype.constructor = child;
+//   child.prototype = prototype;
+// }
+
+// // 当我们使用的时候：
+// prototype(Child, Parent);
 ```
+
+### ES5继承与ES6继承的区别
+
+ES5的继承实质上是先创建子类的实例对象，然后再将父类的方法添加到this上（Parent.call(this)）.
+
+ES6的继承有所不同，实质上是先创建父类的实例对象this，然后再用子类的构造函数修改this。因为子类没有自己的this对象，所以必须先调用父类的super()方法，否则新建实例报错。
 
 ## 类型判断
 
@@ -1134,7 +1251,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                
+> >                   
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
