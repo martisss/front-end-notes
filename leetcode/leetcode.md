@@ -2173,7 +2173,7 @@ var combinationSum2 = function(candidates, target) {
         }
         for(let i = startIndex; i < source.length && sum - candidates[i] >= 0; i++) { //剪枝，小于0的话就没必要再进入下一层递归
             if(i > startIndex && source[i] === source[i-1]) continue //同一层不选择重复的元素
-            pre = source[i]
+
             path.push(source[i])
             backtrack(i+1, sum - source[i]) // i+1代表不选择上一层已经选择过的【同一个】元素，表现为【candidates 中的每个数字在每个组合中只能使用一次】，但还是可以选择数值上重复，但未在本层使用过的【重复元素】，表现为每个path中可以有重复元素
             path.pop()
@@ -2385,6 +2385,8 @@ var isAdditiveNumber = function(num) {
 
 ## 求子集问题
 
+子集问题和组合问题、分割问题的的区别，**子集是收集树形结构中树的所有节点的结果**。**而组合问题、分割问题是收集树形结构中叶子节点的结果**。
+
 #### [78. 子集](https://leetcode-cn.com/problems/subsets/)
 
 > 给你一个整数数组 nums ，数组中的元素 互不相同 。返回该数组所有可能的子集（幂集）。
@@ -2588,9 +2590,8 @@ function subsetsWithDup(nums: number[]): number[][] {
 >
 > 1 <= nums.length <= 15
 > -100 <= nums[i] <= 100
-> 通过次数50,425提交次数92,827
->
-> 来源：力扣（LeetCode）
+> 
+>来源：力扣（LeetCode）
 > 链接：https://leetcode-cn.com/problems/increasing-subsequences
 
 ```ts
@@ -2768,19 +2769,9 @@ function permuteUnique(nums: number[]): number[][] {
 };
 ```
 
-
-
-
-
-
-
-
-
-
-
-子集问题和组合问题、分割问题的的区别，**子集是收集树形结构中树的所有节点的结果**。**而组合问题、分割问题是收集树形结构中叶子节点的结果**。
-
 ## 棋盘问题
+
+遍历每一个位置，看是否存在符合要求的解
 
 #### [51. N 皇后](https://leetcode-cn.com/problems/n-queens/)
 
@@ -2980,4 +2971,94 @@ var exist = function(board, word) {
 # 贪心
 
 针对一组数据，定义了限制值和期望值，在满足限制值的情况下，要求期望值最大。贪心的做法：每次选择当前情况下，在对限制值同等贡献量的情况下，对期望值贡献最大的数据。或者说对期望值相同贡献量的情况下，选择更小的限制值使用量。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
