@@ -139,38 +139,50 @@ a2(); //100
 ```
 ## call, apply, bind 的模拟实现
 
-call
-在非严格模式下，不传参数或传递 null/undefined，this 都指向 window。传递的是原始值，原始值会被包装。严格模式下，call 的第一个参数是谁就指向谁
+<hr/>
+
+### call
+
+- 在非严格模式下，不传参数或传递 null/undefined，this 都指向 window。
+- 传递的是原始值，原始值会被包装。
+- 严格模式下，call 的第一个参数是谁就指向谁
 
 ```js
-Function.prototype.call = function(context) {
-  var context = context || window
-  // 获取调用call1的函数
+Function.prototype.call2 = function(context) {
+  // 如果call第一个参数是null/undefined，那么this将指向window
+  context = context || window
+  // 取得调用call的函数
   context.fn = this
-  var args = []
-  for(var i = 1, len = arguments.length; i < len; i++) {
+  const args = []
+  for(let i=1; i<arguments.length; i++) {
     args.push('arguments['+ i +']')
   }
-  var result = eval('context.fn('+ args +')')
+  let res = eval('context.fn('+ args +')')
   delete context.fn
-  return result
+  return res
 }
 
-// 另外的实现
-Function.prototype.call = function(context, ...args) {
-  if(context == null) context = globalThis
-  if(typeof target !== 'object') target = Object(target)
-  const symbol = Symbol()
-  context[symbol] = this
-  try {
-    return target[symbol](...args)
-  } finally {
-    delete target[symbol]
+var value = 2;
+
+var obj = {
+    value: 1
+}
+
+function bar(name, age) {
+  console.log(this.value);
+  return {
+      value: this.value,
+      name: name,
+      age: age
   }
 }
+
+bar.call2(obj)
 ```
-apply
-两者唯一不同的是：apply 的除了一个this指向的参数外，第二个参数是数组[arg1, arg2...]，call的第二参数是列表(arg1, arg2...)
+### apply
+
+> 两者唯一不同的是：apply 的除了一个this指向的参数外，第二个参数是数组[arg1, arg2...]，call的第二参数是列表(arg1, arg2...)
+
 ```js
 Function.prototype.apply = function(context, arr) {
   var context = Object(context) || window
@@ -189,7 +201,16 @@ Function.prototype.apply = function(context, arr) {
   return result
 }
 ```
-bind
+### bind
+
+> 创建函数
+
+不论怎么调用，这个函数都有同样的 **`this`** 值
+
+> 偏函数
+
+使一个函数拥有预设的初始参数，当绑定函数被调用时，这些参数会被插入到目标函数的参数列表的开始位置，传递给绑定函数的参数会跟在它们后面
+
 ```js
 // 第三版
 Function.prototype.bind = function (context) {
@@ -1251,7 +1272,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                   
+> >                      
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
