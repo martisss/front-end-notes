@@ -334,6 +334,20 @@ var reverseKGroup = function(head, k) {
 };
 ```
 
+## todo
+
+> meddium
+
+#### [146. LRU 缓存](https://leetcode-cn.com/problems/lru-cache/)
+
+#### [430. 扁平化多级双向链表](https://leetcode-cn.com/problems/flatten-a-multilevel-doubly-linked-list/)
+
+#### [1600. 皇位继承顺序](https://leetcode-cn.com/problems/throne-inheritance/)
+
+> hard
+
+#### [460. LFU 缓存](https://leetcode-cn.com/problems/lfu-cache/)
+
 # 堆
 
 ## 二叉堆实现
