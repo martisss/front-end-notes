@@ -2968,6 +2968,85 @@ var exist = function(board, word) {
 };
 ```
 
+#### [1219. 黄金矿工](https://leetcode-cn.com/problems/path-with-maximum-gold/)
+
+> 你要开发一座金矿，地质勘测学家已经探明了这座金矿中的资源分布，并用大小为 m * n 的网格 grid 进行了标注。每个单元格中的整数就表示这一单元格中的黄金数量；如果该单元格是空的，那么就是 0。
+>
+> 为了使收益最大化，矿工需要按以下规则来开采黄金：
+>
+> 每当矿工进入一个单元，就会收集该单元格中的所有黄金。
+> 矿工每次可以从当前位置向上下左右四个方向走。
+> 每个单元格只能被开采（进入）一次。
+> 不得开采（进入）黄金数目为 0 的单元格。
+> 矿工可以从网格中 任意一个 有黄金的单元格出发或者是停止。
+>
+>
+> 示例 1：
+>
+> 输入：grid = [[0,6,0],[5,8,7],[0,9,0]]
+> 输出：24
+> 解释：
+> [[0,6,0],
+>  [5,8,7],
+>  [0,9,0]]
+> 一种收集最多黄金的路线是：9 -> 8 -> 7。
+> 示例 2：
+>
+> 输入：grid = [[1,0,7],[2,0,6],[3,4,5],[0,3,0],[9,0,20]]
+> 输出：28
+> 解释：
+> [[1,0,7],
+>  [2,0,6],
+>  [3,4,5],
+>  [0,3,0],
+>  [9,0,20]]
+> 一种收集最多黄金的路线是：1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7。
+>
+> 来源：力扣（LeetCode）
+> 链接：https://leetcode-cn.com/problems/path-with-maximum-gold
+
+```js
+const dfs = (grid, m, n) => {
+    // 返回条件，一是坐标不能超出棋盘的位置
+    // 二是“不得开采（进入）黄金数目为 0 的单元格。”
+    // 遇到上述情况就返回0
+    if(m<0 || m>=grid.length || n<0 || n>=grid[0].length || grid[m][n] === 0) return 0
+    // 暂存该值，之后要进行回溯
+    let temp = grid[m][n]
+    // 假定已经开采过grid[m][n]了, 因此黄金数量变为0
+    grid[m][n] = 0
+    // 继续探索上下左右
+    let up = dfs(grid,m-1, n)
+    let down = dfs(grid,m+1, n)
+    let right = dfs(grid,m, n+1)
+    let left = dfs(grid,m, n-1)
+    // 上下左右哪个最大就走哪一步
+    let max = Math.max(up, down, left, right)
+    grid[m][n] = temp
+    return grid[m][n] + max
+}
+
+var getMaximumGold = function(grid) {
+    if(!grid || grid.length === 0) return 0
+    let res = 0
+    // 矿工可以从网格中 任意一个 有黄金的单元格出发或者是停止。
+    // 因此要以网格中的每一个坐标为起点进行探索，并不断更新最大值
+    for(let i=0; i<grid.length; i++) {
+        for(let j=0; j<grid[0].length; j++) {
+            res = Math.max(res, dfs(grid, i, j))
+        }
+    }
+    return res
+};
+
+作者：eric2589
+链接：https://leetcode-cn.com/problems/path-with-maximum-gold/solution/1219-huang-jin-kuang-gong-by-eric2589-uawo/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+
+
 # 动态规划
 
 ## 动规五部曲
