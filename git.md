@@ -142,3 +142,62 @@ git branch -u o/main foo
 ```
 git branch -u o/main
 ```
+
+
+
+# git log
+
+### 1.查看 dev 有，而 master 中没有的：
+
+```
+git log dev ^master
+```
+
+ 同理查看 master 中有，而 dev 中没有的内容：
+
+```
+git log master ^dev
+```
+
+ ![img](https://images2017.cnblogs.com/blog/1111758/201709/1111758-20170921105643118-848563784.png)
+
+### 2.查看 dev 中比 master 中多提交了哪些内容
+
+```
+git log master..dev
+```
+
+ ![img](https://images2017.cnblogs.com/blog/1111758/201709/1111758-20170921105713837-2035787968.png)
+
+### 3.不知道谁提交的多谁提交的少，单纯想知道有什么不一样：
+
+```
+git log dev...master
+```
+
+ ![img](https://images2017.cnblogs.com/blog/1111758/201709/1111758-20170921105738900-1600525373.png)
+
+### 4.在上述情况下，再显示出每个提交是在哪个分支上：
+
+```
+git log --left-right dev...master
+```
+
+![img](https://images2017.cnblogs.com/blog/1111758/201709/1111758-20170921105834056-220602777.png)
+
+ 
+
+ commit 后面的箭头，根据我们在 –left-right dev…master 的顺序，左箭头 < 表示是 dev 的，右箭头 > 表示是 master的。undefined截图中表示这三个提交都是在 master 分支上的。
+
+# git reset
+
+提交的commit从历史记录中完全消失，且该操作会冲掉该提交后的所有提交，在一个分支上进行合作开发时这样可能会抹掉别人的commit, 同时滥用git reset可能会导致当前分支落后于master分支，会导致无法合并
+
+# git revert
+
+1. 在当前提交后面，新增一次提交，抵消掉上一次提交导致的所有变化。它不会改变过去的历史，所以是首选方式，没有任何丢失代码的风险
+
+2. revert可以抵消上一个提交，那么如果想要抵消多个需要执行 `git revert 倒数第一个commit id 倒数第二个commit`
+
+3. 会把你后面提交的记录都放到工作区
+
