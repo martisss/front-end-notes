@@ -229,16 +229,13 @@ MyStack.prototype.empty = function() {
 1. 递归
 
 ```js
-const reverse = (list) => {
-  let pre = null
-  let cur = list.head
-  while(cur) {
-    next = cur.next
-    cur.next = pre
-    cur = next
-    pre = cur
-  }
-  return pre
+// 递归
+var reverseList = function(head) {
+    if(!head || !head.next) return head
+    const newNode = reverseList(head.next)
+    head.next.next = head
+    head.next = null
+    return newNode
 }
 ```
 

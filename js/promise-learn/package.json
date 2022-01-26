@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "promises-aplus-tests": "*"
+  },
+  "scripts": {
+    "test": "promises-aplus-tests promise-0113.js"
+  }
+}
