@@ -3211,6 +3211,61 @@ var getMaximumGold = function(grid) {
 4. 确定遍历顺序
 5. 举例推导dp数组
 
+### [53. 最大子数组和](https://leetcode-cn.com/problems/maximum-subarray/)
+
+```js
+// 贪心
+var maxSubArray = function(nums) {
+    let max = -Infinity
+    let count = 0
+    for(let item of nums) {
+        count += item
+        if(count > max) max = count
+        if(count <= 0) count = 0
+    }
+    return max
+}
+
+// 动态规划
+// 递推公式 dp[i+1] = max(nums[i+1], dp[i]+nums[i+1])
+// 满足最优子结构和无后效性
+var maxSubArray = function(nums) {
+    let max = nums[0]
+    for(let i=1; i<nums.length; i++) {
+        // 无后效性，因此直接修改nums
+        if(nums[i-1]>0) {
+            // 关键在于上一次的递推结果是否是大于0
+            nums[i] += nums[i-1]
+        }
+        max = Math.max(nums[i], max)
+    }
+    return max
+}
+
+// 变体，返回最大和的连续子数组的开始结束索引
+var maxSubArray = function(nums) {
+    let max = nums[0]
+    let start=0, end=0, finalStart=0, finalEnd=0
+    for(let i=1; i<nums.length; i++) {
+        // 无后效性，因此直接修改nums
+        if(nums[i-1]>0) {
+            end = i
+            // 关键在于上一次的递推结果是否是大于0
+            nums[i] += nums[i-1]
+        } else {
+            start = i
+            end = i
+        }
+        if(nums[i]>max) {
+            max = nums[i]
+            finalStart = start
+            finalEnd = end
+        }
+    }
+    return [finalStart, finalEnd]
+}
+```
+
 
 
 # 贪心
