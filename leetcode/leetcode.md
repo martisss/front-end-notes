@@ -577,6 +577,27 @@ class Heap {
 }
 ```
 
+# 位运算
+
+### [136. 只出现一次的数字](https://leetcode-cn.com/problems/single-number/)
+
+> 使用哈希可以达到n的空间与时间复杂度
+>
+> 使用位运算可以达到线性时间空间复杂度
+
+```js
+// 异或运算
+// 任何数和0做异或，不变
+// 任何数和自身做异或，为0
+var singleNumber = function(nums) {
+    let ans = 0
+    for(let item of nums) {
+        ans ^= item
+    }
+    return ans
+};
+```
+
 
 
 # 二叉树
