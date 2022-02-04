@@ -686,6 +686,111 @@ a & (1<<k)
 
 a | (1<<k) 
 
+# 滑动窗口
+
+## 窗口大小不变
+
+### [643. 子数组最大平均数 I](https://leetcode-cn.com/problems/maximum-average-subarray-i/)
+
+> 给你一个由 `n` 个元素组成的整数数组 `nums` 和一个整数 `k` 。
+>
+> 请你找出平均数最大且 **长度为 `k`** 的连续子数组，并输出该最大平均数。
+>
+> 任何误差小于 `10-5` 的答案都将被视为正确答案。
+>
+> ```js
+> var findMaxAverage = function(nums, k) {
+>     let sum = 0
+>     for(let i=0; i<k; i++) {
+>         sum += nums[i]
+>     }
+>     // 维护一个长度为k的滑动窗口
+>     // 通过一次遍历求得连续子数组的和，更新最大值
+>     let max = sum
+>     for(let i=k; i<nums.length; i++) {
+>         sum = sum - nums[i-k] + nums[i]
+>         max = Math.max(sum, max)
+>     }
+>     return max/k
+> };
+> ```
+
+### [1423. 可获得的最大点数](https://leetcode-cn.com/problems/maximum-points-you-can-obtain-from-cards/)
+
+>  几张卡牌 **排成一行**，每张卡牌都有一个对应的点数。点数由整数数组 `cardPoints` 给出。
+>
+> 每次行动，你可以从行的开头或者末尾拿一张卡牌，最终你必须正好拿 `k` 张卡牌。
+>
+> 你的点数就是你拿到手中的所有卡牌的点数之和。
+>
+> 给你一个整数数组 `cardPoints` 和整数 `k`，请你返回可以获得的最大点数。
+>
+> ```js
+> var maxScore = function(cardPoints, k) {
+>     let sum = 0
+>     let n = cardPoints.length - k
+>     for(let i=0; i < n; i++) {
+>         sum += cardPoints[i]
+>     }
+>     let minSum = sum
+>     for(let i=n; i<cardPoints.length; i++) {
+>         sum += cardPoints[i] - cardPoints[i-n]
+>         minSum = Math.min(minSum, sum)
+>     }
+>     const total = cardPoints.reduce((a,b) => a+b, 0)
+>     return total - minSum
+> };
+> ```
+
+### [219. 存在重复元素 II](https://leetcode-cn.com/problems/contains-duplicate-ii/)
+
+> 给你一个整数数组 `nums` 和一个整数 `k` ，判断数组中是否存在两个 **不同的索引** `i` 和 `j` ，满足 `nums[i] == nums[j]` 且 `abs(i - j) <= k` 。如果存在，返回 `true` ；否则，返回 `false` 。
+>
+>  ```js
+>  // 滑动窗口
+>  var containsNearbyDuplicate = function(nums, k) {
+>      let set = new Set()
+>      // abs(i-j) <= k 维护一个长度为k+1的滑动窗口
+>      for(let i=0; i<nums.length; i++) {
+>          if(i>k) {
+>              set.delete(nums[i-k-1])
+>          }
+>          if(set.has(nums[i])) return true
+>          set.add(nums[i])
+>      }
+>      return false
+>  };
+>  
+>  // 哈希
+>  var containsNearbyDuplicate = function(nums, k) {
+>      let map = new Map()
+>      for(let i=0; i<nums.length; i++) {
+>          if(map.has(nums[i]) && Math.abs(i-map.get(nums[i]) <= k)) return true
+>          map.set(nums[i], i)
+>      }
+>      return false
+>  }
+>  ```
+
+### [220. 存在重复元素 III](https://leetcode-cn.com/problems/contains-duplicate-iii/)
+
+**todo**
+
+> 给你一个整数数组 `nums` 和两个整数 `k` 和 `t` 。请你判断是否存在 **两个不同下标** `i` 和 `j`，使得 `abs(nums[i] - nums[j]) <= t` ，同时又满足 `abs(i - j) <= k` 。
+>
+> 如果存在则返回 `true`，不存在返回 `false`。
+>
+> ```js
+> ```
+>
+> 
+
+## 窗口大小变化
+
+#### [594. 最长和谐子序列](https://leetcode-cn.com/problems/longest-harmonious-subsequence/)
+
+
+
 # 二叉树
 
 ## **:sparkles: 二叉树：递归函数究竟什么时候需要返回值，什么时候不要返回值？:sparkles:**
