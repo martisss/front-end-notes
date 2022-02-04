@@ -502,6 +502,8 @@ var reverseKGroup = function(head, k) {
 
 # 堆
 
+### todo [剑指 Offer 40. 最小的k个数](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/)
+
 ## 二叉堆实现
 
 ```js
@@ -598,7 +600,91 @@ var singleNumber = function(nums) {
 };
 ```
 
+<hr>
+### [342. 4的幂](https://leetcode-cn.com/problems/power-of-four/)
 
+```js
+var isPowerOfFour = function(n) {
+    return n>0 && (n & (n-1)) === 0 && (n % 3 === 1)
+};
+// var isPowerOfFour = function(n) {
+//     return n>0 && (n & (n-1)) === 0 && (n & 0xaaaaaaaa) === 0
+// };
+```
+
+#### [231. 2 的幂](https://leetcode-cn.com/problems/power-of-two/)
+
+```js
+var isPowerOfTwo = function(n) {
+    return n > 0 && (n & (n-1)) === 0
+};
+var isPowerOfTwo = function(n) {
+    return n > 0 && (n & (-n)) === n
+};
+```
+
+#### [面试题 01.01. 判定字符是否唯一](https://leetcode-cn.com/problems/is-unique-lcci/)
+
+```js
+//注意位运算符优先级
+var isUnique = function(astr) {
+    let mark = 0
+    for(let c of astr) {
+        let k = c.charCodeAt() - 'a'.charCodeAt()
+        if((mark & (1 << k)) !== 0) {
+            return false
+        } else {
+            mark |= (1 << k)
+        }
+    }
+    return true
+}
+```
+
+> 利用异或
+
+### [389. 找不同](https://leetcode-cn.com/problems/find-the-difference/)
+
+```js
+ /* 位运算 */
+var findTheDifference = function(s, t) {
+    let mark = 0
+    for(let c of s) {
+        mark ^= c.charCodeAt()
+    }
+    for(let c of t) {
+        mark ^= c.charCodeAt()
+    }
+    return String.fromCharCode(mark)
+};
+```
+
+
+
+***n* & (*n*−1)**  运算结果恰为把 n 的二进制位中的最低位的 1变为 0，使用 
+
+:question:判断是否是2的幂
+
+1. `n & (n−1) === 0  `
+
+2. `n & (-n) = n`
+
+3. 判断 n 是否是 2^30 的约数
+
+   > ```js
+   > var isPowerOfTwo = function(n) {
+   >     const BIG = 1 << 30;
+   >     return n > 0 && BIG % n === 0;
+   > };
+   > ```
+
+:question:二进制加减法![image-20220203134919525](D:\NOTES\leetcode\leetcode.assets\image-20220203134919525.png)
+
+:question:判断a的第k位数字是0是1； 将a的第k位数字赋值为1
+
+a & (1<<k) 
+
+a | (1<<k) 
 
 # 二叉树
 
