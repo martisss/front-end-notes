@@ -818,9 +818,201 @@ def findSubArray(nums):
 right 指针每次向右移动一步，开始探索新的区间。
 ```
 
+### [594. 最长和谐子序列](https://leetcode-cn.com/problems/longest-harmonious-subsequence/)
+
+### [76. 最小覆盖子串](https://leetcode-cn.com/problems/minimum-window-substring/)
+
+> 给你一个字符串 `s` 、一个字符串 `t` 。返回 `s` 中涵盖 `t` 所有字符的最小子串。如果 `s` 中不存在涵盖 `t` 所有字符的子串，则返回空字符串 `""` 。
+>
+> **注意：**
+>
+> - 对于 `t` 中重复字符，我们寻找的子字符串中该字符数量必须不少于 `t` 中该字符数量。
+> - 如果 `s` 中存在这样的子串，我们保证它是唯一的答案。
+
+```js
+var minWindow = function(s, t) {
+    // 最小覆盖字串的起始位置及长度
+    let start = 0, len = Number.MAX_VALUE
+    // 滑动窗口的左右指针
+    let left = 0, right = 0
+    // 表示当前窗口已验证的字符数（种类）
+    let valid = 0
+    // need为需要验证的字符的字符数的集合
+    // window为当前窗口中 所需要的字符的字符数的集合
+    let need = {}, window = {}
+    // 生成need集合
+    for(let c of t) {
+        need[c] = (need[c] || 0) + 1
+    }
+    while(right < s.length) {
+        let c = s[right]
+        right++
+        // 当前字符属于需验证字符，更新当前窗口统计
+        if(need[c]) {
+            window[c] = (window[c] || 0) + 1
+            // 相应字符数量与验证字符数量匹配，
+            if(window[c] === need[c]) {
+                valid++
+            }
+        }
+        // 当窗口中所需字符数量与所需要的字符个数相同时，开始收缩窗口
+        // 更新最小覆盖字串
+        while(valid === Object.keys(need).length) {
+            // 注意此处 right已经右移过了，因此字串长度为right-left, 而不是right-left+1
+            if(right-left< len) {
+                start = left
+                len = right-left
+            }
+            // 左移窗口，移动过程中注意更新valid 与 window
+            let d = s[left]
+            left++
+            if(need[d]) {
+                if(window[d] === need[d]) {
+                    valid--
+                }
+                window[d]--
+            }
+        }
+    }
+    return len == Number.MAX_VALUE ? '' : s.substr(start, len)
+};
+```
+
+### [567. 字符串的排列](https://leetcode-cn.com/problems/permutation-in-string/)
+
+> 给你两个字符串 `s1` 和 `s2` ，写一个函数来判断 `s2` 是否包含 `s1` 的排列。如果是，返回 `true` ；否则，返回 `false` 。
+>
+> 换句话说，`s1` 的排列之一是 `s2` 的 **子串** 。
+
+```js
+var checkInclusion = function(s1, s2) {
+    let left = 0, right = 0, valid = 0
+    let need = {}, window = {}
+    for(let c of s1) {
+        need[c] = (need[c] || 0) + 1
+    }
+    while(right < s2.length) {
+        let c = s2[right]
+        right++
+        if(need[c]) {
+            window[c] = (window[c] || 0) + 1
+            if(need[c] === window[c]) valid++
+        }
+        while(right - left >= s1.length) {
+            if(valid === Object.keys(need).length) return true
+            let d = s2[left]
+            left++
+            if(need[d]) {
+                if(need[d] === window[d]) {
+                    valid--
+                }
+                window[d]--
+            }
+        }
+    }
+    return false
+}
 
 
-#### [594. 最长和谐子序列](https://leetcode-cn.com/problems/longest-harmonious-subsequence/)
+var checkInclusion = function(s1, s2) {
+    function check(){
+        for(let i = 0;i < 26;i++){
+            if(arr1[i] !== arr2[i])return false
+        }
+        return true
+}
+    let n=s1.length, m=s2.length
+    let arr1 = new Array(26).fill(0)
+    let arr2 = new Array(26).fill(0)
+    if(n>m) return false
+    for(let i=0; i<n; i++) {
+        ++arr1[s1[i].charCodeAt()-'a'.charCodeAt()]
+        ++arr2[s2[i].charCodeAt()-'a'.charCodeAt()]
+    }
+    // 维护一个长度为s1.length的窗口
+    if(check()) return true
+    for(let i=n; i<m; i++) {
+        // 每次统计一进一出两个字母
+        ++arr2[s2[i].charCodeAt()-'a'.charCodeAt()]
+        --arr2[s2[i-n].charCodeAt()-'a'.charCodeAt()]
+        if(check()) return true
+    }
+    return false
+};
+
+
+var checkInclusion = function(s1, s2) {
+    const n = s1.length, m = s2.length;
+    if (n > m) {
+        return false;
+    }
+    const cnt = new Array(26).fill(0);
+    for (let i = 0; i < n; ++i) {
+        --cnt[s1[i].charCodeAt() - 'a'.charCodeAt()];
+        ++cnt[s2[i].charCodeAt() - 'a'.charCodeAt()];
+…};
+
+```
+
+
+
+### [3. 无重复字符的最长子串](https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/)
+
+> 给定一个字符串 `s` ，请你找出其中不含有重复字符的 **最长子串** 的长度。
+
+```js
+var lengthOfLongestSubstring = function(s) {
+    let set = new Set()
+    let r=-1
+    let ans = 0
+    let n = s.length
+    for(let i=0; i<n; i++) {
+        if(i>0) {
+            set.delete(s.charAt(i-1))
+        }
+        while(r+1 < n && !set.has(s.charAt(r+1))) {
+            set.add(s.charAt(r+1))
+            r++
+        }
+        ans = Math.max(ans, r-i+1)
+    }
+    return ans
+};
+
+var lengthOfLongestSubstring = function(s) {
+    const map = new Map()
+    let ans = 0
+    let start = 0
+    for(let i=0; i<s.length; i++) {
+        let ch = s.charAt(i)
+        // 发现重复字符，更新起始位置
+        if(map.has(ch)) {
+            // 新的起始位置为重复字符的下一个位置，没有必要删除旧的字符及其位置
+            start = Math.max(map.get(ch)+1, start)
+        }
+        // 更新最长无重复字串长度
+        ans = Math.max(ans, i-start+1)
+        // 更新字符位置
+        map.set(ch, i)
+    }
+    return ans
+};
+
+var lengthOfLongestSubstring = function(s) {
+    let left = 0, right = 0
+    let window = {}, res = 0
+    while(right < s.length) {
+        let c = s[right]
+        right++
+        window[c] = (window[c] || 0) + 1
+        while(window[c] > 1) {
+            window[s[left++]]--
+        }
+        res = Math.max(res, right-left)
+    }
+    return res
+}
+```
 
 
 
