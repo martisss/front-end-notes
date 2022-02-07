@@ -2284,6 +2284,7 @@ def bisect_right(nums, x):
 使用最左二分，不断收缩右边界
 
 ```js
+//能以 K 的进食速度最终吃完所有的香蕉（在 H 小时内），那么她也可以用更快的速度吃完。
 var minEatingSpeed = function(piles, h) {
     const canEat = (piles, h, mid) => {
         let time = 0
