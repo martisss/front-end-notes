@@ -2333,6 +2333,30 @@ var findRadius = function(houses, heaters) {
 };
 ```
 
+# 单调栈
+
+## [739. 每日温度](https://leetcode-cn.com/problems/daily-temperatures/)
+
+> 请根据每日 `气温` 列表 `temperatures` ，请计算在每一天需要等几天才会有更高的温度。如果气温在这之后都不会升高，请在该位置用 `0` 来代替。
+
+```js
+// 单调栈
+dailyTemperatures = function(temperatures) {
+    let stack = []
+    let ans =  new Array(temperatures.length).fill(0)
+    for(let i=0; i<temperatures.length; ++i) {
+        let temperature = temperatures[i]
+        // 每次与栈顶元素进行比较
+        while(stack.length && temperature > temperatures[stack[stack.length-1]]) {
+            let preIndex = stack.pop()
+            ans[preIndex] = i-preIndex
+        }
+        stack.push(i)
+    }
+    return ans
+}
+```
+
 
 
 # 字符串
