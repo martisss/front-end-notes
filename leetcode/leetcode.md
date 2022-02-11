@@ -3896,6 +3896,31 @@ var canCompleteCircuit = function(gas, cost) {
 
 
 
+# 排序
+
+## 快速排序
+
+![image.png](https://s2.loli.net/2022/02/11/pnJ4Yi6syXNuMrC.png)
+
+```js
+/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var sortArray = function(nums) {
+    const quickSort = (nums, left = 0, right = nums.length - 1) => {
+        if(left < right) {
+            let partionIndex = partion(nums, left, right)
+            quickSort(nums, left, partionIndex-1)
+            quickSort(nums, partionIndex+1, right)
+…        }
+        [nums[pivot], nums[index-1]] = [nums[index-1], nums[pivot]]
+        return index-1
+    }
+    return quickSort(nums)
+};
+```
+
 
 
 
