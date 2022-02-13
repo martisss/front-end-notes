@@ -1272,7 +1272,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                      
+> >                         
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
@@ -1388,7 +1388,7 @@ function isNaNVal(val){
 }
 isNaNVal(NaN) // true
 isNaNVal(1) // false
-复制代码
+
 ```
 
 自身比较 (ES5)
