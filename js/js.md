@@ -141,6 +141,8 @@ a2(); //100
 
 <hr/>
 
+> call和apply的第一个参数是null/undefined时函数内的的this指向window或global
+
 ### call
 
 - 在非严格模式下，不传参数或传递 null/undefined，this 都指向 window。
@@ -1388,7 +1390,6 @@ function isNaNVal(val){
 }
 isNaNVal(NaN) // true
 isNaNVal(1) // false
-
 ```
 
 自身比较 (ES5)
@@ -1490,7 +1491,9 @@ parseInt('021', 8) //17
 //指定 radix=8,
 ```
 
+#### void
 
+void是一元运算符，它出现在操作数之前，操作数可以是任意类型，操作数会照常计算，但忽略计算结果并返回undefined。由于void会忽略操作数的值，因此在操作数具有副作用的时候使用void来让程序更具语义
 
 ## 迭代器与生成器
 
