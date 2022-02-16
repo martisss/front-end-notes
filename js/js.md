@@ -1071,6 +1071,32 @@ isElement = function(obj) {
 
 ```
 
+### 其他
+
+```js
+NaN 相关：
+
+NaN == NaN // false
+NaN === NaN // false
+
+// indexOf方法无法识别数组的NaN成员
+[NaN].indexOf(NaN) // -1
+
+// 向 Set 数据结构中加入值时认为NaN等于自身
+let set = new Set();
+set.add(NaN);
+set.add(NaN);
+console.log(set); // Set {NaN}
+
+// Object.is()方法认为NaN等于NaN
+Object.is(NaN, NaN) // true
++0 === -0 //true
+Object.is(+0, -0) // false
+
+// ES7中新增的数组实例方法，includes()方法认为NaN等于自身
+[1, 2, NaN].includes(NaN) // true
+```
+
 
 
 ## [类型转换](https://github.com/mqyqingfeng/Blog/issues/159)
@@ -1274,7 +1300,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                         
+> >                            
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
@@ -2178,7 +2204,7 @@ import(f())
 
 - CommonJS 加载的是一个对象（即`module.exports`属性），该对象只有在脚本运行完才会生成。而 ES6 模块不是对象，它的对外接口只是一种静态定义，在代码静态解析阶段就会生成。
 
-3. CommonJS 模块的`require()`是同步加载模块，ES6 模块的`import`命令是异步加载，有一个独立的模块依赖的解析阶段。
+3. **CommonJS 模块的`require()`是同步加载模块，ES6 模块的`import`命令是异步加载，有一个独立的模块依赖的解析阶段。**
 
 ## CommonJS与AMD
 
