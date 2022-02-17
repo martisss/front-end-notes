@@ -16,7 +16,7 @@ const b = new B()
 a.__proto__
 b.__proto__
 B. __proto__
-B. prototype.__proto__
+B.prototype.__proto__
 b.__proto__.__proto__
 ```
 
@@ -53,7 +53,7 @@ b.__proto__.__proto__
 - `Function.__proto__ === Function.prototype //true`
 ## 词法作用域与动态作用域
 [地址](https://github.com/mqyqingfeng/Blog/issues/3)
-作用域就是定义变量的区域
+作 用域就是定义变量的区域
 JS采用词法作用域，函数的作用域在函数定义时就决定了。
 
 ## 执行上下文栈
@@ -271,7 +271,6 @@ function test() {
         Promise.resolve().then(() => console.log(0)); 
         console.log(1);               
     };
-
     return this; 
 }
 test.getName = function() { 
@@ -279,7 +278,6 @@ test.getName = function() {
      console.log(3);               
 };
 test.prototype.getName = function() {    
-
      console.log(4); 
 };       
 var getName = function() { 
@@ -290,13 +288,17 @@ function getName() {
      console.log(6); 
 }      
       
-test.getName(); 
-getName(); 
-test().getName(); 
-getName();  
-new test.getName();
-new test().getName();
-new new test().getName();
+test.getName();  // 3   ...2
+getName();   //5
+test().getName();  //1  ...0  // getName赋值给全局变量getName
+getName();  //1  ...0
+// new无参数列表的优先级低于成员访问运算符
+new test.getName(); //3 ... 2
+// new有参数列表 与 成员访问运算符优先级相同
+// new test() 返回一个以test.prototype为原型的空对象(假如为obj)，执行obj.getName(),返回4
+new test().getName(); // 4
+//相当于 new (new test().getName)();
+new new test().getName(); //1 ... 0
 ```
 
 
