@@ -363,6 +363,25 @@ var hasCycle = function(head) {
    }
    ```
 
+> 类似：[202. 快乐数](https://leetcode-cn.com/problems/happy-number/)
+>
+> ```js
+> // 快慢指针
+> // 最终变为1
+> // 或者 跳进循环，最终相等
+> // 是否会无限增大？不会，如9999 ，下一个数为324最终都不会超过三位数，即不会无限增大
+> var isHappy = function(n) {
+>     const getNext = (n) => {
+> …    while(fast !== 1 && slow !== fast) {
+>         slow = getNext(slow)
+>         fast = getNext(getNext(fast))
+>     }
+>     return fast === 1
+> };
+> ```
+>
+> 
+
 #### 删除链表的倒数第 N 个结点
 
 1. 使用栈
@@ -485,6 +504,63 @@ var reverseKGroup = function(head, k) {
     }
 };
 ```
+
+### 祖先问题
+
+#### [235. 二叉搜索树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
+
+> ```js
+> var lowestCommonAncestor = function(root, p, q) {
+>     if(root === p || root === q || !root) return root
+>     let left = lowestCommonAncestor(root.left, p, q)
+>     let right = lowestCommonAncestor(root.right, p, q)
+>     if(left && right) return root
+>     if(!left) return right
+>     return left
+> };
+> 
+> // 利用二叉搜索树的特性，从上到下遍历，找到节点值在给定节点之间的节点就可以返回了
+> var lowestCommonAncestor = function(root, p, q) {
+>     if(!root) return root
+>     if(root.val > p.val && root.val > q.val) {
+>         let left = lowestCommonAncestor(root.left, p, q)
+>         return (left !== null) && left
+>     }
+>     if(root.val < p.val && root.val < q.val) {
+>         let right = lowestCommonAncestor(root.right, p, q)
+>         return (right !== null) && right
+>     }
+>     return root
+> }
+> 
+> // 注意返回的是节点
+> // 迭代
+> var lowestCommonAncestor = function(root, p, q) {
+>     const getPath = (root, target) => {
+>         let path = []
+>         while(root) {
+>             path.push(root)
+>             if(root.val < target.val) {
+>                 root = root.right
+>             } else if (root.val > target.val) {
+>                 root = root.left
+>             } else break
+>         }
+>         return path
+>     }
+>     let path1 = getPath(root, p)
+>     let path2 = getPath(root, q)
+>     let res = 0
+>     for(let i=0; i<path1.length && i<path2.length; i++) {
+>         if(path1[i] == path2[i]) {
+>             res = path1[i]
+>         } else break
+>     }
+>     return res
+> }
+> ```
+>
+> 
 
 ## todo
 
