@@ -3534,27 +3534,26 @@ function solveSudoku(board: string[][]): void {
 
 单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
 
- 
+ ![image-20220217230009691](D:\NOTES\leetcode\leetcode.assets\image-20220217230009691.png)
 
 来源：力扣（LeetCode）
 链接：https://leetcode-cn.com/problems/word-search
 
 ```js
-/**
- * @param {character[][]} board
- * @param {string} word
- * @return {boolean}
- */
 var exist = function(board, word) {
     const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]]
     // 记录已经找到的字符在单元格中的位置
     const used = new Array(board.length).fill(0).map(() => new Array(board[0].length).fill(false))
     // 判断从当前位置开始寻找，是否可以在相邻单元格内找到下一个字符
     const check = (row, col, s, k) => {
+        //当前字符不符合，直接返回，不必往下找，返回false
         if(board[row][col] !== s[k]) return false
+        // 如果该字符正好是最后一个字符，即找到了目标单词，返回true
         else if(k === s.length-1) return true
+        // 当前字符符合，判断周围是否有符合期望的下一字符
         let result = false
         used[row][col] = true
+        // 向相邻单元格寻找
         for(const [dx, dy] of directions) {
             let new_row = row + dx
             let new_col = col + dy
@@ -3563,6 +3562,8 @@ var exist = function(board, word) {
                 // 确保这个字符没有被使用过
                 if(!used[new_row][new_col]) {
                     let flag = check(new_row, new_col, s, k+1)
+                    //递归返回的结果为true,说明后续的字母都找到了，加上当前字符，正好组成完整单词
+                    // 结束循环
                     if(flag) {
                         result = true
                         break

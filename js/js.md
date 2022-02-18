@@ -1,4 +1,85 @@
+# 作用域
+
+## 编译
+
+一段源代码在执行前一般需要执行三个步骤，统称编译，对于JavaScript代码来说，通常在执行前进行编译，而不是构建前。
+
+- 分词/词法分析（Tokenining/Lexing）: 将字符组成的字符串分解成有意义的代码块
+- 解析/语法分析（Parsing）：将词法单元流（数组）转换成元素逐级嵌套所组成的代表了程序语法结构的树，叫做AST(Abstract Sytax Tree 抽象语法树)
+- 代码生成： 将AST转换成可执行代码
+
+## 什么是作用域？
+
+作用域是一套规则，用去确定在何处以及如何查找变量，确定了当前执行的代码对变量的访问权限。
+
+如果是要赋值，执行LHS查询，如果是要获取变量的值，执行RHS查询。不成功的RHS引用会抛出ReferceError异常，非严格模式下不成功的LHS引用会自动隐式创建全局变量，严格模式下抛出ReferenceError
+
+## 词法作用域
+
+词法作用域就是定义在词法阶段的作用域，也就是说在代码编写阶段就确定了，让词法作用域根据词法关系保持书写时的自然关系不变。
+
+> 某些情况下也是可以改变的
+
+## 欺骗词法
+
+### eval
+
+eval可以执行动态创建的代码，因此可以对所在的词法作用域进行修改
+
+```js
+function foo(str, a) {
+  eval(str)
+  console.log(a, b)
+}
+var b=2
+foo('var b=3;', 1) //1, 3
+```
+
+但在非严格模式下，eval有自己的作用域，意味着其中的声明无法修改所在的作用域
+
+```js
+function foo(str) {
+  "use strict"
+  eval(str)
+  console.log(a)
+}
+foo('var b=3;') //ReferenceError
+```
+
+> 此外setTimeout setInterval的第一个参数可以是字符串，，可以被解释成一段动态生成的代码片段。
+
+### with
+
+with可以将一个没有或有多个属性的对象处理为一个完全隔离的词法作用域，对象的属性会被处理成在这个词法作用域中的词法标识符。本质上是将对象的引用当作作用域来处理。
+
+非严格模式下可能会污染全局作用域
+
+```js
+function foo(obj) {
+  with (obj) {
+    a = 2
+  }
+}
+
+var o1 = {
+  a: 3,
+}
+var o2 = {
+  b: 2,
+}
+foo(o1) //执行LHS查询，直到全局作用域，自动隐式创建变量a
+console.log(o1.a)
+
+foo(o2)
+console.log(o2.a)
+console.log(a) //泄漏到全局作用域
+
+```
+
+eval和with使引擎在**编译时**无法对作用域查找进行优化，因此引擎认为优化是无效的，使用上述机制会使得代码运行变慢。
+
 # others
+
 ## 判断是否是数组
 - Array.isArray()
 - Object.prototype.toString.call(arr)
@@ -1302,7 +1383,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                            
+> >                               
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
