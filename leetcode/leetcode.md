@@ -218,6 +218,94 @@ MyStack.prototype.empty = function() {
 };
 ```
 
+## 双向链表
+
+### [146. LRU 缓存](https://leetcode-cn.com/problems/lru-cache/)
+
+```js
+/**
+ * @param {number} capacity
+ */
+function ListNode(key=null, value=null) {
+    this.key = key
+    this.value = value
+    this.prev = null
+    this.next = null
+}
+
+var LRUCache = function(capacity) {
+    this.capacity = capacity
+    this.map = new Map()
+    // 初始化双向链表，虚拟头节点，虚拟尾节点，头部存储最近最少使用的节点
+    this.head = new ListNode()
+    this.tail = new ListNode()
+    this.head.next = this.tail
+    this.tail.prev = this.head
+
+};
+
+/** 
+ * @param {number} key
+ * @return {number}
+ */
+LRUCache.prototype.move_to_tail = function(key) {
+    let node = this.map.get(key)
+    // 断开连接
+    node.prev.next = node.next
+    node.next.prev = node.prev
+    // 将node插入到尾节点之前
+    node.prev = this.tail.prev
+    node.next = this.tail
+    this.tail.prev.next = node
+    this.tail.prev = node 
+}
+
+LRUCache.prototype.get = function(key) {
+    if(this.map.has(key)) {
+        this.move_to_tail(key)
+    }
+    res = this.map.get(key)
+    if(res) return res.value
+    return -1
+};
+
+/** 
+ * @param {number} key 
+ * @param {number} value
+ * @return {void}
+ */
+LRUCache.prototype.put = function(key, value) {
+    // 如果存在，更新值，移到尾结点之前
+    if(this.map.has(key)) {
+        let node = this.map.get(key)
+        node.value = value
+        this.map.set(key, node)
+        this.move_to_tail(key)
+    } else {
+        // 不存在，创建新节点，更新map
+        if(this.map.size === this.capacity) {
+            // 容量满了，更新map, 删除最近最少使用的节点
+            this.map.delete(this.head.next.key)
+            this.head.next = this.head.next.next
+            this.head.next.prev = this.head
+        }
+        let node = new ListNode(key, value)
+        this.map.set(key, node)
+        node.prev = this.tail.prev
+        node.next = this.tail
+        this.tail.prev.next = node
+        this.tail.prev = node
+    }
+};
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * var obj = new LRUCache(capacity)
+ * var param_1 = obj.get(key)
+ * obj.put(key,value)
+ */
+```
+
 
 
 ## 技巧
