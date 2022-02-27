@@ -10,7 +10,7 @@
 
 ## 什么是作用域？
 
-作用域是一套规则，用去确定在何处以及如何查找变量，确定了当前执行的代码对变量的访问权限。
+就是定义变量的区域，作用域是一套规则，用去确定在何处以及如何查找变量，确定了当前执行的代码对变量的访问权限。
 
 如果是要赋值，执行LHS查询，如果是要获取变量的值，执行RHS查询。不成功的RHS引用会抛出ReferceError异常，非严格模式下不成功的LHS引用会自动隐式创建全局变量，严格模式下抛出ReferenceError
 
@@ -134,25 +134,138 @@ b.__proto__.__proto__
 - `Function.__proto__ === Function.prototype //true`
 ## 词法作用域与动态作用域
 [地址](https://github.com/mqyqingfeng/Blog/issues/3)
-作 用域就是定义变量的区域
+作用域就是定义变量的区域
 JS采用词法作用域，函数的作用域在函数定义时就决定了。
 
 ## 执行上下文栈
 [地址](https://github.com/mqyqingfeng/Blog/issues/4)
-属性：
+
+**当 JavaScript 代码执行一段可执行代码(executable code)时，会创建对应的执行上下文(execution context)**。执行上下文可以看成是一个对象。
+
+每个执行上下文都有三个属性：
+
 - 变量对象(Variable object，VO)
 - 作用域链(Scope chain)
 - this
 ## 变量对象
+
+变量对象存储了在上下文中定义的变量和函数声明
+
+> 全局上下文
+
 - 全局上下文的变量对象初始化是全局对象
 
+> 函数上下文
+
+- 活动对象是在进入函数上下文时刻被创建的，它通过函数的 arguments 属性初始化。arguments 属性值是 Arguments 对象。
 - 函数上下文的变量对象初始化只包括 Arguments 对象
-
 - 在进入执行上下文时会给变量对象添加形参、函数声明、变量声明等初始的属性值
-
 - 在代码执行阶段，会再次修改变量对象的属性值
 
 ## 作用域链
+
+> 什么是作用域链？
+
+当查找变量的时候，会先从当前上下文的变量对象中查找，如果没有找到，就会从父级(词法层面上的父级)执行上下文的变量对象中查找，一直找到全局上下文的变量对象，也就是全局对象。这样由多个执行上下文的变量对象构成的链表就叫做作用域链。
+
+> 对于函数来说，作用域链如何变化？
+
+对于一个函数来说，其作用域链的变化分为两个阶段：函数创建和函数激活
+
+函数的作用域在函数定义时就决定了，函数有一个内部属性[scope], 在创建时保存了所有的父变量对象，是所有父变量对象的层级链
+
+当函数激活时，创建VO/AO后，将活动对象添加到这个层级链的前端，就创建了作用域链。
+
+> 分析这段代码的执行过程
+
+```js
+var scope = "global scope";
+function checkscope(){
+    var scope2 = 'local scope';
+    return scope2;
+}
+checkscope();
+```
+
+执行过程如下：
+
+1.checkscope 函数被创建，保存作用域链到 内部属性[[scope]]
+
+```
+checkscope.[[scope]] = [
+    globalContext.VO
+];
+```
+
+2.执行 checkscope 函数，创建 checkscope 函数执行上下文，checkscope 函数执行上下文被压入执行上下文栈
+
+```
+ECStack = [
+    checkscopeContext,
+    globalContext
+];
+```
+
+3.checkscope 函数并不立刻执行，开始做准备工作，第一步：复制函数[[scope]]属性创建作用域链
+
+```
+checkscopeContext = {
+    Scope: checkscope.[[scope]],
+}
+```
+
+4.第二步：用 arguments 创建活动对象，随后初始化活动对象，加入形参、函数声明、变量声明
+
+```
+checkscopeContext = {
+    AO: {
+        arguments: {
+            length: 0
+        },
+        scope2: undefined
+    }，
+    Scope: checkscope.[[scope]],
+}
+```
+
+5.第三步：将活动对象压入 checkscope 作用域链顶端
+
+```
+checkscopeContext = {
+    AO: {
+        arguments: {
+            length: 0
+        },
+        scope2: undefined
+    },
+    Scope: [AO, [[Scope]]]
+}
+```
+
+6.准备工作做完，开始执行函数，随着函数的执行，修改 AO 的属性值
+
+```
+checkscopeContext = {
+    AO: {
+        arguments: {
+            length: 0
+        },
+        scope2: 'local scope'
+    },
+    Scope: [AO, [[Scope]]]
+}
+```
+
+7.查找到 scope2 的值，返回后函数执行完毕，函数上下文从执行上下文栈中弹出
+
+```
+ECStack = [
+    globalContext
+];
+```
+
+
+
 **从执行上下文、作用域链的角度分析这两段代码的不同**
 [参考 1](https://github.com/kuitos/kuitos.github.io/issues/18)
 [参考 2](https://github.com/mqyqingfeng/Blog/issues/8)
@@ -169,6 +282,36 @@ function checkscope(){
 var foo = checkscope();
 foo();
 ```
+
+1. 进入全局代码，创建全局执行上下文，压入执行上下文栈
+
+2. 全局执行上下文初始化
+
+3. checkscope函数被创建，保存作用域链到内部属性[scope]
+
+4. 执行函数checkscope，创建checkscope函数的执行上下文，并压入执行上下文栈
+
+5. checkscope函数的执行上下文初始化，创建变量对象、作用域链、this
+
+   > 1. 复制[[scope]]属性创建作用域链
+   > 2. 用 arguments 创建活动对象，随后初始化活动对象，加入形参、函数声明、变量声明
+   > 3. 将活动对象压入作用域链顶端
+
+6. f函数被创建，保存作用域链到内部属性[[scope]]
+
+7. checkscope函数执行完毕，checkscope执行上下文从执行上下文栈中弹出
+
+8. 执行函数foo,创建foo函数执行上下文，并压入执行上下文栈
+
+9. foo函数执行上下文栈初始化，创建变量对象、作用域链、this
+
+> 1. 复制[[scope]]属性创建作用域链
+>
+> 2. 用 arguments 创建活动对象，随后初始化活动对象，加入形参、函数声明、变量声明
+>
+> 3. 将活动对象压入作用域链顶端
+ 10. foo函数执行完毕，foo函数执行上下文从执行上下文栈中弹出
+
 ```js
 var scope = "global scope";
 function checkscope(){
@@ -181,6 +324,17 @@ function checkscope(){
 checkscope();
 
 ```
+
+1. 执行全局代码，创建全局执行上下文并压入执行上下文栈
+2. 全局执行上下文初始化
+3. 执行checkscope函数，创建checkscope函数执行上下文，并压入执行上下文栈
+4. checkscope函数执行上下文初始化，创建变量对象，作用域链，this
+5. 执行f函数，创建f函数执行上下文，并压入执行上下文栈
+6. f函数执行上下文初始化
+7. f函数执行完毕，f函数执行上下文从执行上下文栈中弹出
+8. checkscope函数执行完毕，checkscope函数执行上下文从执行上下文栈中弹出
+
+**二者的根本区别在于执行上下文栈的变化不一样。**
 
 ## this
 
@@ -338,9 +492,11 @@ Function.prototype.bind = function (context) {
 ```js
 // 实现 new
 function myNew(fn, ...args) {
+  //创建一个继承自构造函数的原型对象的对象
   var obj = Object.create(fn.prototype);
+  //使用指定的参数调用构造函数，并将this绑定到新创建的对象是
   var ret = fn.apply(obj, args);
-  return ret instanceof Object ? res : obj`;
+  return typeof ret === 'object' ? res : obj;
 };
 ```
 
@@ -365,7 +521,6 @@ var getName = function() {
      console.log(5);             
 };
 function getName() {
-
      console.log(6); 
 }      
       
@@ -376,10 +531,11 @@ getName();  //1  ...0
 // new无参数列表的优先级低于成员访问运算符
 new test.getName(); //3 ... 2
 // new有参数列表 与 成员访问运算符优先级相同
-// new test() 返回一个以test.prototype为原型的空对象(假如为obj)，执行obj.getName(),返回4
+// new test() 返回一个以test.prototype为原型的空对象(假如为obj)，执行obj.getName(),返回4；全局对象中的getName被修改
+//此处构造函数this, this指向上述提到的空对象
 new test().getName(); // 4
 //相当于 new (new test().getName)();
-new new test().getName(); //1 ... 0
+new new test().getName(); //  4
 ```
 
 
@@ -387,7 +543,10 @@ new new test().getName(); //1 ... 0
 ## 类数组对象与arguments
 
 ### 类数组
-- 拥有一个 length 属性和若干索引属性的对象
+
+#### 定义及方法调用
+
+- 定义：拥有一个 length 属性和若干索引属性的对象
 - 调用数组方法 Function.call
 ```js
 var arrayLike = {0: 'name', 1: 'age', 2: 'sex', length: 3 }
@@ -402,7 +561,8 @@ Array.prototype.map.call(arrayLike, function(item){
 }); 
 // ["NAME", "AGE", "SEX"]
 ```
-- 类数组转数组
+#### 类数组转数组方法
+
 ```js
 var arrayLike = {
   0: 'name', 1: 'age', 2: 'sex', length: 3 
@@ -412,13 +572,14 @@ let s1 = Array.prototype.slice.call(arrayLike)  //返回新数组
 let s2 = Array.prototype.splice.call(arrayLike, 0) //在原数组上进行删除，增加，返回被删除的部分,如果没有删除，则返回[]
 let s3 = Array.from(arrayLike)
 let s4 = Array.prototype.concat.apply([], arrayLike)
-let s5 = Array.prototype.map.call
-(arrayLike, item => item)
+let s5 = Array.prototype.map.call(arrayLike, item => item)
 // 最后一种方法成立的基础是类数组对象具有遍历器接口
 let s6 = [...arrayLike]
 
 ```
-### arguments
+### Arguments
+
+#### arguments及其属性
 
 Arguments 对象只定义在函数体中，包括了函数的参数和其他属性。在函数体中，arguments 指代该函数的 Arguments 对象。
 - length属性    
@@ -443,10 +604,14 @@ data[2]();
 // 2
 
 ```
-- arguments 和对应参数的绑定
-  - 传入的参数，实参和 arguments 的值会共享，当没有传入时，实参与 arguments 值不会共享
 
-  - 除此之外，以上是在非严格模式下，如果是在严格模式下，实参和 arguments 是不会共享的。
+
+#### arguments 和对应参数的绑定
+
+- 传入的参数，实参和 arguments 的值会共享，当没有传入时，实参与 arguments 值不会共享
+
+- 除此之外，以上是在非严格模式下，如果是在严格模式下，实参和 arguments 是不会共享的。
+
 ```js
 function foo(name, age, sex, hobbit) {
 
@@ -497,6 +662,8 @@ var person1 = createPerson('kevin');
 
 ```
 
+> 在内部创建一个对象，将方法、属性挂在在这个对象上，最后将这个对象返回
+
 缺点：可以解决创建多个类似对象的问题，但没有解决对象标识问题（即新创建的对象是什么类型）。所有实例都指向一个原型
 
 所谓的寄生构造函数模式就是比工厂模式在创建对象的时候，多使用了一个new，实际上两者的结果是一样的。
@@ -519,7 +686,7 @@ person2.sayName(); // Greg
 
 ```
 
-**优点**：定义自定义构造函数可以确保实例被标识为特定类型
+**优点**：**定义自定义构造函数可以确保实例被标识为特定类型**
 
 **缺点**：构造函数定义的方法在每个实例上都创建一遍
 
@@ -547,7 +714,7 @@ var person1 = new Person();
 
 缺点：1. 所有的属性和方法都共享 2. 不能初始化参数
 
-包含引用值的属性会在不同实例之间共享，这就是实际开发中通常不单独使用原型模式的原因。
+**包含引用值的属性会在不同实例之间共享，这就是实际开发中通常不单独使用原型模式的原因。**
 
 #### 优化1
 
@@ -839,7 +1006,7 @@ console.log(child2.names); // ["kevin", "daisy"]
 
 ### 组合继承 *
 
-> 基本的思路就是使用原型链继承父类prototype上的属性和方法，而通过构造函数继承实例属性，这样既可以实现方法重用，又可以让每个实例都有自己的属性
+> 基本的思路就是使用原型链继承父类prototype上的属性和方法，而通过构造函数继承父类构造函数的属性，这样既可以实现方法重用，又可以让每个实例都有自己的属性
 
 ```js
 function Parent (name) {
@@ -859,10 +1026,10 @@ function Child (name, age) {
 
 }
 
-Child.prototype = new Parent();
+Child.prototype = new Parent();  // Parent执行第一次，Child子类实例的原型上有name, colors
 Child.prototype.constructor = Child;
 
-var child1 = new Child('kevin', '18');
+var child1 = new Child('kevin', '18'); // Parent执行第二次，子类实例上有name, colors 
 
 child1.colors.push('black');
 
@@ -881,6 +1048,8 @@ console.log(child2.colors); // ["red", "blue", "green"]
 
 ### 原型式继承
 
+> 与原型链继承有相似之处
+
 > 就是 ES5 Object.create 的模拟实现，**将传入的对象作为创建的对象的原型**
 
 ```js
@@ -890,10 +1059,10 @@ function createObj(o) {
     return new F();
 }
 ```
-缺点: 与原型链继承一样, 引用类型的属性会被所有实例共享，同时不能
+缺点: 与原型链继承一样, 引用类型的属性会被所有实例共享
 
 ### 寄生式继承
-创建一个仅用于封装继承过程的函数，该函数在内部以某种形式来做增强对象，最后返回对象。可以看到内部使用了`Object.create()`，因此其本质上是在原型式继承返回的新对象上增加了新的属性和方法，实现**增强**效果。
+创建一个仅用于封装继承过程的函数，该函数在内部以某种形式来做增强对象，最后返回对象。可以看到内部使用了`Object.create()`，因此其本质上是**在原型式继承返回的新对象上增加了新的属性和方法，实现增强效果。**
 
 ```js
 function createObj (o) {
@@ -1383,7 +1552,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                               
+> >                                                 
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
@@ -1603,6 +1772,10 @@ parseInt('021', 8) //17
 #### void
 
 void是一元运算符，它出现在操作数之前，操作数可以是任意类型，操作数会照常计算，但忽略计算结果并返回undefined。由于void会忽略操作数的值，因此在操作数具有副作用的时候使用void来让程序更具语义
+
+#### 0.1+0.2 !== 0.3
+
+在JS中，使用浮点运算时，将隐式采用二进制浮点运算，而二进制只能精确表达2除尽的数字如1/2, 1/4, 1/8，例如0.1(1/10)和0.2(1/5)，在二进制中都无法精准表示时，需要根据精度舍入。
 
 ## 迭代器与生成器
 
