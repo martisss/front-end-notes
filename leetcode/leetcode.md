@@ -1,3 +1,105 @@
+# 排序
+
+## 选择排序
+
+升序排列：在未排序的那一部分中选出最小的那个数的索引，与开头的数进行交换，不断地重复这一过程。
+
+时间复杂度：O(n^2)
+
+空间复杂度：O(n)
+
+```js
+//前半部分排好序
+function selectSort(arr) {
+  for(let i=0; i<arr.length; i++){
+    let minIndex = i
+    for(let j=i; j<arr.length; j++) {
+      if(arr[j] < arr[minIndex]) {
+        minIndex = j
+      }
+    }
+    [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]]
+  }
+  return arr
+}
+//后半部分排好序
+function selectSort(arr) {
+  for(let i=arr.length-1; i>=0; i--){
+    let maxIndex = i
+    for(let j=i; j>=0; j--) {
+      if(arr[j] > arr[maxIndex]) {
+        maxIndex = j
+      }
+    }
+    [arr[i], arr[maxIndex]] = [arr[maxIndex], arr[i]]
+  }
+  return arr
+}
+
+const arr = [6, 4, 2, 3, 1, 5]
+console.log(selectSort(arr))
+```
+
+## 插入排序
+
+插入排序的插入是指从未排序的序列中选择一个（一般是第一个）插入到前方已经排好的序列中
+
+时间复杂度：O(n^2)
+
+空间复杂度：O(n)
+
+```js
+function insertionSort(arr) {
+  for(let i=0; i<arr.length; i++) {
+    // j-1>=0, 保证前面至少有一个元素，如果前面没有元素，没有必要进行比较了
+    for(let j=i; j-1>=0; j--) {
+      if(arr[j] < arr[j-1]) {
+        [arr[j], arr[j-1]] = [arr[j-1], arr[j]]
+      } else break
+    }
+  }
+  return arr
+}
+
+// 优化
+function insertionSort(arr) {
+  for(let i=0; i<arr.length; i++) {
+    // j-1>=0, 保证前面至少有一个元素，如果前面没有元素，没有必要进行比较了
+    let j
+    // 暂存准备插入的元素，能够减少赋值的操作，但总体复杂度不变
+    let temp = arr[i]
+    for(j=i; j-1>=0 && temp<arr[j-1]; j--) {
+      arr[j] = arr[j-1]
+    }
+    arr[j] = temp
+  }
+  return arr
+}
+
+
+//后半部分有序
+function insertionSort(arr) {
+  for(let i=arr.length-1; i>=0; i--) {
+    let j
+    let temp = arr[i]
+    for(j=i;j<=arr.length-1 && temp>arr[j+1]; j++) {
+      arr[j] = arr[j+1]
+    }
+    arr[j] = temp
+  }
+  return arr
+}
+
+const arr = [6, 4, 2, 3, 1, 5]
+console.log(insertionSort(arr))
+```
+
+### 插入排序的重要特性
+
+对于选择排序来说， 它的时间时间复杂度稳定在O(n^2)，其内部 循环每次都是从头循环到尾，即使内部循环的的第一个数就是最小的那个数，而对于插入排序来说，其内部排序是可以中途退出的，即内部循环找到了待插入值的位置后就结束了，那么对于一个有序数组来说，插入排序的时间复杂度可以到O(n)，但其总体复杂度还是不变的，如果一个数组总体有序的话可以考虑插入排序。
+
+
+
 # 栈与队列
 
 ## 用栈实现队列
