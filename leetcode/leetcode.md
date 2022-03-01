@@ -98,6 +98,208 @@ console.log(insertionSort(arr))
 
 对于选择排序来说， 它的时间时间复杂度稳定在O(n^2)，其内部 循环每次都是从头循环到尾，即使内部循环的的第一个数就是最小的那个数，而对于插入排序来说，其内部排序是可以中途退出的，即内部循环找到了待插入值的位置后就结束了，那么对于一个有序数组来说，插入排序的时间复杂度可以到O(n)，但其总体复杂度还是不变的，如果一个数组总体有序的话可以考虑插入排序。
 
+## 归并排序
+
+时间复杂度：O(nlogn)
+
+空间复杂度：O(n)
+
+### 自顶向下的归并排序
+
+```js
+const mergeSort = (arr) => {
+  const merge = (arr, l, mid, r) => {
+    const temp = arr.slice(l, r + 1)
+    let i = l,
+      j = mid + 1
+    //思考为什么要减去l?temp与原数组是存在偏差的
+    // 截取的数组第一个位置为0，但在原数组中位置是l
+    // 因此偏差为l，每次要减去l
+    for (let k = l; k <= r; k++) {
+      // 左半部分越界
+      if (i > mid) {
+        arr[k] = temp[j - l]
+        j++
+        // 右半部分越界
+      } else if (j > r) {
+        arr[k] = temp[i - l]
+        i++
+      } else if (temp[i - l] < temp[j - l]) {
+        arr[k] = temp[i - l]
+        i++
+      } else {
+        arr[k] = temp[j - l]
+        j++
+      }
+    }
+  }
+  const sort = (arr, l, r) => {
+    if(l >= r) return
+    let mid = Math.floor((l+r)/2)
+    sort(arr,l,mid)
+    sort(arr,mid+1, r)
+    merge(arr, l, mid, r)
+  }
+  sort(arr, 0, arr.length-1)
+}
+
+const arr = [1,3,53,9,8,5,4]
+mergeSort(arr)
+console.log(arr)
+
+```
+
+优化一：
+
+```js
+  const sort = (arr, l, r) => {
+    if(l >= r) return
+    let mid = Math.floor((l+r)/2)
+    sort(arr,l,mid)
+    sort(arr,mid+1, r)
+    // 两端已经有序，如果arr[mid]<=arr[mid+1]，那么这两段就没有必要进行归并
+    if(arr[mid]>arr[mid+1]) {
+      merge(arr, l, mid, r)
+    }
+  }
+```
+
+优化二：还是对sort进行优化，在数据量小的时候插入排序的性能优于归并排序，但对于js, python来说，可能用处不大设置有反效果，了解即可。
+
+```js
+function insertionSort(arr, l, r) {
+  for(let i=l; i<=r; i++) {
+    let j
+    let temp = arr[i]
+    for(j=i; j-1>=l && temp<arr[j-1]; j--) {
+      arr[j] = arr[j-1]
+    }
+    arr[j] = temp
+  }
+  return arr
+}
+
+const mergeSort = (arr) => {
+  const merge = (arr, l, mid, r) => {
+    const temp = arr.slice(l, r + 1)
+    let i = l,
+      j = mid + 1
+    //思考为什么要减去l?temp与原数组是存在偏差的
+    // 截取的数组第一个位置为0，但在原数组中位置是l
+    // 因此偏差为l，每次要减去l
+    for (let k = l; k <= r; k++) {
+      // 左半部分越界
+      if (i > mid) {
+        arr[k] = temp[j - l]
+        j++
+        // 右半部分越界
+      } else if (j > r) {
+        arr[k] = temp[i - l]
+        i++
+      } else if (temp[i - l] < temp[j - l]) {
+        arr[k] = temp[i - l]
+        i++
+      } else {
+        arr[k] = temp[j - l]
+        j++
+      }
+    }
+  }
+  
+  const sort = (arr, l, r) => {
+    // 优化前返回条件
+    // if(l >= r) return
+    // 优化后返回条件, 当数据量较小时，插入排序的性能优于归并排序
+    if(r-l<=15) {
+      insertionSort(arr, l, r)
+      // 注意此处，已经排序完毕，立即返回
+      return
+    }
+    let mid = Math.floor((l+r)/2)
+    sort(arr,l,mid)
+    sort(arr,mid+1, r)
+    // 两端已经有序，如果arr[mid]<=arr[mid+1]，那么这两段就没有必要进行归并
+    if(arr[mid]>arr[mid+1]) {
+      merge(arr, l, mid, r)
+    }
+  }
+  sort(arr, 0, arr.length-1)
+}
+
+const arr = [1,3,53,9,8,5,4]
+mergeSort(arr)
+console.log(arr)
+
+```
+
+### 自底向上的归并排序
+
+```js
+// 自底向上的归并排序
+const mergeSort = (arr) => {
+  const merge = (arr, l, mid, r) => {
+    const temp = arr.slice(l, r + 1)
+    let i = l,
+      j = mid + 1
+    //思考为什么要减去l?temp与原数组是存在偏差的
+    // 截取的数组第一个位置为0，但在原数组中位置是l
+    // 因此偏差为l，每次要减去l
+    for (let k = l; k <= r; k++) {
+      // 左半部分越界
+      if (i > mid) {
+        arr[k] = temp[j - l]
+        j++
+        // 右半部分越界
+      } else if (j > r) {
+        arr[k] = temp[i - l]
+        i++
+      } else if (temp[i - l] < temp[j - l]) {
+        arr[k] = temp[i - l]
+        i++
+      } else {
+        arr[k] = temp[j - l]
+        j++
+      }
+    }
+  }
+  const sort = (arr) => {
+    for (let sz = 1; sz < arr.length; sz += sz) {
+      for (let i = 0; i + sz < arr.length; i += sz + sz) {
+        // 合并两个区间，这个时候mid=i+sz-1, i+sz<n，说明第二个区间存在
+        // 但是极端情况下第二个区间可能只有arr[i+sz]这一个数字
+        // 为防止越界，r=Math.min(i+sz+sz-1, arr.lenth-1)
+        merge(arr, i, i + sz - 1, Math.min(i + sz + sz - 1, arr.length - 1))
+      }
+    }
+  }
+  sort(arr)
+}
+const arr = [1, 3, 53, 9, 8, 5, 4]
+mergeSort(arr)
+console.log(arr)
+
+```
+
+#### [剑指 Offer 51. 数组中的逆序对](https://leetcode-cn.com/problems/shu-zu-zhong-de-ni-xu-dui-lcof/)
+
+```js
+//套用归并排序的方法
+var reversePairs = function(nums) {
+    let count = 0
+    const merge = (arr, l, mid, r) => {
+        const temp = arr.slice(l, r+1)
+…        let mid = Math.floor((l+r)/2)
+        sort(arr, l, mid)
+        sort(arr, mid+1, r)
+        if(arr[mid]>arr[mid+1]) {
+            merge(arr, l, mid, r)
+        }
+    }
+    sort(nums, 0, nums.length-1)
+    return count
+};
+```
+
 
 
 # 栈与队列
@@ -149,14 +351,7 @@ MyQueue.prototype.empty = function() {
     return this.stackIn.length === 0 && this.stackOut.length === 0
 };
 
-/**
- * Your MyQueue object will be instantiated and called as such:
- * var obj = new MyQueue()
- * obj.push(x)
- * var param_2 = obj.pop()
- * var param_3 = obj.peek()
- * var param_4 = obj.empty()
- */
+
 ```
 
 
