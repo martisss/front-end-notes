@@ -283,12 +283,37 @@ console.log(arr)
 #### [剑指 Offer 51. 数组中的逆序对](https://leetcode-cn.com/problems/shu-zu-zhong-de-ni-xu-dui-lcof/)
 
 ```js
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+
 //套用归并排序的方法
 var reversePairs = function(nums) {
     let count = 0
     const merge = (arr, l, mid, r) => {
         const temp = arr.slice(l, r+1)
-…        let mid = Math.floor((l+r)/2)
+        let i=l, j =mid+1
+        for(let k=l; k<=r; k++) {
+            if(i>mid) {
+                arr[k] = temp[j-l]
+                j++
+            } else if(j>r) {
+                arr[k] = temp[i-l]
+                i++
+            } else if(temp[i-l]<=temp[j-l]){
+                arr[k] = temp[i-l]
+                i++
+            } else {
+                arr[k] = temp[j-l]
+                j++
+                count+=mid-i+1
+            }
+        }
+    }
+    const sort = (arr, l, r) => {
+        if(l>=r) return
+        let mid = Math.floor((l+r)/2)
         sort(arr, l, mid)
         sort(arr, mid+1, r)
         if(arr[mid]>arr[mid+1]) {
@@ -300,7 +325,44 @@ var reversePairs = function(nums) {
 };
 ```
 
+### 快速排序
 
+partition: 将目标数移动到指定位置，将原数组分为三个部分，小于等于目标数的部分，目标数，大于目标数的部分
+
+关键是partition的实现
+
+> 第一版
+
+```js
+const quickSort = (arr, l, r) => {
+  const swap = (arr,a,b) => {
+    let c = arr[a]
+    arr[a] = arr[b]
+    arr[b] = c
+  }
+  
+  const partition = (arr, l, r) => {
+    //arr[l+1,j] < v,; arr[j+1,i]>=v
+    let j=l
+    for(let i=l+1; i<=r; i++) {
+      if(arr[i]<arr[l]) {
+        j++
+        swap(arr, i, j)
+      }
+    }
+    swap(arr, l, j)
+    return j
+  }
+  if(l>=r) return
+  let p = partition(arr, l, r)
+  quickSort(arr,l , p-1)
+  quickSort(arr,p+1, r)
+}
+quickSort(arr, 0, arr.length-1)
+console.log(arr)
+```
+
+第一版快速排序的主要问题在于partition的实现，该实现中将数组第一个作为标定，最终标定的结果是小于该数的都在该数左边，大于等于该数的都在右边，那么这样对于有序数组来说的话，第一个数右边的数都比该数大，进入
 
 # 栈与队列
 
