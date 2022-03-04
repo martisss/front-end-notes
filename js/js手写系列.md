@@ -217,7 +217,7 @@ console.log(child2.name)
 
 缺点：父类构造函数调用了两次，导致子类实例和原型上存在同名属性
 
-### 原型式继承
+## 原型式继承
 
 > 与原型链继承有相似之处
 
@@ -233,7 +233,7 @@ function createObj(o) {
 
 缺点: 与原型链继承一样, 引用类型的属性会被所有实例共享
 
-### 寄生式继承
+## 寄生式继承
 
 创建一个仅用于封装继承过程的函数，该函数在内部以某种形式来做增强对象，最后返回对象。可以看到内部使用了`Object.create()`，因此其本质上是**在原型式继承返回的新对象上增加了新的属性和方法，实现增强效果。**
 
@@ -275,6 +275,199 @@ child1.hobbies.push('boxing')
 console.log(child2.hobbies)
 console.log(child1.name)
 console.log(child2.name)
+
+```
+
+## class 实现继承
+
+```js
+class Animal {
+    constructor(name) {
+        this.name = name
+    } 
+    getName() {
+        return this.name
+    }
+}
+class Dog extends Animal {
+    constructor(name, age) {
+        super(name)
+        this.age = age
+    }
+}
+
+```
+
+
+
+# 类型判断
+
+```js
+function typeOf(target) {
+  return Object.prototype.toString.call(target).slice(8,-1).toLowerCase()
+}
+
+// test
+let date = new Date()
+let set = new Set()
+let num = 1
+let num1 = Number(1)
+console.log(typeOf(date))
+console.log(typeOf(set))
+console.log(typeOf(num))
+console.log(typeOf(num1))
+console.log(typeOf(null))
+```
+
+# 数组去重
+
+> es6
+
+```js
+function unique(arr) {
+  // return Array.from(new Set(arr))
+  return [...new Set(arr)]
+}
+
+let unique = (arr) => [...new Set(arr)]
+```
+
+> es5
+
+```js
+function unique(arr) {
+  return arr.filter((item, index, arr) => arr.indexOf(item) ===index)
+}
+```
+
+# 数组扁平化
+
+> 1
+
+```js
+const arr = [4,[1, [2, [3]]]]
+
+function flatten(arr) {
+  let res = []
+  for(let item of arr) {
+    if(Array.isArray(item)) {
+      res = res.concat(flatten(item))
+    } else {
+      res.push(item)
+    }
+  }
+  return res
+}
+
+console.log(flatten(arr))
+```
+
+> 2
+
+```js
+const arr = [4,[1, [2, [3]]]]
+
+function flatten(arr) {
+  return arr.reduce((res, cur) => res.concat(Array.isArray(cur) ? flatten(cur) : cur), [])
+}
+
+console.log(flatten(arr))
+```
+
+> 3
+
+```js
+const arr = [4,[1, [2, [3]]]]
+
+function flatten(arr) {
+  while(arr.some(item => Array.isArray(item))) {
+    // 每次展平一层
+    arr = [].concat(...arr)
+  }
+  return arr
+}
+
+console.log(flatten(arr))
+```
+
+# 深浅拷贝
+
+对于数组来说
+
+```js
+arr.slice()
+arr.concat()
+//es6
+newArr = [...arr]
+Array.from(arr)
+
+let arr  = [1, null, 2, undefined, function(){}]
+
+JSON.parse(JSON.stringify(arr))
+```
+
+> JSON.stringify(..) 在对象中遇到 undefined 、 function 和 symbol 时会自动将其忽略， 在 数组中则会返回 null （以保证单元位置不变）
+>
+> 对包含循环引用的对象执行 JSON.stringify(..) 会出错。
+
+## 浅拷贝
+
+```js
+function deepClone(obj) {
+  if(typeof obj !== 'object') return
+  let newObj = obj instanceof Array ? [] : {}
+  for(let key in obj) {
+    if(obj.hasOwnProperty(key)) {
+      newObj[key] = obj[key]
+    }
+  }
+  return newObj
+}
+```
+
+> 值为null时深拷贝为其赋值一个空对象
+>
+> ```js
+> deepCopy({
+>         value: null
+> })
+> ```
+
+## 深拷贝
+
+```js
+function deepClone(obj) {
+  if(obj === null || typeof obj !== 'object') return obj
+  let newObj = obj instanceof Array ? [] : {}
+  for(let key in obj) {
+    if(obj.hasOwnProperty(key)) {
+      newObj[key] = typeof obj[key] === 'object' ? deepClone(obj[key]) : obj[key]
+    }
+  }
+  return newObj
+}
+
+let arr = [null ,null, 4,5]
+console.log(deepClone(arr))
+```
+
+# new 
+
+```js
+function myNew(fn, ...args){
+  let obj = Object.create(fn.prototype)
+  let res = fn.apply(obj, args)
+  return typeof res === 'object' ? res : obj
+}
+
+function person(name, age) {
+  this.name = name
+  this.age = age
+}
+
+let p = myNew(person, 'MM', 12)
+console.log(p) 
+
 
 ```
 
