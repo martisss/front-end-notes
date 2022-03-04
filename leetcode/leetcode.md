@@ -1,3 +1,22 @@
+# 双指针
+
+### [283. 移动零](https://leetcode-cn.com/problems/move-zeroes/)
+
+```js
+var moveZeroes = function(nums) {
+    let i=0, j=0
+    while(j<nums.length) {
+        if(nums[j]) {
+            [nums[i], nums[j]] = [nums[j], nums[i]]
+            i++
+        }
+        j++
+    }
+};
+```
+
+
+
 # 排序
 
 ## 选择排序
@@ -327,6 +346,8 @@ var reversePairs = function(nums) {
 
 ### 快速排序
 
+
+
 partition: 将目标数移动到指定位置，将原数组分为三个部分，小于等于目标数的部分，目标数，大于目标数的部分
 
 关键是partition的实现
@@ -363,6 +384,10 @@ console.log(arr)
 ```
 
 第一版快速排序的主要问题在于partition的实现，该实现中将数组第一个作为标定，最终标定的结果是小于该数的都在该数左边，大于等于该数的都在右边，那么这样对于有序数组来说的话，第一个数右边的数都比该数大，进入
+
+# TODO
+
+### [912. 排序数组](https://leetcode-cn.com/problems/sort-an-array/)
 
 # 栈与队列
 
@@ -913,6 +938,31 @@ var middleNode = function(head) {
 }
 ```
 
+### 复制链表
+
+#### [剑指 Offer 35. 复杂链表的复制](https://leetcode-cn.com/problems/fu-za-lian-biao-de-fu-zhi-lcof/)
+
+```js
+var copyRandomList = function(head) {
+    if(!head) return null
+    let map = new Map()
+    let cur = head
+    while(cur) {
+        map.set(cur, new Node(cur.val))
+        cur = cur.next
+    }
+    cur = head
+    while(cur) {
+        map.get(cur).next = cur.next ? map.get(cur.next) : null
+        map.get(cur).random = cur.random ? map.get(cur.random) : null
+        cur = cur.next
+    }
+    return map.get(head)
+};
+```
+
+
+
 #### [25. K 个一组翻转链表](https://leetcode-cn.com/problems/reverse-nodes-in-k-group/)
 
 ```js
@@ -952,69 +1002,6 @@ var reverseKGroup = function(head, k) {
 };
 ```
 
-### 祖先问题
-
-#### [235. 二叉搜索树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
-
-> ```js
-> var lowestCommonAncestor = function(root, p, q) {
->     if(root === p || root === q || !root) return root
->     let left = lowestCommonAncestor(root.left, p, q)
->     let right = lowestCommonAncestor(root.right, p, q)
->     if(left && right) return root
->     if(!left) return right
->     return left
-> };
-> 
-> // 利用二叉搜索树的特性，从上到下遍历，找到节点值在给定节点之间的节点就可以返回了
-> var lowestCommonAncestor = function(root, p, q) {
->     if(!root) return root
->     if(root.val > p.val && root.val > q.val) {
->         let left = lowestCommonAncestor(root.left, p, q)
->         return (left !== null) && left
->     }
->     if(root.val < p.val && root.val < q.val) {
->         let right = lowestCommonAncestor(root.right, p, q)
->         return (right !== null) && right
->     }
->     return root
-> }
-> 
-> // 注意返回的是节点
-> // 迭代
-> var lowestCommonAncestor = function(root, p, q) {
->     const getPath = (root, target) => {
->         let path = []
->         while(root) {
->             path.push(root)
->             if(root.val < target.val) {
->                 root = root.right
->             } else if (root.val > target.val) {
->                 root = root.left
->             } else break
->         }
->         return path
->     }
->     let path1 = getPath(root, p)
->     let path2 = getPath(root, q)
->     let res = 0
->     for(let i=0; i<path1.length && i<path2.length; i++) {
->         if(path1[i] == path2[i]) {
->             res = path1[i]
->         } else break
->     }
->     return res
-> }
-> ```
->
-> 
-
-## todo
-
-> meddium
-
-#### [146. LRU 缓存](https://leetcode-cn.com/problems/lru-cache/)
-
 #### [430. 扁平化多级双向链表](https://leetcode-cn.com/problems/flatten-a-multilevel-doubly-linked-list/)
 
 #### [1600. 皇位继承顺序](https://leetcode-cn.com/problems/throne-inheritance/)
@@ -1025,7 +1012,11 @@ var reverseKGroup = function(head, k) {
 
 # 堆
 
-### todo [剑指 Offer 40. 最小的k个数](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/)
+### TODO [剑指 Offer 40. 最小的k个数](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/)
+
+## TODO [295. 数据流的中位数](https://leetcode-cn.com/problems/find-median-from-data-stream/)
+
+## TODO [剑指 Offer 45. 把数组排成最小的数](https://leetcode-cn.com/problems/ba-shu-zu-pai-cheng-zui-xiao-de-shu-lcof/)
 
 ## 二叉堆实现
 
@@ -1104,6 +1095,10 @@ class Heap {
 
 # 位运算
 
+### [剑指 Offer 15. 二进制中1的个数](https://leetcode-cn.com/problems/er-jin-zhi-zhong-1de-ge-shu-lcof/)
+
+与1进行与运算或者利用n&n(n-1)
+
 ### [136. 只出现一次的数字](https://leetcode-cn.com/problems/single-number/)
 
 > 使用哈希可以达到n的空间与时间复杂度
@@ -1123,8 +1118,8 @@ var singleNumber = function(nums) {
 };
 ```
 
-<hr>
 ### [342. 4的幂](https://leetcode-cn.com/problems/power-of-four/)
+
 
 ```js
 var isPowerOfFour = function(n) {
@@ -1135,7 +1130,7 @@ var isPowerOfFour = function(n) {
 // };
 ```
 
-#### [231. 2 的幂](https://leetcode-cn.com/problems/power-of-two/)
+### [231. 2 的幂](https://leetcode-cn.com/problems/power-of-two/)
 
 ```js
 var isPowerOfTwo = function(n) {
@@ -1146,7 +1141,7 @@ var isPowerOfTwo = function(n) {
 };
 ```
 
-#### [面试题 01.01. 判定字符是否唯一](https://leetcode-cn.com/problems/is-unique-lcci/)
+### [面试题 01.01. 判定字符是否唯一](https://leetcode-cn.com/problems/is-unique-lcci/)
 
 ```js
 //注意位运算符优先级
@@ -1201,6 +1196,21 @@ var findTheDifference = function(s, t) {
    > };
    > ```
 
+### [剑指 Offer 65. 不用加减乘除做加法](https://leetcode-cn.com/problems/bu-yong-jia-jian-cheng-chu-zuo-jia-fa-lcof/)
+
+```js
+var add = function(a, b) {
+    while(b!=0) {
+        let carry = (a & b) << 1
+        a ^= b
+        b = carry
+    }
+    return a 
+};
+```
+
+
+
 :question:二进制加减法![image-20220203134919525](D:\NOTES\leetcode\leetcode.assets\image-20220203134919525.png)
 
 :question:判断a的第k位数字是0是1； 将a的第k位数字赋值为1
@@ -1208,6 +1218,44 @@ var findTheDifference = function(s, t) {
 a & (1<<k) 
 
 a | (1<<k) 
+
+### [ 剑指 Offer 56 - I. 数组中数字](https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof)
+
+```js
+//  分组异或
+var singleNumbers = function(nums) {
+    // 首先拿到所有数字的异或结果，等同于其中两个不同数的异或结果
+    // 因为相同的数出现次数都是两次，异或结果为0
+    let a = 0
+    for(let num of nums) {
+        a ^= num
+    }
+    // 然后找到异或结果中的为1的某一二级制位作为分组标准
+    // 异或为1代表这两个数在该位置的值不同，因此这两个数得以被分进不同的两组
+    // 对于数值相同的两个数来说，对应位置的异或结果肯定相同（0或1）
+    // 因此相同的两个数会被分进同一组，满足题意
+    let div = 1
+    while((div & a) === 0) {
+        div <<= 1
+    }
+
+    let b = 0, c = 0
+    for(let num of nums) {
+        if(div & num) {
+            b ^= num
+        } else {
+            c ^= num
+        }
+    }
+    return [b, c]
+};
+```
+
+
+
+### TODO
+
+### [剑指 Offer 56 - II. 数组中数字](https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-ii-lcof)
 
 # 滑动窗口
 
@@ -2000,17 +2048,55 @@ class Solution:
 
 #### 普通二叉树的构建
 
-1. 根据DFS的结果构建
+> 根据DFS的结果构建
 
 注意分界点的选择，主要思路是首先找到根节点，然后用根节点去分割另外一个数组，然后进行递归，时间空间复杂度均为n
 
-- [105. 从前序与中序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
-- [106. 从中序与后序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
-- [889. 根据前序和后序遍历构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-postorder-traversal/)
+##### [105. 从前序与中序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
 
-2. 根据BFS的结果构建
+```js
+var buildTree = function(preorder, inorder) {
+  if(!preorder.length) return null
+  let root = new TreeNode(preorder[0])
+  let index = inorder.findIndex( item => item === root.val)
+  root.left = buildTree(preorder.slice(1, index + 1), inorder.slice(0, index))
+  root.right = buildTree(preorder.slice(index + 1, preorder.length), inorder.slice(index  +1, inorder.length))
+  return root
+};
 
-[剑指 Offer 37. 序列化二叉树](https://leetcode-cn.com/problems/xu-lie-hua-er-cha-shu-lcof/)
+```
+
+##### [从中序与后序遍历序列构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
+
+```js
+var buildTree = function(inorder, postorder) {
+    if(!postorder.length) return null
+    let newNode = new TreeNode(postorder[postorder.length-1])
+    let index = inorder.findIndex(item => item === newNode.val)
+    newNode.left = buildTree(inorder.slice(0,index), postorder.slice(0,index))
+    newNode.right = buildTree(inorder.slice(index+1, inorder.length), postorder.slice(index,postorder.length-1))
+    return newNode
+};
+```
+
+##### [889. 根据前序和后序遍历构造二叉树](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-postorder-traversal/)
+
+```js
+var constructFromPrePost = function(preorder, postorder) {
+    if(!preorder.length) return null
+    let newNode = new TreeNode(preorder[0])
+    if(preorder.length===1) return newNode
+    // 找到分界点位置
+    let index = postorder.findIndex(item => item===preorder[1])
+    newNode.left = constructFromPrePost(preorder.slice(1,index+2), postorder.slice(0,index+1))
+    newNode.right = constructFromPrePost(preorder.slice(index+2,preorder.length), postorder.slice(index+1,postorder.length))
+    return newNode
+};
+```
+
+> 根据BFS的结果构建
+
+##### [剑指 Offer 37. 序列化二叉树](https://leetcode-cn.com/problems/xu-lie-hua-er-cha-shu-lcof/)
 
 ```js
 var serialize = function(root) {
@@ -2093,7 +2179,35 @@ const rdeserialize = (dataList) => {
 
 #### 二叉搜索树构建
 
-[1008. 前序遍历构造二叉搜索树](https://leetcode-cn.com/problems/construct-binary-search-tree-from-preorder-traversal/)
+##### [1008. 前序遍历构造二叉搜索树](https://leetcode-cn.com/problems/construct-binary-search-tree-from-preorder-traversal/)
+
+```js
+var bstFromPreorder = function(preorder) {
+    let root = new TreeNode(preorder[0])
+    let n = preorder.length
+    const insert = (val, node) => {
+        if(node.val > val) {
+            if(node.left) {
+                insert(val, node.left)
+            } else {
+                node.left = new TreeNode(val)
+            }
+        } else {
+            if(node.right) {
+                insert(val, node.right)
+            } else {
+                node.right = new TreeNode(val)
+            }
+        }
+    }
+    for(let i=1; i<n; i++) {
+        insert(preorder[i], root)
+    }
+    return root
+}
+```
+
+##### [剑指 Offer 37. 序列化二叉树](https://leetcode-cn.com/problems/xu-lie-hua-er-cha-shu-lcof/)
 
 ### 二叉树的修改 
 
@@ -2353,9 +2467,9 @@ def dfs_main(root):
 
 ```
 
+#### [剑指 Offer 26. 树的子结构](https://leetcode-cn.com/problems/shu-de-zi-jie-gou-lcof/)
 
-
-[面试题 04.12. 求和路径](https://leetcode-cn.com/problems/paths-with-sum-lcci/)
+#### [面试题 04.12. 求和路径](https://leetcode-cn.com/problems/paths-with-sum-lcci/)
 
 ```js
 // 将每个节点都当作根节点进行递归
@@ -2620,29 +2734,116 @@ public:
 - 递归：顺序无所谓，如果节点的数值在目标区间就是最近公共祖先
 - 迭代：按序遍历
 
+
+
+#### [235. 二叉搜索树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
+
+> ```js
+> var lowestCommonAncestor = function(root, p, q) {
+>  if(root === p || root === q || !root) return root
+>  let left = lowestCommonAncestor(root.left, p, q)
+>  let right = lowestCommonAncestor(root.right, p, q)
+>  if(left && right) return root
+>  if(!left) return right
+>  return left
+> };
+> 
+> // 利用二叉搜索树的特性，从上到下遍历，找到节点值在给定节点之间的节点就可以返回了
+> var lowestCommonAncestor = function(root, p, q) {
+>  if(!root) return root
+>  if(root.val > p.val && root.val > q.val) {
+>      let left = lowestCommonAncestor(root.left, p, q)
+>      return (left !== null) && left
+>  }
+>  if(root.val < p.val && root.val < q.val) {
+>      let right = lowestCommonAncestor(root.right, p, q)
+>      return (right !== null) && right
+>  }
+>  return root
+> }
+> 
+> // 注意返回的是节点
+> // 迭代
+> var lowestCommonAncestor = function(root, p, q) {
+>  const getPath = (root, target) => {
+>      let path = []
+>      while(root) {
+>          path.push(root)
+>          if(root.val < target.val) {
+>              root = root.right
+>          } else if (root.val > target.val) {
+>              root = root.left
+>          } else break
+>      }
+>      return path
+>  }
+>  let path1 = getPath(root, p)
+>  let path2 = getPath(root, q)
+>  let res = 0
+>  for(let i=0; i<path1.length && i<path2.length; i++) {
+>      if(path1[i] == path2[i]) {
+>          res = path1[i]
+>      } else break
+>  }
+>  return res
+> }
+> ```
+
+#### [236. 二叉树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/)
+
+```js
+var lowestCommonAncestor = function(root, p, q) {
+    // 递归终止条件
+    if(root === p || root === q || !root) return root
+    // 单层逻辑
+    let left = lowestCommonAncestor(root.left, p, q)
+    let right = lowestCommonAncestor(root.right, p, q)
+    // 分别在左右子树中
+    if(left && right) return root
+    // 右子树中没有，
+    if(!right) return left
+    // 左子树中没有
+    return right
+};
+```
+
+
+
+
+
+#### 
+
 ## 二叉搜索树的修改与构造
 
-[二叉搜索树中的插入操作](https://programmercarl.com/0701.二叉搜索树中的插入操作.html)
+### [二叉搜索树中的插入操作](https://programmercarl.com/0701.二叉搜索树中的插入操作.html)
 
 - 递归：顺序无所谓，通过递归函数返回值添加节点
 - 迭代：按序遍历，需要记录插入父节点，这样才能做插入操作
 
-[二叉搜索树中的删除操作](https://programmercarl.com/0450.删除二叉搜索树中的节点.html)
+### [二叉搜索树中的删除操作](https://programmercarl.com/0450.删除二叉搜索树中的节点.html)
 
 - 递归：前序，想清楚删除非叶子节点的情况
 - 迭代：有序遍历，较复杂
 
 **:sparkler:普通二叉树的删除方式**
 
-[修剪二叉搜索树](https://programmercarl.com/0669.修剪二叉搜索树.html)
+### [修剪二叉搜索树](https://programmercarl.com/0669.修剪二叉搜索树.html)
 
 - 递归：前序，通过递归函数返回值删除节点
 - 迭代：有序遍历，较复杂
 
-[构造二叉搜索树](https://programmercarl.com/0108.将有序数组转换为二叉搜索树.html)
+### [构造二叉搜索树](https://programmercarl.com/0108.将有序数组转换为二叉搜索树.html)
 
 - 递归：前序，数组中间节点分割
 - 迭代：较复杂，通过三个队列来模拟
+
+### [105. 从前序与中序遍历序列](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal)
+
+### [106. 从中序与后序遍历序列](https://leetcode-cn.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal)
+
+### [889. 根据前序和后序遍历构造](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-postorder-traversal)
+
+### [1008. 先序遍历构造二叉树](https://leetcode-cn.com/problems/construct-binary-search-tree-from-preorder-traversal)
 
 ## todolist
 
@@ -2737,6 +2938,14 @@ var recoverTree = function(root) {
 
 
 # 二分
+
+“排序数组中的搜索问题，首先想到 二分法 解决
+
+### [剑指 Offer 53 - II. 0～n-1中缺失的数字](https://leetcode-cn.com/problems/que-shi-de-shu-zi-lcof/)
+
+# TODO
+
+#### [153. 寻找旋转排序数组中的最小值](https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array/)
 
 ## 定义
 
@@ -4447,7 +4656,29 @@ var sortArray = function(nums) {
 
 
 
+# 其他
 
+## 摩尔投票法
+
+核心在于票数正负相抵，如果票数 为0, 则假定当前数为众数，然后遇到相同的票数加一1，不同减一。
+
+如果未说明数组中一定存在众数，则需要进行验证，时间复杂度（n），空间复杂度（1）
+
+### [剑指 Offer 39. 数组中出现次数超过一半的数字](https://leetcode-cn.com/problems/shu-zu-zhong-chu-xian-ci-shu-chao-guo-yi-ban-de-shu-zi-lcof/)
+
+```js
+var majorityElement = function(nums) {
+    let count = 0
+    let candidate
+    for(let item of nums) {
+        if(count === 0) {
+            candidate = item
+        }
+        count += candidate === item ? 1 : -1
+    }
+    return candidate
+};
+```
 
 
 
