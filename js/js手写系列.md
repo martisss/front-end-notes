@@ -471,3 +471,214 @@ console.log(p)
 
 ```
 
+# instanceof
+
+> 判断构造函数的prototype是否出现在实例的原型链上
+
+```js
+function instanceOf(left, right) {
+  let proto = left.__proto__
+  // let proto = Object.getPrototypeOf(left)
+  while(true) {
+    if(proto === null) return true
+    if(proto === right.prototype) return true
+    proto = proto.__proto__
+  }
+}
+```
+
+# Object.create()
+
+```js
+Object.newCreate = function(obj) {
+  function F(){}
+  F.prototype = obj
+  let res = new F()
+  if(obj == null) res.__proto__ = null
+  return res
+}
+
+let obj = {name: '1'}
+console.log(Object.newCreate(null).__proto__ == null)
+```
+
+# 数组
+
+## forEach
+
+```js
+
+if (!Array.prototype.forEach) {
+  Array.prototype.forEach = function(callback, thisArg) {
+    var T, k;
+    // 调用者不能为空
+    if (this == null) {
+      throw new TypeError(' this is null or not defined');
+    }
+    // 数组长度
+    // 转保证转换后的值为正整数，->转为number,转为32位整型
+    var O = Object(this);
+    var len = O.length >>> 0;
+    if (typeof callback !== "function") {
+      throw new TypeError(callback + ' is not a function');
+    }
+    if (arguments.length > 1) {
+      T = thisArg;
+    }
+    k = 0;
+    while (k < len) {
+      var kValue;
+      if (k in O) {
+        kValue = O[k];
+        callback.call(T, kValue, k, O);
+      }
+      k++;
+    }
+  };
+}
+
+```
+
+## map
+
+```js
+if (!Array.prototype.map) {
+  Array.prototype.map = function(callback, thisArg) {
+    var T, k;
+    // 调用者不能为空
+    if (this == null) {
+      throw new TypeError(' this is null or not defined');
+    }
+    // 数组长度
+    // 转保证转换后的值为正整数，->转为number,转为32位整型
+    var O = Object(this);
+    var len = O.length >>> 0;
+    if (typeof callback !== "function") {
+      throw new TypeError(callback + ' is not a function');
+    }
+    if (arguments.length > 1) {
+      T = thisArg;
+    }
+    let res = []
+    k = 0;
+    while (k < len) {
+      var kValue;
+      if (k in O) {
+        kValue = O[k];
+        res[k] = callback.call(T, kValue, k, O);
+      }
+      k++;
+    }
+    return res
+  };
+}
+```
+
+## filter
+
+```js
+if (!Array.prototype.filter) {
+  Array.prototype.filter = function(callback, thisArg) {
+    var T, k;
+    // 调用者不能为空
+    if (this == null) {
+      throw new TypeError(' this is null or not defined');
+    }
+    // 数组长度
+    // 转保证转换后的值为正整数，->转为number,转为32位整型
+    var O = Object(this);
+    var len = O.length >>> 0;
+    if (typeof callback !== "function") {
+      throw new TypeError(callback + ' is not a function');
+    }
+    if (arguments.length > 1) {
+      T = thisArg;
+    }
+    let res = [], k=0
+    while (k < len) {
+      var kValue;
+      if (k in O) {
+        kValue = O[k];
+        if(res[k] = callback.call(T, kValue, k, O)) {
+          res.push(O[k])
+        }
+      }
+      k++;
+    }
+    return res
+  };
+}
+```
+
+## some
+
+```js
+if (!Array.prototype.some) {
+  Array.prototype.some = function(callback, thisArg) {
+    var T, k;
+    // 调用者不能为空
+    if (this == null) {
+      throw new TypeError(' this is null or not defined');
+    }
+    // 数组长度
+    // 转保证转换后的值为正整数，->转为number,转为32位整型
+    var O = Object(this);
+    var len = O.length >>> 0;
+    if (typeof callback !== "function") {
+      throw new TypeError(callback + ' is not a function');
+    }
+    if (arguments.length > 1) {
+      T = thisArg;
+    }
+    let k=0
+    while (k < len) {
+      var kValue;
+      if (k in O) {
+        kValue = O[k];
+        if(callback.call(T, kValue, k, O)) {
+          return true
+        }
+      }
+      k++;
+    }
+    return false
+  };
+}
+```
+
+## every
+
+```js
+if (!Array.prototype.every) {
+  Array.prototype.every = function(callback, thisArg) {
+    var T, k;
+    // 调用者不能为空
+    if (this == null) {
+      throw new TypeError(' this is null or not defined');
+    }
+    // 数组长度
+    // 转保证转换后的值为正整数，->转为number,转为32位整型
+    var O = Object(this);
+    var len = O.length >>> 0;
+    if (typeof callback !== "function") {
+      throw new TypeError(callback + ' is not a function');
+    }
+    if (arguments.length > 1) {
+      T = thisArg;
+    }
+    let k=0
+    while (k < len) {
+      var kValue;
+      if (k in O) {
+        kValue = O[k];
+        if(!callback.call(T, kValue, k, O)) {
+          return false
+        }
+      }
+      k++;
+    }
+    return true
+  };
+}
+```
+

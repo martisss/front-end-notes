@@ -356,34 +356,34 @@ partition: 将目标数移动到指定位置，将原数组分为三个部分，
 
 ```js
 const quickSort = (arr, l, r) => {
-  const swap = (arr,a,b) => {
-    let c = arr[a]
-    arr[a] = arr[b]
-    arr[b] = c
-  }
-  
+  // partition将数组分成两部分
+  // l, r分别代表数组的左右边界
+  // 默认将arr[l]作为标志位
+  // [l+1, j] 部分小于arr[l]
+  // [j+1,i-1]部分大于arr[l] （闭区间）
   const partition = (arr, l, r) => {
-    //arr[l+1,j] < v,; arr[j+1,i]>=v
     let j=l
-    for(let i=l+1; i<=r; i++) {
+    for(i=l+1; i<=r; i++) {
       if(arr[i]<arr[l]) {
         j++
-        swap(arr, i, j)
+        [arr[i], arr[j]] = [arr[j], arr[i]]
       }
     }
-    swap(arr, l, j)
+    [arr[l], arr[j]] = [arr[j], arr[l]]
     return j
   }
   if(l>=r) return
-  let p = partition(arr, l, r)
-  quickSort(arr,l , p-1)
-  quickSort(arr,p+1, r)
+  let mid = partition(arr, l, r)
+  quickSort(arr,l,mid-1)
+  quickSort(arr,mid+1,r)
 }
+
+const arr = [1, 3, 53, 9, 8, 5, 4]
 quickSort(arr, 0, arr.length-1)
 console.log(arr)
 ```
 
-第一版快速排序的主要问题在于partition的实现，该实现中将数组第一个作为标定，最终标定的结果是小于该数的都在该数左边，大于等于该数的都在右边，那么这样对于有序数组来说的话，第一个数右边的数都比该数大，进入
+第一版快速排序的主要问题在于partition的实现，针对有序数组的话可能会栈溢出
 
 # TODO
 
@@ -2957,47 +2957,73 @@ var recoverTree = function(root) {
 
 ```js
 
-var search = function(nums, target) {
-    let left = 0, right = nums.length -1
-    while(left <= right) {
-        let mid = left + Math.floor((right - left)/2)
-        if(nums[mid] < target) left = mid+1
-        else if(nums[mid] > target) right = mid - 1
-        else return mid
-    } 
-    return -1
-};
+
+const searchRight = (arr, target) => {
+  let l = 0 , r = arr.length
+  while(l<r) {
+    let mid = l+ ((r-l)>>>1)
+    if(arr[mid] > target) r = mid
+    else  l = mid+1
+  }
+   // 加上这一句时，当数组中存在target时，会返回该数的最大索引
+    //不存在时，同样会返回右边界
+  //if(arr[l-1] === target) return l-1
+  return l
+}
+
+const arr = [1,1,3,3,5,5,7,7]
+console.log(searchRight(arr,5))
+
+
 ```
 
 >  寻找最左插入位置
 
+> 小于target的最大值所在位置
+
 ```python
-def bisect_left(nums, x):
-    # 内置 api
-    bisect.bisect_left(nums, x)
-    # 手写
-    l, r = 0, len(A) - 1
-    while l <= r:
-        mid = (l + r) // 2
-        if A[mid] >= x: r = mid - 1
-        else: l = mid + 1
-    return l
+
+
+const searchLeft = (arr, target) => {
+  let l = -1 , r = arr.length-1
+  while(l<r) {
+    let mid = l+ ((r-l+1)>>>1)
+    if(arr[mid] < target) l = mid
+    else  r = mid-1
+  }
+    //这里的作用同上
+    //存在target,返回target的最左边的索引
+    //该数不存在，返回小于target的最大的数的索引，即左边界
+  //if(arr[l+1] === target) return l+1
+  return l
+}
+
+const arr = [1,1,3,3,5,5,7,7]
+console.log(searchLeft(arr,4)
+
 ```
+
+当l,r相邻时，由于下取整，区间就不会发生变化，陷入死循环
+
+
+
+
 
 > 寻找最右插入位置
 
+可以理解为寻找大于target的最小值的位置，这里r = arr.length，是因为数组中可能不存在这样的值 ，那么返回的值为arr.length
+
 ```python
 
-def bisect_right(nums, x):
-    # 内置 api
-    bisect.bisect_right(nums, x)
-    # 手写
-    l, r = 0, len(A) - 1
-    while l <= r:
-        mid = (l + r) // 2
-        if A[mid] <= x: l = mid + 1
-        else: r = mid - 1
-    return l
+const searchRight = (arr, target) => {
+  let l = 0 , r = arr.length
+  while(l<r) {
+    let mid = l+ (r-l)>>>1
+    if(arr[mid] > target) r = mid
+    else  l = mid+1
+  }
+  return l
+}
 ```
 
 
