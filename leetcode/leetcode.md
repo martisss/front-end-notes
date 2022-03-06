@@ -3033,16 +3033,16 @@ const searchRight = (arr, target) => {
 
 ## 应用
 
-### 能力检测二分
+### 收缩解空间
 
-[875. 爱吃香蕉的珂珂](https://leetcode-cn.com/problems/koko-eating-bananas/)
+#### [875. 爱吃香蕉的珂珂](https://leetcode-cn.com/problems/koko-eating-bananas/)
 
 解的是有序的，不断收缩解集的空间，如果possible(k)不满足要求，那么小于k的解也不会满足要求
 
 使用最左二分，不断收缩右边界
 
 ```js
-//能以 K 的进食速度最终吃完所有的香蕉（在 H 小时内），那么她也可以用更快的速度吃完。
+
 var minEatingSpeed = function(piles, h) {
     const canEat = (piles, h, mid) => {
         let time = 0
@@ -3054,16 +3054,16 @@ var minEatingSpeed = function(piles, h) {
 
     let l = 1
     let r = Math.max(...piles)
-    while(l<=r) {
+    while(l<r) {
         let mid = l + ((r-l) >>> 1)
-        if(canEat(piles, h, mid)) r = mid -1
+        if(canEat(piles, h, mid)) r = mid
         else l = mid+1
     }
     return l
 };
 ```
 
-[475. 供暖器](https://leetcode-cn.com/problems/heaters/)
+#### [475. 供暖器](https://leetcode-cn.com/problems/heaters/)
 
 ```js
 var findRadius = function(houses, heaters) {
@@ -3090,6 +3090,40 @@ var findRadius = function(houses, heaters) {
     return l
 };
 ```
+
+#### [1011. 在 D 天内送达包裹的能力](https://leetcode-cn.com/problems/capacity-to-ship-packages-within-d-days/)
+
+```js
+/**
+ * @param {number[]} weights
+ * @param {number} days
+ * @return {number}
+ */
+var shipWithinDays = function(weights, days) {
+    const canLoad = (weights, sum) => {
+        let need = 1, cur = 0
+        for(let weight of weights) {
+            if(cur+weight > sum) {
+                need++
+                cur = 0
+            }
+            cur += weight
+        }
+        if(need <= days) return true
+        return false
+    }
+    //l
+    let l = Math.max(...weights), r=weights.reduce((a,b) => a+b, 0)
+    while(l<r) {
+        let mid = l + ((r-l)>>>1)
+        if(canLoad(weights, mid)) r = mid
+        else l = mid+1
+    }
+    return l
+};
+```
+
+
 
 # 单调栈
 
