@@ -1010,7 +1010,7 @@ var reverseKGroup = function(head, k) {
 
 #### [460. LFU 缓存](https://leetcode-cn.com/problems/lfu-cache/)
 
-# 堆
+# 堆 与 优先队列
 
 ### TODO [剑指 Offer 40. 最小的k个数](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/)
 
@@ -3112,7 +3112,7 @@ var shipWithinDays = function(weights, days) {
         if(need <= days) return true
         return false
     }
-    //l
+    //理论最低运力，理论最高运力
     let l = Math.max(...weights), r=weights.reduce((a,b) => a+b, 0)
     while(l<r) {
         let mid = l + ((r-l)>>>1)

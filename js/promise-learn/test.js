@@ -1,21 +1,45 @@
-Object.assign = (obj, ...source) => {
-  if(obj == null) return new TypeError()
-  let res = Object(obj)
-  source.forEach( item => {
-    for(let key in item) {
-      if(item.hasOwnProperty(key)) {
-        res[key] = item[key]
-      }
-    }
-  })
-  return res
-}
+console.log('1'); // ①同步任务 
 
-let user = { name: "John" };
+setTimeout(function() { // ① 宏任务
+    console.log('2');
+    process.nextTick(function() {
+        console.log('3');
+    })
+    new Promise(function(resolve) {
+        console.log('4');
+        resolve();
+    }).then(function() {
+        console.log('5')
+    })
+})
 
-let permissions1 = { canView: true };
-let permissions2 = { canEdit: true };
+process.nextTick(function() { // ① 微任务
+    console.log('6');
+})
 
-// 将 permissions1 和 permissions2 中的所有属性都拷贝到 user 中
-Object.assign(user, permissions1, permissions2);
-console.log(user)
+new Promise(function(resolve) {
+    console.log('7'); // ① 同步任务 
+    resolve();
+}).then(function() { // ① 微任务
+    console.log('8')
+})
+
+setTimeout(function() { // ① 宏任务
+    console.log('9');
+    process.nextTick(function() {
+        console.log('10');
+    })
+    
+    new Promise(function(resolve) {
+        console.log('11');
+        resolve();
+    }).then(function() {
+        console.log('12')
+    })
+    
+    console.log('13');
+    
+    process.nextTick(function() {
+        console.log('14'); // 微任务 process.nextTick 比 promse.then优先级要高
+    })
+})

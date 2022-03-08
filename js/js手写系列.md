@@ -451,6 +451,53 @@ let arr = [null ,null, 4,5]
 console.log(deepClone(arr))
 ```
 
+## 深度比较
+
+```js
+  function isObject(obj) {return !!(obj && typeof obj === 'object')}
+  function isEqual(obj1, obj2) {
+    if(!isObject(obj1) || !isObject(obj2)) return obj1 === obj2
+    if(obj1 === obj2) return true
+    // 都是对象或者数组，且不相等
+    let keys1 = Object.keys(obj1)
+    let keys2 = Object.keys(obj2)
+    if(keys1.length !== keys2.length) return false
+    for(let key in keys1) {
+      const res = isEqual(obj1[key], obj2[key])
+      if(!res) return false
+    }
+    return true
+  }
+```
+
+## 将URL参数解析成JS对象
+
+```js
+  function queryToObj() {
+    const res = {}
+    const search = location.search.substr(1)
+    search.split('&').forEach(str => {
+      const arr = str.split('=')
+      const key = arr[0]
+      const val = arr[1]
+      res[key] = val
+    })
+    return res
+  }
+
+
+  function queryToObj() {
+    const res = {}
+    const pList = new URLSearchParams(location.search)
+    for(const [key, val] of pList) {
+      res[key] = val
+    }
+    return res
+  }
+```
+
+
+
 # new 
 
 ```js

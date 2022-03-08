@@ -46,6 +46,17 @@ const transition = (promise, state, result) => {
   setTimeout(() => handleCallbacks(promise.callbacks, state, result), 0)
 }
 
+// /**************************** */
+Promise.prototype.then = function (onFulfilled, onRejected) {
+  return new Promise((resolve, reject) => {
+    let callback = { onFulfilled, onRejected, resolve, reject }
+    if (this.state === PENDING) {
+      this.callbacks.push(callback)
+    } else {
+      setTimeout(() => handleCallback(callback, this.state, this.result), 0)
+    }
+  })
+}
 
 
 const handleCallback = (callback, state, result) => {
@@ -53,8 +64,7 @@ const handleCallback = (callback, state, result) => {
   try {
     if (state === FULFILLED) {
       isFunction(onFulfilled) ? resolve(onFulfilled(result)) : resolve(result)
-    }
-    if (state === REJECTED) {
+    } else if (state === REJECTED) {
       isFunction(onRejected) ? resolve(onRejected(result)) : reject(result)
     }
   } catch (error) {
@@ -79,16 +89,6 @@ const resolvePromise = (promise, result, resolve, reject) => {
   resolve(result)
 }
 
-Promise.prototype.then = (onFulfilled, onRejected) => {
-  return new Promise((resolve, reject) => {
-    let callback = { onFulfilled, onRejected, resolve, reject }
-    if (this.state === PENDING) {
-      this.callbacks.push(callback)
-    } else {
-      setTimeout(() => handleCallback(callback, this.state, this.result), 0)
-    }
-  })
-}
 
 Promise.defer = Promise.deferred = function () {
   let dfd = {}

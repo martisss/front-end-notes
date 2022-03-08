@@ -61,6 +61,7 @@
 ### GET 和 POST的区别
 
 - 语义
+
 - 缓存
 
 	- 从缓存的角度，GET 请求会被浏览器主动缓存下来，留下历史记录，而 POST 默认不会
@@ -76,6 +77,12 @@
 - 幂等性
 
 	- 从幂等性的角度，GET是幂等的，而POST不是。(幂等表示执行相同的操作，结果也是相同的)
+	
+	
+	
+	- .GET请求会产生一次TCP数据包,浏览器会把http,header,data一并发送出去
+	
+	  　　　POST请求会产生两次TCP数据包  浏览器先发送请求头,服务器响应100 continue,  浏览器再发送请求体
 
 ## 003: URI编码
 
@@ -567,7 +574,7 @@ Accept-charset
 
 ps:在大多数编程语言里 ; 的断句语气要强于 , ，而在 HTTP 的内容协商里却恰好反了过来，; 的意义是小于 , 的。
 Accept: text/html,application/xml;q=0.9,*/*;q=0.8
- 
+
 
 Vary 字段，记录服务器在内容协商时参考的请求头字段，给出一点信息，例如：
 Vary: Accept-Encoding,User-Agent,Accept
@@ -628,17 +635,17 @@ Content-Type: multipart/byteranges; boundary=00000000001
 Content-Length: 189
 Connection: keep-alive
 Accept-Ranges: bytes
- 
- 
+
+
 --00000000001
 Content-Type: text/plain
 Content-Range: bytes 0-9/96
- 
+
 // this is
 --00000000001
 Content-Type: text/plain
 Content-Range: bytes 20-29/96
- 
+
 ext json d
 --00000000001--
 

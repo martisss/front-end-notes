@@ -1558,7 +1558,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                                                    
+> >                                                       
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
@@ -2834,4 +2834,563 @@ https://www.cnblogs.com/LuckyWinty/p/11739573.html
 4. 为了避免疏忽导致的遗忘，我们可以使用 `WeakSet` 和 `WeakMap`结构，它们对于值的引用都是不计入垃圾回收机制的，表示这是弱引用。
 
 
+
+# 前端安全
+
+## XSS 跨站脚本攻击
+
+### 定义
+
+通过在目标网站上注入恶意脚本，使之在用户的浏览器上运行。利用这些恶意脚本，攻击者可获取用户的敏感信息如 Cookie、SessionID 等，进而危害数据安全。
+
+### 分类
+
+#### 存储型 XSS
+
+> 存储型 XSS 的攻击步骤：
+>
+> 1. 攻击者将恶意代码提交到目标网站的数据库中。
+> 2. 用户打开目标网站时，网站服务端将恶意代码从数据库取出，拼接在 HTML 中返回给浏览器。
+> 3. 用户浏览器接收到响应后解析执行，混在其中的恶意代码也被执行。
+> 4. 恶意代码窃取用户数据并发送到攻击者的网站，或者冒充用户的行为，调用目标网站接口执行攻击者指定的操作。
+
+这种攻击常见于带有用户保存数据的网站功能，如论坛发帖、商品评论、用户私信等。
+
+#### 反射型 XSS
+
+> 反射型 XSS 的攻击步骤：
+>
+> 1. 攻击者构造出特殊的 URL，其中包含恶意代码。
+> 2. 用户打开带有恶意代码的 URL 时，网站服务端将恶意代码从 URL 中取出，拼接在 HTML 中返回给浏览器。
+> 3. 用户浏览器接收到响应后解析执行，混在其中的恶意代码也被执行。
+> 4. 恶意代码窃取用户数据并发送到攻击者的网站，或者冒充用户的行为，调用目标网站接口执行攻击者指定的操作。
+
+**反射型 XSS 跟存储型 XSS 的区别是：存储型 XSS 的恶意代码存在数据库里，反射型 XSS 的恶意代码存在 URL 里。**
+
+反射型 XSS 漏洞常见于通过 URL 传递参数的功能，如网站搜索、跳转等。
+
+**由于需要用户主动打开恶意的 URL 才能生效，攻击者往往会结合多种手段诱导用户点击。**
+
+POST 的内容也可以触发反射型 XSS，只不过其触发条件比较苛刻（需要构造表单提交页面，并引导用户点击），所以非常少见。
+
+#### DOM 型 XSS
+
+> DOM 型 XSS 的攻击步骤：
+>
+> 1. 攻击者构造出特殊的 URL，其中包含恶意代码。
+> 2. 用户打开带有恶意代码的 URL。
+> 3. 用户浏览器接收到响应后解析执行，前端 JavaScript 取出 URL 中的恶意代码并执行。
+> 4. 恶意代码窃取用户数据并发送到攻击者的网站，或者冒充用户的行为，调用目标网站接口执行攻击者指定的操作。
+
+**DOM 型 XSS 跟前两种 XSS 的区别：DOM 型 XSS 攻击中，取出和执行恶意代码由浏览器端完成，属于前端 JavaScript 自身的安全漏洞，而其他两种 XSS 都属于服务端的安全漏洞。**
+
+### 防范
+
+#### 输入过滤
+
+对于明确的输入类型，例如数字、URL、电话号码、邮件地址等等内容，进行输入过滤还是必要的。
+
+既然输入过滤并非完全可靠，我们就要通过“防止浏览器执行恶意代码”来防范 XSS。这部分分为两类：
+
+- 防止 HTML 中出现注入。
+- 防止 JavaScript 执行时，执行恶意代码。
+
+#### 预防存储型和反射型 XSS 攻击
+
+存储型和反射型 XSS 都是在服务端取出恶意代码后，插入到响应 HTML 里的，攻击者刻意编写的“数据”被内嵌到“代码”中，被浏览器所执行。
+
+预防这两种漏洞，有两种常见做法：
+
+- 改成纯前端渲染，把代码和数据分隔开。
+
+  > 但纯前端渲染还需注意避免 DOM 型 XSS 漏洞（例如 `onload` 事件和 `href` 中的 `javascript:xxx` 等
+
+- 对 HTML 做充分转义。
+
+  > 在不同的上下文里要使用相应的转义规则。
+
+#### 预防 DOM 型 XSS 攻击
+
+DOM 中的内联事件监听器，如 `location`、`onclick`、`onerror`、`onload`、`onmouseover` 等，`<a>` 标签的 `href` 属性，JavaScript 的 `eval()`、`setTimeout()`、`setInterval()` 等，都能把字符串作为代码运行。如果不可信的数据拼接到字符串中传递给这些 API，很容易产生安全隐患
+
+```js
+<!-- 内联事件监听器中包含恶意代码 -->
+<img onclick="UNTRUSTED" onerror="UNTRUSTED" src="data:image/png,">
+
+<!-- 链接内包含恶意代码 -->
+<a href="UNTRUSTED">1</a>
+
+<script>
+// setTimeout()/setInterval() 中调用恶意代码
+setTimeout("UNTRUSTED")
+setInterval("UNTRUSTED")
+
+// location 调用恶意代码
+location.href = 'UNTRUSTED'
+
+// eval() 中调用恶意代码
+eval("UNTRUSTED")
+</script>
+
+```
+
+#### 其他
+
+- 对于不受信任的输入，都应该限定一个合理的长度
+
+- HTTP-only Cookie: 禁止 JavaScript 读取某些敏感 Cookie，攻击者完成 XSS 注入后也无法窃取此 Cookie。
+
+- 验证码：防止脚本冒充用户提交危险操作。
+
+- ### Content Security Policy
+
+## CSRF 跨站攻击伪造
+
+[前端安全系列之二：如何防止CSRF攻击？](https://juejin.cn/post/6844903689702866952)
+
+防范攻击要抓住攻击的特点，第三方发起以及冒用用户凭证，针对前者使用同源策略, SamesiteCookie，针对后者使用csrf token, 双重cookie
+
+总结：
+
+### 定义
+
+跨站请求伪造：攻击者诱导受害者进入第三方网站，在第三方网站中，向被攻击网站发送跨站请求。利用受害者在被攻击网站已经获取的注册凭证，绕过后台的用户验证，达到冒充用户对被攻击的网站执行某项操作的目的。
+
+
+
+关键是用户保存了被攻击用户的登录凭证， 即cookie
+
+### 常见类型
+
+> get类型
+
+如利用img标签
+
+```js
+ <img src="http://bank.example/withdraw?amount=10000&for=hacker" > 
+```
+
+> post类型
+
+通常是一个自动提交的表单
+
+```js
+ <form action="http://bank.example/withdraw" method=POST>
+    <input type="hidden" name="account" value="xiaoming" />
+    <input type="hidden" name="amount" value="10000" />
+    <input type="hidden" name="for" value="hacker" />
+</form>
+<script> document.forms[0].submit(); </script> 
+```
+
+> 链接类型
+
+诱导用户点击
+
+```js
+  <a href="http://test.com/csrf/withdraw.php?amount=1000&for=hacker" taget="_blank">
+  重磅消息！！
+  <a/>
+```
+
+### 攻击特点
+
+- 一般发起在第三方，被攻击的网站无法防止攻击
+
+  > 本域下有容易被利用的功能，比如可以发图和链接的论坛和评论区，攻击可以直接在本域下进行，而且这种攻击更加危险。
+
+- 攻击方无法窃取用户的登录凭证只是冒用
+
+- 方式多样
+
+  > 图片URL、超链接、CORS、Form提交等等。部分请求方式可以直接嵌入在第三方论坛、文章中，难以进行追踪。
+
+### 防范策略
+
+#### 同源检测
+
+通过Origin Header 和 Referer Header，后者可以进行修改、隐藏，前者在以下两个情况下不会带Origin头
+
+**IE11同源策略：** IE 11 不会在跨站CORS请求上添加Origin标头，Referer头将仍然是唯一的标识。最根本原因是因为IE 11对同源的定义和其他浏览器有不同，有两个主要的区别，可以参考[MDN Same-origin_policy#IE_Exceptions](https://link.juejin.cn?target=https%3A%2F%2Fdeveloper.mozilla.org%2Fen-US%2Fdocs%2FWeb%2FSecurity%2FSame-origin_policy%23IE_Exceptions)
+
+**302重定向：** **在302重定向之后Origin不包含在重定向的请求中，因为Origin可能会被认为是其他来源的敏感信息。**对于302重定向的情况来说都是定向到新的服务器上的URL，因此浏览器不想将Origin泄漏到新的服务器上。
+
+当然这两个有可能都不存在，无法确定来源
+
+#### CSRF Token
+
+可以要求所有的用户请求都携带一个CSRF攻击者无法获取到的Token。服务器通过校验请求是否携带正确的Token，来把正常的请求和攻击的请求区分开，也可以防范CSRF的攻击。
+
+> 使用Session存储，读取和验证CSRF Token会引起比较大的复杂度和性能问题，目前很多网站采用Encrypted Token Pattern方式。这种方法的Token是一个计算出来的结果，而非随机生成的字符串。
+
+缺点：此方法的实现比较复杂，需要给每一个页面都写入Token（前端无法使用纯静态页面），每一个Form及Ajax请求都携带这个Token，后端对每一个接口都进行校验，并保证页面Token及请求Token一致。这就使得这个防护策略不能在通用的拦截上统一拦截处理，而需要每一个页面和接口都添加对应的输出和校验。这种方法工作量巨大，且有可能遗漏。
+
+#### 双重cookie验证
+
+利用CSRF攻击不能获取到用户Cookie的特点，我们可以要求Ajax和表单请求携带一个Cookie中的值。
+
+> 在用户访问网站页面时，向请求域名注入一个Cookie，内容为随机字符串（例如`csrfcookie=v8g9e4ksfhw`）。
+>
+> 在前端向后端发起请求时，取出Cookie，并添加到URL的参数中（接上例`POST https://www.a.com/comment?csrfcookie=v8g9e4ksfhw`）。
+>
+> 后端接口验证Cookie中的字段与URL参数中的字段是否一致，不一致则拒绝。
+
+用双重Cookie防御CSRF的优点：
+
+- 无需使用Session，适用面更广，易于实施。
+- Token储存于客户端中，不会给服务器带来压力。
+- 相对于Token，实施成本更低，可以在前后端统一拦截校验，而不需要一个个接口和页面添加。
+
+缺点：
+
+- Cookie中增加了额外的字段。
+- 如果有其他漏洞（例如XSS），攻击者可以注入Cookie，那么该防御方式失效。
+- 难以做到子域名的隔离。
+- 为了确保Cookie传输安全，采用这种防御方式的最好确保用整站HTTPS的方式，如果还没切HTTPS的使用这种方式也会有风险。
+
+#### SamesiteCookie
+
+如果SamesiteCookie被设置为Strict**，浏览器在任何跨域请求中都不会携带Cookie，新标签重新打开也不携带，所以说CSRF攻击基本没有机会。**
+
+但是跳转子域名或者是新标签重新打开刚登陆的网站，之前的Cookie都不会存在。尤其是有登录的网站，那么我们新打开一个标签进入，或者跳转到子域名的网站，都需要重新登录。对于用户来讲，可能体验不会很好。
+
+如果SamesiteCookie被设置为Lax，那么其他网站通过页面跳转过来的时候可以使用Cookie，可以保障外域连接打开页面时用户的登录状态。但相应的，其安全性也比较低。
+
+而且，SamesiteCookie目前有一个致命的缺陷：不支持子域。例如，种在topic.a.com下的Cookie，并不能使用a.com下种植的SamesiteCookie。这就导致了当我们网站有多个子域名时，不能使用SamesiteCookie在主域名存储用户登录信息。每个子域名都需要用户重新登录一次。
+
+# 前端性能优化
+
+## 加载时性能优化
+
+### 加载性能指标
+
+#### 白屏时间
+
+白屏时间：指的是从输入网址， 到页面开始显示内容的时间。
+
+#### 首屏时间
+
+白屏时间：指的是从输入网址， 到页面开始显示内容的时间。
+
+在`window.onload`事件中执行以下代码，可以获取首屏时间：
+
+```js
+new Date().getTime() - performance.timing.navigationStart
+```
+
+### 1. DNS预解析
+
+`DNS Prefetching`是具有此属性的域名不需要用户点击链接就在后台解析，而域名解析和内容载入是串行的网络操作，所以这个方式能减少用户的等待时间，提升用户体验。
+
+浏览器对网站第一次的域名DNS解析查找流程依次为：
+
+```
+浏览器缓存 ->系统缓存 ->路由器缓存 ->ISP DNS缓存 ->递归搜索
+```
+
+**DNS预解析的实现：**
+
+用meta信息来告知浏览器, 当前页面要做DNS预解析:
+
+```
+<meta http-equiv="x-dns-prefetch-control" content="on" />
+```
+
+在页面header中使用link标签来强制对DNS预解析:
+
+```
+<link rel="dns-prefetch" href="http://bdimg.share.baidu.com" />
+```
+
+> 注意：dns-prefetch需慎用，多页面重复DNS预解析会增加重复DNS查询次数。
+
+### 2. 使用HTTP2
+
+头部压缩、二进制格式、字节流、多路复用、服务器推送
+
+#### 3. 减少HTTP请求数量
+
+- 尽量减少重定向次数
+- 合并请求
+- 延迟发送请求
+
+> 尽量减少重定向次数
+
+减少重定向次数，服务器上的一个资源可能由于迁移、维护等原因从url转移到url2后，而客户端并不知道，客户端此时并不会不会简单粗暴的返回错误，而是通过302响应码和Location头部，告诉客户端该资源已经迁移到url2上了，于是客户端需要再次发送url2请求以获取到服务器资源。那么如果重定向的次数过多了，每次客户端都要多次发起HTTP请求，每一次的HTTP请求得经过网络，这无疑会降低网络性能。
+
+301: Moved Permanently  资源永久重定向到另外一个URI
+
+302: Found/Moved Temporarily 资源临时重定向到另外一个URI中
+
+> 合并请求
+
+可以将多个小文件的请求合并为一个大的请求，虽然传输的总资源是一定的，但是减少了请求的次数，这就意味着减少了重复发送HTTP头部。
+
+**图片优化**
+
+雪碧图的核心原理在于设置不同的背景偏移量，大致包含两点：
+
+- 不同的图标元素都会将 `background-url` 设置为合并后的雪碧图的 uri；
+
+- 不同的图标通过设置对应的 `background-position` 来展示大图中对应的图标部分。
+
+  > 将雪碧图的生成集成到前端自动化构建工具中，例如在 `webpack` 中使用 `webpack-spritesmith`，或者在 `gulp` 中使用 `gulp.spritesmith`。它们两者都是基于 `spritesmith` 这个库。
+
+> 延迟发送请求 / 按需加载
+
+按需访问资源，只访问当前⽤户看得到/⽤得到的资源，当客户往下滑动，再访问接下来的资源，以此达到延 迟请求，也就减少了同⼀时间的 HTTP 请求次数
+
+**图片懒加载**
+
+实现方式就是先不给图片设置路径，当图片出现在浏览器可视区域时才设置真正的图片路径。
+
+```js
+const img = document.querySelector('img')
+img.src = img.getAttribute("original-src")
+//aFarkas/lazysizes、verlok/lazyload、tuupola/lazyload 等。
+```
+
+**css中图片懒加载**
+
+最常见的场景就是 `background-url`。
+
+```css
+.login {
+    background-url: url(/static/img/login.png);
+}
+```
+
+对于上面这个样式规则，如果不应用到具体的元素，浏览器不会去下载该图片。所以你可以通过切换 `className` 的方式，放心得进行 CSS 中图片的懒加载。
+
+#### 4. 减少http请求大小
+
+压缩文件 -> 减少HTTP请求大小,可以减少请求时间
+
+对html、css、js以及图片资源进行压缩处理，现在可以很方便的使用 webpack 实现文件的压缩：
+
+> - js压缩：UglifyPlugin
+> - CSS压缩：MiniCssExtractPlugin
+> - HTML压缩：HtmlWebpackPlugin
+> - 图片压缩：image-webpack-loader
+
+提取公共代码
+
+> 可以使用 webpack4 的 `splitChunk` 插件 `cacheGroups` 选项。
+
+采用svg图片或者字体图标
+
+> 放大不会失真，而且渲染速度快。字体图标使用时就跟字体一样，可以设置属性，例如 font-size、color 等等，非常方便，还有一个优点是生成的文件特别小。
+
+1. 服务器端渲染
+2. 静态资源使用CDN
+3. 资源缓存，不重复加载相同的资源
+
+减少冗余代码
+
+> 一方面避免不必要的转义：`babel-loader`用 `include` 或 `exclude` 来帮我们避免不必要的转译，不转译`node_moudules`中的js文件,其次在缓存当前转译的js文件，设置`loader: 'babel-loader?cacheDirectory=true'`
+>
+> 其次减少ES6 转为 ES5 的冗余代码：Babel 转化后的代码想要实现和原来代码一样的功能需要借助一些帮助函数，比如：
+>
+> ```
+> class Person {}
+> ```
+>
+> 会被转换为：
+>
+> ```
+> "use strict";
+> 
+> function _classCallCheck(instance, Constructor) {
+>   if (!(instance instanceof Constructor)) {
+>     throw new TypeError("Cannot call a class as a function");
+>   }
+> }
+> 
+> var Person = function Person() {
+>   _classCallCheck(this, Person);
+> };
+> ```
+>
+> 这里 `_classCallCheck` 就是一个 `helper` 函数，如果在很多文件里都声明了类，那么就会产生很多个这样的 `helper` 函数。
+>
+> 这里的 `@babel/runtime` 包就声明了所有需要用到的帮助函数，而 `@babel/plugin-transform-runtime` 的作用就是将所有需要 `helper` 函数的文件，从 `@babel/runtime`包 引进来：
+>
+> ```
+> "use strict";
+> var _classCallCheck2 = require("@babel/runtime/helpers/classCallCheck");
+> var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+> 
+> function _interopRequireDefault(obj) {
+>   return obj && obj.__esModule ? obj : { default: obj };
+> }
+> 
+> var Person = function Person() {
+>   (0, _classCallCheck3.default)(this, Person);
+> };
+> ```
+>
+> 这里就没有再编译出 `helper` 函数 `classCallCheck` 了，而是直接引用了`@babel/runtime` 中的 `helpers/classCallCheck`。
+>
+> - 安装
+>
+> `npm i -D @babel/plugin-transform-runtime @babel/runtime`使用 在 `.babelrc` 文件中
+>
+> ```
+> "plugins": [
+>         "@babel/plugin-transform-runtime"
+> ]
+> ```
+
+### 5. 服务端渲染
+
+客户端渲染: 获取 HTML 文件，根据需要下载 JavaScript 文件，运行文件，生成 DOM，再渲染。
+
+服务端渲染：服务端返回 HTML 文件，客户端只需解析 HTML。
+
+优点：首屏渲染快，SEO 好。缺点：配置麻烦，增加了服务器的计算压力。
+
+### 6. 使用 Defer 加载JS
+
+- **所有放在 head 标签里的 CSS 和 JS 文件都会堵塞渲染。**如果这些 CSS 和 JS 需要加载和解析很久的话，那么页面就空白了。
+- css要放在头部，避免用户第一时间看到的页面是没有样式的
+
+给 script 标签加上 defer 属性就可以了，异步下载，延迟执行。
+
+### 7. 静态资源使用 CDN
+
+用户与服务器的物理距离对响应时间也有影响, 在多个位置部署服务器，让用户离服务器更近，从而缩短请求时间。
+
+### 8. 图片优化
+
+
+
+## 运行时性能优化
+
+### 1. 减少重绘与重排
+
+1. 解析HTML生成DOM树
+2. 解析CSS生成CSSOM规则树
+3. 将DOM树与CSSOM规则树合并生成Render(渲染)树
+4. 遍历Render(渲染)树开始布局， 计算每一个节点的位置大小信息
+5. 将渲染树每个节点绘制到屏幕上
+
+**重排触发时机**
+
+重排发生后的根本原理就是元素的几何属性发生改变， 所以从能够改变几何属性的角度入手：
+
+- 添加|删除可见的DOM元素
+
+- 元素位置发生改变
+
+- 元素本身的尺寸发生改变
+
+- 内容变化
+
+- 页面渲染器初始化
+
+- 浏览器窗口大小发生改变
+
+- 激活CSS伪类（例如：:hover）
+
+- 查询某些属性或调用某些方法
+
+  > - `clientWidth、clientHeight、clientTop、clientLeft`
+  > - `offsetWidth、offsetHeight、offsetTop、offsetLeft`
+  > - `scrollWidth、scrollHeight、scrollTop、scrollLeft`
+  > - `scrollIntoView()、scrollIntoViewIfNeeded()`
+  > - `getComputedStyle()`
+  > - `getBoundingClientRect()`
+  > - `scrollTo()`
+
+**优化**
+
+##### CSS
+
+- 避免使用table布局。
+- 尽可能在DOM树的最末端改变class。
+- 避免设置多层内联样式。
+- 对具有复杂动画的元素使用绝对定位（position属性为absolute或fixed的元素上。），使它脱离文档流，否则会引起父元素及后续元素频繁回流。
+- **千万不要使用table布局**。因为可能很小的一个小改动会造成整个table的重新布局。
+- 避免使用CSS表达式（例如：calc()）。
+
+##### JavaScript
+
+- 避免频繁操作样式，最好一次性重写style属性，或者将样式列表定义为class并一次性更改class属性。
+- 避免频繁操作DOM，创建一个documentFragment，在它上面应用所有DOM操作，最后再把它添加到文档中。
+- 也可以先为元素设置display: none，(有一次reflow)操作结束后再把它显示出来。因为在display属性为none的元素上进行的DOM操作不会引发回流和重绘。
+- 避免频繁读取会引发回流/重绘的属性，如果确实需要多次使用，就用一个变量缓存起来。
+
+## 2. 减少页面卡顿
+
+## 3. 长列表优化
+
+虚拟列表是一种用来优化长列表的技术。它可以保证在列表元素不断增加，或者列表元素很多的情况下，依然拥有很好的滚动、浏览性能。它的核心思想在于：只渲染可见区域附近的列表元素。下图左边就是虚拟列表的效果，可以看到只有视口内和临近视口的上下区域内的元素会被渲染。
+
+![图片](https://mmbiz.qpic.cn/mmbiz_png/YBFV3Da0NwvSR4dG1qENWeQC4gTDtkRAibtibcICqZ8Ecw2L5w3kWnxdp1tGgjArjPxuN0mTmq3rMYmzsTEO1DxA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)Virtual List.png
+
+具体实现步骤如下所示：
+
+- 首先确定长列表所在父元素的大小，父元素的大小决定了可视区的宽和高
+- 确定长列表每一个列表元素的宽和高，同时初始的条件下计算好长列表每一个元素相对于父元素的位置，并用一个数组来保存所有列表元素的位置信息
+- 首次渲染时，只展示相对于父元素可视区内的子列表元素，在滚动时，根据父元素的滚动的`offset`重新计算应该在可视区内的子列表元素。这样保证了无论如何滚动，真实渲染出的dom节点只有可视区内的列表元素。
+- 假设可视区内能展示5个子列表元素，及时长列表总共有1000个元素，但是每时每刻，真实渲染出来的dom节点只有5个。
+- 补充说明，这种情况下，父元素一般使用`position：relative`，子元素的定位一般使用：`position：absolute`或`sticky`
+
+除了自己实现外， 常用的框架也有不错的开源实现， 例如：
+
+- 基于React的 `react-virtualized`
+- 基于Vue 的 `vue-virtual-scroll-list`
+- 基于Angular的 `ngx-virtual-scroller`
+
+## 4. 滚动事件性能优化
+
+对应滚动这个场景，可以采用`防抖`和`节流`来处理。
+
+当一个事件频繁触发，而我们希望间隔一定的时间再触发相应的函数时， 就可以使用节流（throttle）来处理。比如判断页面是否滚动到底部，然后展示相应的内容；就可以使用节流，在滚动时每300ms进行一次计算判断是否滚动到底部的逻辑，而不用无时无刻地计算。
+
+当一个事件频繁触发，而我们希望在事件触发结束一段时间后（此段时间内不再有触发）才实际触发响应函数时会使用防抖（debounce）。例如用户一直点击按钮，但你不希望频繁发送请求，你就可以设置当点击后 200ms 内用户不再点击时才发送请求。
+
+## 5. 使用 Web Workers
+
+前面提到了大量数据的渲染环节我们可以采用虚拟列表的方式实现,但是大量数据的计算环节依然会产生浏览器假死或者卡顿的情况.CPU密集型的任务交给webworker.
+
+Web Worker 是一个独立的线程（独立的执行环境），这就意味着它可以完全和 UI 线程（主线程）并行的执行 js 代码，从而不会阻塞 UI，它和主线程是通过 onmessage 和 postMessage 接口进行通信的, 当计算完成，将计算结果返回给主线程，由主线程更新 DOM 元素。
+
+## 6. 其他
+
+#### 6.1 使用事件委托
+
+看一下下面这段代码：
+
+```js
+<ul>
+  <li>字节跳动</li>
+  <li>阿里</li>
+  <li>腾讯</li>
+  <li>京东</li>
+</ul>
+
+// good
+document.querySelector('ul').onclick = (event) => {
+  const target = event.target
+  if (target.nodeName === 'LI') {
+    console.log(target.innerHTML)
+  }
+}
+
+// bad
+document.querySelectorAll('li').forEach((e) => {
+  e.onclick = function() {
+    console.log(this.innerHTML)
+  }
+}) 
+```
+
+绑定的事件越多， 浏览器内存占有就越多，从而影响性能，利用事件代理的方式就可节省一些内存。
+
+#### 6.2 if-else | switch
+
+当判定条件越来越多时， 越倾向于使用switch,而不是if-else,但是有的情况下`switch`也做不到`if-else`的事情, 例如有多个判断条件的情况下，无法使用`switch`
+
+#### 6.3 采用flex布局
 
