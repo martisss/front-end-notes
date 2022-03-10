@@ -1194,6 +1194,26 @@ Child.prototype.constructor = Child;
 // prototype(Child, Parent);
 ```
 
+### class 实现继承
+
+```js
+class Animal {
+    constructor(name) {
+        this.name = name
+    } 
+    getName() {
+        return this.name
+    }
+}
+class Dog extends Animal {
+    constructor(name, age) {
+        super(name)
+        this.age = age
+    }
+}
+
+```
+
 ### ES5继承与ES6继承的区别
 
 ES5的继承实质上是先创建子类的实例对象，然后再将父类的方法添加到this上（Parent.call(this)）.
@@ -1787,21 +1807,11 @@ void是一元运算符，它出现在操作数之前，操作数可以是任意�
 
 可以应用 `for..of` 的对象被称为 **可迭代的**。
 
-- 技术上来说，可迭代对象必须实现
-
-   
-
-  ```
-  Symbol.iterator
-  ```
-
-   
-
-  方法。
+- 技术上来说，可迭代对象必须实现`Symbol.iterator`方法。
 
   - `obj[Symbol.iterator]()` 的结果被称为 **迭代器（iterator）**。由它处理进一步的迭代过程。
   - 一个迭代器必须有 `next()` 方法，它返回一个 `{done: Boolean, value: any}` 对象，这里 `done:true` 表明迭代结束，否则 `value` 就是下一个值。
-
+  
 - `Symbol.iterator` 方法会被 `for..of` 自动调用，但我们也可以直接调用它。
 
 - 内置的可迭代对象例如字符串和数组，都实现了 `Symbol.iterator`。
@@ -1868,10 +1878,6 @@ for (let num of range) {
 - 外部代码和 generator 可能会通过 `next/yield` 调用交换结果
 
 > 不适用于 `for in` 循环，并且不能直接用数字下标来访问属性：`generator[0] = undefined`
-
-
-
-
 
 ```js
 
@@ -2030,6 +2036,34 @@ gen.math(1); // 3.141592653589793
 ```
 
 ### 生成器的用途
+
+> 解决回调地狱
+
+```js
+ajax(url, () => {
+    // 处理逻辑
+    ajax(url1, () => {
+        // 处理逻辑
+        ajax(url2, () => {
+            // 处理逻辑
+        })
+    })
+})
+```
+
+```js
+function *fetch() {
+    yield ajax(url, () => {})
+    yield ajax(url1, () => {})
+    yield ajax(url2, () => {})
+}
+let it = fetch()
+let result1 = it.next()
+let result2 = it.next()
+let result3 = it.next()
+```
+
+
 
 1. 创建一个无限循环
 
@@ -2408,9 +2442,9 @@ CMD是另一种js模块化方案，它与AMD很类似，不同点在于：AMD �
 **2、CMD推崇就近依赖、延迟执行，只有在用到某个模块的时候再去require** 
 这种区别各有优劣，只是语法上的差距，而且requireJS和SeaJS都支持对方的写法
 
-AMD和CMD最大的区别是对依赖模块的执行时机处理不同，注意不是加载的时机或者方式不同
+AMD和CMD最大的区别是**对依赖模块的执行时机处理不同**，注意不是加载的时机或者方式不同
 
-同样都是异步加载模块，AMD在加载模块完成后就会执行改模块，所有模块都加载执行完后会进入require的回调函数，执行主逻辑，这样的效果就是依赖模块的执行顺序和书写顺序不一定一致，看网络速度，哪个先下载下来，哪个先执行，但是主逻辑一定在所有依赖加载完成后才执行
+同样都是异步加载模块，AMD在加载模块完成后就会执行该 模块，所有模块都加载执行完后会进入require的回调函数，执行主逻辑，这样的效果就是依赖模块的执行顺序和书写顺序不一定一致，看网络速度，哪个先下载下来，哪个先执行，但是主逻辑一定在所有依赖加载完成后才执行
 
 CMD加载完某个依赖模块后并不执行，只是下载而已，在所有依赖模块加载完成后进入主逻辑，遇到require语句的时候才执行对应的模块，这样模块的执行顺序和书写顺序是完全一致的
 
@@ -2478,6 +2512,34 @@ import(f())
 var fs = require('fs');
 var chalk = require('chalk');
 ```
+
+# ES6
+
+## var、let 及 const 区别？
+
+- 全局申明的 var 变量会挂载在 window 上，而 let 和 const 不会
+
+- var 声明变量存在变量提升，let 和 const 不会
+
+  > 在函数作用域或者全局作用域通过var声明的变量会被当作当前作用域顶部声明的变量
+
+- let、const 的作用范围是块级作用域，而 var 的作用范围是函数作用域
+
+  > 块级作用域存在于函数内部和字符{}之间
+
+- 同一作用域下 let 和 const 不能声明同名变量，而 var 可以
+
+- 同一作用域下在 let 和 const 声明前使用会存在暂时性死区
+
+  > 暂时性死区 其实指的就是let和const 相对于 var 声明的变量不具提升效果
+
+- const
+
+  - 一旦声明必须赋值,不能使用 null 占位
+  - 声明后不能再修改
+  - 如果声明的是复合类型数据，可以修改其属性
+
+## proxy   TODO
 
 # 浏览器
 

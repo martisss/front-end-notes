@@ -1,6 +1,6 @@
 # 双指针
 
-### [283. 移动零](https://leetcode-cn.com/problems/move-zeroes/)
+## [283. 移动零](https://leetcode-cn.com/problems/move-zeroes/)
 
 ```js
 var moveZeroes = function(nums) {
@@ -12,6 +12,38 @@ var moveZeroes = function(nums) {
         }
         j++
     }
+};
+```
+
+## [15. 三数之和](https://leetcode-cn.com/problems/3sum/)
+
+```js
+var threeSum = function(nums) {
+    let res = []
+    // 如果不存在或者数量小于3, 不满足题意，直接返回[]
+    if(!nums || nums.length < 3) return []
+    // 升序排列
+    nums.sort((a,b) => a-b)
+    for(let i=0; i<nums.length; i++) {
+        // 数组已经升序排列，当前值大于0，继续向后遍历也不会有满足题意的解
+        if(nums[i]>0) return res
+        // 去除重复值
+        if(i>0 && nums[i] === nums[i-1]) continue
+        // 双指针
+        let L = i+1, R = nums.length - 1
+        while(L<R) {
+            if(nums[i]+nums[L]+nums[R] === 0) {
+                res.push([nums[i], nums[L], nums[R]])
+                // 去重
+                while(L<R && nums[L] === nums[L+1]) L++
+                while(L<R && nums[R] === nums[R-1]) R--
+                L++
+                R--
+            } else if (nums[i]+nums[L]+nums[R] < 0) L++
+            else R--
+        }
+    }
+    return res
 };
 ```
 
@@ -488,6 +520,35 @@ MyStack.prototype.top = function() {
  */
 MyStack.prototype.empty = function() {
     return this.queue1.length === 0 && this.queue2.length === 0
+};
+```
+
+# 单调栈
+
+#### [402. 移掉 K 位数字](https://leetcode-cn.com/problems/remove-k-digits/)
+
+```js
+//  维护一个递增单调栈
+var removeKdigits = function(num, k) {
+    let res = []
+    for( const item of num) {
+        while(res.length && res[res.length-1]>item && k) {
+            res.pop()
+            k--
+        }
+        res.push(item)
+    }
+    while(k-->0) {
+        res.pop()
+    }
+    let ans = ''
+    let flag = 1
+    for(const item of res) {
+        if(flag && item === '0') continue
+        flag = false
+        ans += item
+    }
+    return ans === '' ? '0' : ans
 };
 ```
 
@@ -2177,6 +2238,51 @@ const rdeserialize = (dataList) => {
 }
 ```
 
+##### [297. 二叉树的序列化与反序列化](https://leetcode-cn.com/problems/serialize-and-deserialize-binary-tree/)
+
+```js
+var serialize = function(root) {
+    return rserialize(root, '')
+
+};
+
+var rserialize = function(root, str) {
+    if(!root) str += 'N,'
+    else {
+        str += root.val + '' + ','
+        str = rserialize(root.left, str)
+        str = rserialize(root.right, str)
+    }
+    return str
+}
+
+/**
+ * Decodes your encoded data to tree.
+ *
+ * @param {string} data
+ * @return {TreeNode}
+ */
+var deserialize = function(data) {
+    let arr = data.split(',')
+    return rdeserialize(arr)
+};
+
+var rdeserialize = function(arr) {
+    if(arr[0] === 'N') {
+        arr.shift()
+        return null
+    }
+    const root = new TreeNode(parseInt(arr.shift()))
+    root.left = rdeserialize(arr)
+    root.right = rdeserialize(arr)
+    return root
+}
+
+
+```
+
+
+
 #### 二叉搜索树构建
 
 ##### [1008. 前序遍历构造二叉搜索树](https://leetcode-cn.com/problems/construct-binary-search-tree-from-preorder-traversal/)
@@ -2695,6 +2801,8 @@ public:
 
 - 递归：前序，同时操作两个树的节点，注意合并的规则
 - 迭代：使用队列，类似层序遍历
+
+
 
 ## 求二叉搜索树的属性
 
@@ -4740,7 +4848,61 @@ var majorityElement = function(nums) {
 };
 ```
 
+### 36进制加减法
 
+```js
+  const getChar = n => {
+    if(n<=9) {
+      return n + ''
+    } else {
+      return String.fromCharCode('a'.charCodeAt() + n - 10)
+    }
+  }
+
+  const getNum = ch => {
+    if(ch >= 0 && ch <= 9) return ch - '0'
+    else return ch.charCodeAt() - 'a'.charCodeAt() +10
+  }
+
+  const add36 = (num1, num2) => {
+    const res = []
+    let flag = 0
+    let i = num1.length-1, j = num2.length-1
+    while(i>=0 || j>=0 || flag !==0) {
+      let a = i>=0 ? getNum(num1[i]) : 0
+      let b = j>=0 ? getNum(num2[j]) : 0
+      let result = a + b + flag
+      console.log(result % 36)
+      res.push(getChar(result % 36))
+      flag = Math.floor(result/36)
+      i--
+      j--
+    }
+    return res.reverse().join('')
+  }
+
+  const dec36 = (num1, num2) => {
+    const res = []
+    let flag = 0
+    let i = num1.length-1, j = num2.length-1
+    while(i>=0 || j>=0) {
+      let a = i>=0 ? getNum(num1[i]) : 0
+      let b = j>=0 ? getNum(num2[j]) : 0
+      let result = a-b-flag+36
+      res.push(getChar(result%36))
+      flag = a-b-flag < 0 ? 1 : 0
+      i--
+      j--
+    }
+    let s = res.reverse().join('')
+    console.log(res)
+    let pos = 0
+    for(pos=0; pos<s.length-1; pos++) {
+      if(s[pos] !== '0') break
+    }
+    return s.slice(pos)
+  }
+```
 
 
 

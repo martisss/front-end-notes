@@ -451,6 +451,8 @@ let arr = [null ,null, 4,5]
 console.log(deepClone(arr))
 ```
 
+简单版深拷贝：只考虑普通对象属性，不考虑内置对象和函数。
+
 ## 深度比较
 
 ```js
@@ -881,7 +883,7 @@ Promise.resolve = value => {
 }
 ```
 
-## Promise.resolve
+## Promise.reject
 
 ```js
 Promise.reject = value => {
