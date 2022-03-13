@@ -417,9 +417,167 @@ console.log(arr)
 
 第一版快速排序的主要问题在于partition的实现，针对有序数组的话可能会栈溢出
 
-# TODO
+> 第二版  增加随机性
+
+```js
+const quickSort = (arr, l, r) => {
+  const partition = (arr, l, r) => {
+    let p = l + Math.floor(Math.random()*(r-l));  //灵魂分号！！！ FBI warning!!!
+    [arr[p], arr[l]] = [arr[l], arr[p]]
+    let j = l
+    for(i=l+1; i<=r; i++) {
+      if(arr[i]<arr[l]) {
+        j++
+        [arr[i], arr[j]] = [arr[j], arr[i]]
+      }
+    }
+    [arr[l], arr[j]] = [arr[j], arr[l]]
+    return j
+  }
+  if(l>=r) return
+  let mid = partition(arr, l, r)
+  quickSort(arr,l,mid-1)
+  quickSort(arr,mid+1,r)
+}
+```
 
 ### [912. 排序数组](https://leetcode-cn.com/problems/sort-an-array/)
+
+## 综合
+
+### [23. 合并K个升序链表](https://leetcode-cn.com/problems/merge-k-sorted-lists/)
+
+堆
+
+```js
+class Heap {
+    constructor() {
+        this.arr = []
+        this.f = (a,b) => a<b
+    }
+    static heapify(data) {
+        let heap = new Heap()
+        for(let item of data) {
+            if(item) {
+                heap.push(item)
+            }
+        }
+        return heap
+    }
+    get size() {
+        return this.arr.length
+    }
+    push(item) {
+        this.arr.push(item)
+        this.shiftUp(this.size-1)
+    }
+    pop() {
+        let {size, _swap, arr} = this
+        if(size === 0) return null
+        _swap(arr, 0, size-1)
+        let res = arr.pop()
+        this.shiftDown(0)
+        return res
+    }
+    shiftUp(k) {
+        let {arr, _swap, _parent, f} = this
+        while(k>0 && f(arr[k].val, arr[_parent(k)].val)) {
+            _swap(arr, k, _parent(k))
+            k = _parent(k)
+        }
+    }
+    shiftDown(k) {
+        let {arr, _swap, _child, size, f} = this
+        while(_child(k)<size) {
+            let child = _child(k)
+            if(child+1<size && f(arr[child+1].val, arr[child].val)) {
+                child++
+            }
+            if(f(arr[child].val, arr[k].val)) {
+                _swap(arr, k, child)
+                k = child
+            } else return
+        }
+    }
+    _parent(k) {
+        return (k-1)>>>1
+    }
+    _child(k) {
+        return 2*k+1
+    }
+    _swap(arr, i, j) {
+        [arr[i], arr[j]] = [arr[j], arr[i]]
+    }
+}
+
+var mergeKLists = function(lists) {
+    let heap = Heap.heapify(lists)
+    let dummy = new ListNode(-1)
+    let cur = dummy
+    while(heap.size) {
+        let list = heap.pop()
+        cur.next = list
+        cur = cur.next
+        if(list.next) heap.push(list.next)
+    }
+    return dummy.next
+};
+```
+
+归并
+
+```js
+/**
+ * Definition for singly-linked list.
+ * function ListNode(val, next) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.next = (next===undefined ? null : next)
+ * }
+ */
+/**
+ * @param {ListNode[]} lists
+ * @return {ListNode}
+ */
+
+ var mergeTwoLists = function(list1, list2) {
+    if(list1 === null) {
+        return list2
+    } else if(list2 === null) {
+        return list1
+    } else if(list1.val <= list2.val) {
+        list1.next = mergeTwoLists(list1.next, list2)
+        return list1
+    } else {
+        list2.next = mergeTwoLists(list1, list2.next)
+        return list2
+    }
+}
+
+// var mergeKLists = function(lists) {
+//     let ans = null
+//     while(lists.length) {
+//         ans = mergeTwoLists(ans, lists.pop())
+//     }
+//     return ans
+// };
+
+const merge = (lists, l, r)  => {
+    if(l == r) return lists[l]
+    let mid = l + Math.floor((r-l)/2)
+    return mergeTwoLists(merge(lists, l, mid), merge(lists, mid+1, r))
+}
+
+var mergeKLists = function(lists) {
+    if(!lists || lists.length===0) return null
+    return merge(lists, 0, lists.length-1)
+}
+
+
+
+
+```
+
+
 
 # 栈与队列
 
@@ -472,8 +630,6 @@ MyQueue.prototype.empty = function() {
 
 
 ```
-
-
 
 ## 用队列实现栈
 
@@ -857,6 +1013,91 @@ var mergeTwoLists = function(list1, list2) {
 
 [61. 旋转链表](https://leetcode-cn.com/problems/rotate-list/)其实并没有涉及链表的反转，其实就是链表的拼接，找到倒数第n个节点，修改指针的指向，修改后要注意断开，否则会形成环，另外要注意空链表的处理
 
+#### [25. K 个一组翻转链表](https://leetcode-cn.com/problems/reverse-nodes-in-k-group/)
+
+```js
+//  虚拟头节点的使用；反转链表；尤其是在链表内部反转部分链表，以及反转后链表的拼接
+var reverseKGroup = function(head, k) {
+    let dummy = new ListNode(-1, head)
+    let [start, end] = [dummy, dummy.next]
+    let count = 0
+    //达到数量k的要求后就反转, 剩下的不足k就结束，返回结果
+    while(end) {
+        count++
+        if(count % k === 0) {
+            // 真正需要的是start.next 到 end， start被当作哨兵节点
+            // 还原成初始状态，start指向前一段的最后一个节点，end指向下一组待翻转链表的第一个节点
+            start = reverseList(start, end.next)
+            end = start.next  
+        } else {
+            end = end.next
+        }
+    }
+    return dummy.next
+
+    function reverseList(start, end){
+        let [pre, cur] = [start, start.next]
+        // 反转后这个指针指向反转后这段链表的最后一个节点
+        // 暂时保存，方便反转后链表的连接
+        let first = cur
+        while(cur !== end) {
+            let next = cur.next
+            cur.next = pre
+            pre = cur
+            cur = next
+        }
+        // 拼接链表 a b c d
+        start.next = pre
+        first.next = cur //  同 first.next = end
+        return first
+    }
+};
+```
+
+> 变形：不足k个也要反转
+
+```js
+var reverseKGroup = function(head, k) {
+    let count = 0
+    let dummy = new ListNode(-1, head)
+    let [start, end] = [dummy, dummy.next]
+
+    const reverse = (start, end) => {
+        let [pre, cur] = [start, start.next]
+        let first = cur
+        while(cur !== end) {
+            let next = cur.next
+            cur.next = pre
+            pre = cur
+            cur = next
+        }
+        start.next = pre
+        first.next = end
+        return first
+    }
+    let temp = 0    //*
+    while(end) {
+        count++
+        if(count % k === 0) {
+            temp = count
+            start = reverse(start, end.next)
+            end = start.next
+        } else end = end.next
+    }
+    //*
+    if(temp !== count) {
+        let cur = dummy
+        while(temp--) {
+            cur = cur.next
+        }
+        reverse(cur, null)
+    }
+    return dummy.next
+};
+```
+
+
+
 ### 快慢指针
 
 #### 检测链表中的环
@@ -1023,45 +1264,6 @@ var copyRandomList = function(head) {
 ```
 
 
-
-#### [25. K 个一组翻转链表](https://leetcode-cn.com/problems/reverse-nodes-in-k-group/)
-
-```js
-//  虚拟头节点的使用；反转链表；尤其是在链表内部反转部分链表，以及反转后链表的拼接
-var reverseKGroup = function(head, k) {
-    let dummy = new ListNode(-1, head)
-    let [start, end] = [dummy, dummy.next]
-    let count = 0
-    //达到数量k的要求后就反转, 剩下的不足k就结束，返回结果
-    while(end) {
-        count++
-        if(count % k === 0) {
-            // 真正需要的是start.next 到 end， start被当作哨兵节点
-            // 还原成初始状态，start指向前一段的最后一个节点，end指向下一组待翻转链表的第一个节点
-            start = reverseList(start, end.next)
-            end = start.next  
-        } else {
-            end = end.next
-        }
-    }
-    return dummy.next
-
-    function reverseList(start, end){
-        let [pre, cur] = [start, start.next]
-        let first = cur
-        while(cur !== end) {
-            let next = cur.next
-            cur.next = pre
-            pre = cur
-            cur = next
-        }
-        // 拼接链表 a b c d
-        start.next = pre
-        first.next = cur //  同 first.next = cur
-        return first
-    }
-};
-```
 
 #### [430. 扁平化多级双向链表](https://leetcode-cn.com/problems/flatten-a-multilevel-doubly-linked-list/)
 

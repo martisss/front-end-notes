@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      p {
+        height: 50px;
+        width: 150px;
+        background-color: green;
+      }
+      .A {
+        height: 100px;
+        width: 150px;
+        background-color: blue;
+      }
+      .B {
+        height: 70px;
+        width: 150px;
+        background-color: pink;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="A" style="font-size: 30px">
+      A
+      <div class="B" style="font-size: 30px">
+        B
+        <p style="font-size: 30px">&#128513;P</p>
+      </div>
+    </div>
+    <script>
+      const p = document.querySelector('p')
+      p.addEventListener(
+        'mousedown',
+        (event) => {
+          console.log('我是p元素上被绑定的第一个监听函数: mousedown')
+        },
+        false
+      )
+
+      p.addEventListener(
+        'mousedown',
+        (event) => {
+          event.stopImmediatePropagation()
+          console.log('我是p元素上被绑定的第二个监听函数: mousedown')
+        },
+        false
+      )
+
+      p.addEventListener(
+        'mousedown',
+        (event) => {
+          console.log('我是p元素上被绑定的第三个监听函数: mousedown')
+          // 该监听函数排在上个函数后面，该函数不会被执行
+        },
+        false
+      )
+
+      p.addEventListener(
+        'click',
+        (event) => {
+          // 嘿嘿嘿，虽然监听的是同一元素，但却是不同事件！
+          console.log('我是p元素上被绑定的第四个监听函数: click')
+        },
+        false
+      )
+
+      document.querySelector('.A').addEventListener(
+        'mousedown',
+        (event) => {
+          console.log('我是div & class A元素')
+        },
+        false
+      )
+
+      document.querySelector('.B').addEventListener(
+        'mousedown',
+        (event) => {
+          console.log('我是div & class B元素')
+        },
+        false
+      )
+    </script>
+  </body>
+</html>
