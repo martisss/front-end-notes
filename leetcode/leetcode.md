@@ -2519,6 +2519,53 @@ var bstFromPreorder = function(preorder) {
 
 ### 二叉树的修改 
 
+#### [669. 修剪二叉搜索树](https://leetcode-cn.com/problems/trim-a-binary-search-tree/)
+
+> 递归
+
+```js
+var trimBST = function(root, low, high) {
+    // 返回条件
+    if(!root) return root
+    // 处理根节点，如果子树不符合条件，直接丢弃
+    if(root.val < low) return trimBST(root.right, low, high)
+    if(root.val > high) return trimBST(root.left, low, high)
+    // 递归处理子树
+    root.left = trimBST(root.left, low, high)
+    root.right = trimBST(root.right, low, high)
+    return root
+};
+```
+
+> 迭代
+
+利用二叉搜索树的概念，分为左右两部分处理
+
+```js
+var trimBST = function(root, low, high) {
+    if(!root) return null
+    while(root && (root.val < low || root.val > high)) {
+        if(root.val < low) root = root.right
+        if(root.val > high) root = root.left
+    }
+    let cur = root
+    while(cur) {
+        // 如果cur.right.val > high 那么根据二叉搜索树的性质，cur.right.right.....这部分都是不符合要求的，因此直接将cur.right = cur.right.left,继续循环处理，直到把右半部分处理完
+        while(cur.right && cur.right.val > high) cur.right = cur.right.left
+        cur = cur.right
+    }
+    // 左半部分同
+    cur = root
+    while(cur) {
+        while(cur.left && cur.left.val < low) cur.left = cur.left.right
+        cur = cur.left
+    }
+    return root
+}
+```
+
+
+
 > 本质上是删除叶子节点
 
 [1325. 删除给定值的叶子节点](https://leetcode-cn.com/problems/delete-leaves-with-a-given-value/)
@@ -4886,6 +4933,103 @@ var maxSubArray = function(nums) {
         }
     }
     return [finalStart, finalEnd]
+}
+```
+
+### [5. 最长回文子串](https://leetcode-cn.com/problems/longest-palindromic-substring/)
+
+> 动态规划
+
+```js
+    // 递推式： dp[i][j] = dp[i+1]+dp[j-1] && s[i] === s[j]
+    //  dp[i][j]代表 区间[i, j]（闭区间）字串包含的最大回文字符串
+var longestPalindrome = function(s) {
+    let len = s.length
+    // 1. 边界条件处理
+    if(len<2) {
+        return s
+    }
+
+    // 2. 初始化
+    // 最大长度的最小值为1，即单个字符，而不是0
+    let maxLen = 1, start = 0 
+    // dp[i][i] 一定是回文串, 对角线全为true，但实际上并没有用到这个值，只是语义上更统一
+    let dp = new Array(s.length).fill(0).map(()=> new Array(s.length).fill(true))
+
+    // 3. 填充表格，填充过程中不断更新字符串长度最大值以及字符串起始位置
+    // 只需要填充表格右上部分
+    // 状态更新依赖于左下方的值，外层从j=1开始
+    for(let j=1; j<len; j++) {
+        for(let i=0; i<j; i++) {
+            // 如果两端的字符不相等，字符串s[i][j] 肯定不是回文串
+            if(s[i] !== s[j]) {
+                dp[i][j] = false
+            } 
+            // 两端字符串相等
+            else {
+                // j-i<3 , 即 j-i+1<4，该段字符串长度为2，3
+                // 也就是说去掉两端字符，中间串的长度是0或1，中间部分肯定是回文串
+                // 因此加上两端的字符，s[i][j]这一整段字符串是回文串， true
+                if(j-i<3) {
+                    dp[i][j] = true
+                } 
+                // 如果该段字符串长度大于3，那么就要参考dp[i+1][j-1]的状态
+                else {
+                    dp[i][j] = dp[i+1][j-1]
+                }
+            }
+            // 更新回文串最大值，以及起始位置
+            if(dp[i][j] && j-i+1>maxLen) {
+                maxLen = j-i+1
+                start = i
+            } 
+        }
+    }
+
+    // 4. 分割字串并返回
+    return s.slice(start, maxLen+start)
+};
+```
+
+> 中心扩散
+
+```js
+//  中心扩散
+var longestPalindrome = function(s) {
+    // 1. 边界条件处理
+    let len = s.length
+    if(len<2) {
+        return s
+    }
+    // 2. 初始化
+    let maxLen = 1
+    let start = 0
+    // 3. 循环，选定扩散点
+    // 选定点只到len-2, 因为到达最后一位也不可能再扩散了
+    for(let i=0; i<len-1; i++) {
+        // 奇数中心
+        let len1 = getLen(s, i, i)
+        // 偶数中心
+        let len2 = getLen(s, i, i+1)
+        // 更新最大长度和起始位置
+        let curLen = Math.max(len1, len2)
+        if(curLen>maxLen) {
+            maxLen = curLen
+            start = i-Math.floor((maxLen-1)/2)
+        }
+    }
+    return s.slice(start, start+maxLen)
+};
+
+// 不断向两边扩散
+const getLen = (s, left, right) => {
+    while(left>=0 && right<s.length) {
+        if(s[left] === s[right]) {
+            left--
+            right++
+        } else break
+    }
+    return right-left-1
 }
 ```
 
