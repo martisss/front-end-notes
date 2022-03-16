@@ -4871,6 +4871,10 @@ const hash = (x, y) => {
 
 # 动态规划
 
+![image-20220315101142659](D:\NOTES\leetcode\leetcode.assets\image-20220315101142659.png)
+
+![image-20220315190646085](D:\NOTES\leetcode\leetcode.assets\image-20220315190646085.png)
+
 ## 动规五部曲
 
 动规的五部曲：
@@ -4880,6 +4884,133 @@ const hash = (x, y) => {
 3. dp数组如何初始化
 4. 确定遍历顺序
 5. 举例推导dp数组
+
+> 最优子结构
+>
+> 最后一步
+
+## 计数
+
+### [62. 不同路径](https://leetcode-cn.com/problems/unique-paths/)
+
+```js
+var uniquePaths = function(m, n) {
+    // 1. 初始化
+    //    i=0以及j=0时， dp[i][j]为1
+    let dp = new Array(m).fill(0).map(() => new Array(n).fill(1))
+    for(let i=1; i<m; i++) {
+        for(let j=1; j<n; j++) {
+            // 递推公式
+            dp[i][j] = dp[i-1][j] + dp[i][j-1]
+        }
+    }
+    return dp[m-1][n-1]
+};
+```
+
+### [63. 不同路径 II](https://leetcode-cn.com/problems/unique-paths-ii/)
+
+> 增加了障碍物
+
+```js
+var uniquePathsWithObstacles = function(obstacleGrid) {
+    let m = obstacleGrid.length
+    let n = obstacleGrid[0].length
+    // 边界条件
+    if(obstacleGrid[0][0] === 1 || obstacleGrid[obstacleGrid.length-1][obstacleGrid[0].length-1] === 1) return 0
+    let dp = new Array(m).fill(0).map(() => new Array(n).fill(0))
+    for(let i=0; i<m; i++) {
+        for(let j=0; j<n; j++) {
+            // 有障碍
+            if(obstacleGrid[i][j] === 1) {
+                dp[i][j] = 0
+            } 
+            // 无障碍，同跳跃游戏I
+            else {
+                if(i===0 && j===0) {
+                    dp[i][j] = 1
+                } else {
+                    if(i-1>=0) {
+                        dp[i][j] += dp[i-1][j]
+                    }
+                    if(j-1>=0) {
+                        dp[i][j] += dp[i][j-1]
+                    }
+                }
+            }
+        }
+    }
+    return dp[m-1][n-1]
+};
+```
+
+
+
+### [322. 零钱兑换](https://leetcode-cn.com/problems/coin-change/)
+
+```js
+ var coinChange = function(coins, amount)  {
+     let res = new Array(amount+1).fill(Number.MAX_SAFE_INTEGER)
+    //  初始化
+    // res[i] 代表凑齐i所需的最小硬币数
+     res[0] = 0
+     for(let i=1; i<=amount; i++) {
+         for(let coin of coins) {
+             if(i>=coin && res[i-coin]+1<res[i]) {
+                 res[i] = 1+res[i-coin]
+             }
+         }
+     }
+     if(res[amount] === Number.MAX_SAFE_INTEGER) {
+         return -1
+     } else {
+         return res[amount]
+     }
+ }
+```
+
+## 求存在性
+
+### [55. 跳跃游戏](https://leetcode-cn.com/problems/jump-game/)
+
+```js
+// 动态规划
+var canJump = function(nums) {
+    if(!nums || nums.length===0) return false
+    let res = new Array(nums.length).fill(false)
+    // res[i]代表能否到达下标i
+    res[0] = true
+    for(let i=0; i<nums.length; i++) {
+        for(let j=0; j<i; j++) {
+            // 状态转移
+            // 最后一步，即上一个下标为j
+            // 首先要保证上一个下标可达，即res[j] === true
+            // 其次要保证从上一个下标能够跳到最后一个下标
+            if(res[j] && j+nums[j]>=i) {
+                res[i] = true
+                // 及时跳出内存循环
+                break
+            }
+        }
+    }
+    return res[res.length-1]
+}
+
+//  贪心
+var canJump = function(nums) {
+    if(nums.length===1) return true
+    let cover = 0
+    for(let i=0; i<=cover; i++) {
+        if(i+nums[i]>cover) cover = i+nums[i]
+        if(cover >= nums.length-1) return true
+    }
+    return false
+};
+```
+
+
+
+## 求最大最小值
 
 ### [53. 最大子数组和](https://leetcode-cn.com/problems/maximum-subarray/)
 
@@ -5030,6 +5161,70 @@ const getLen = (s, left, right) => {
         } else break
     }
     return right-left-1
+}
+```
+
+## 其他
+
+## 坐标型
+
+[62. 不同路径](https://leetcode-cn.com/problems/unique-paths/)
+
+[63. 不同路径 II](https://leetcode-cn.com/problems/unique-paths-ii/)
+
+> 序列型
+
+Leetcode 256.粉刷房子
+
+> ### 题目描述
+>
+> 假如有一排房子，共 n 个，每个房子可以被粉刷成红色、蓝色或者绿色这三种颜色中的一种，你需要粉刷所有的房子并且使其相邻的两个房子颜色不能相同。
+>
+> 当然，因为市场上不同颜色油漆的价格不同，所以房子粉刷成不同颜色的花费成本也是不同的。每个房子粉刷成不同颜色的花费是以一个 n x 3 的[矩阵](https://so.csdn.net/so/search?q=矩阵&spm=1001.2101.3001.7020)来表示的。
+>
+> 例如，costs[0][0] 表示第 0 号房子粉刷成红色的成本花费；costs[1][2] 表示第 1 号房子粉刷成绿色的花费，以此类推。请你计算出粉刷完所有房子最少的花费成本。
+>
+> 注意：
+>
+> 所有花费均为正整数。
+>
+> 示例：
+>
+> 输入: `[[17,2,17],[16,16,5],[14,3,19]]`
+> 输出: `10`
+> 解释: 将 0 号房子粉刷成蓝色，1 号房子粉刷成绿色，2 号房子粉刷成蓝色。
+> 最少花费: `2 + 5 + 3 = 10`。
+
+```js
+const minCost = costs => {
+  let n = costs.length
+  if(n===0) return 0
+  let res = new Array(n+1).fill(0).map(() => new Array(3).fill(0))
+  // res[i][j] j=0,1,2 代表粉刷完前i座房子的最小花费，且第i-1座房子的颜色为红（绿、蓝）
+  // 注意这里的定义是前i座房子，意思是粉刷的房子是0到i-1。
+  for(let i=1; i<=n; i++) {
+    for(let j=0; j<3; j++) {
+      res[i][j] = Number.MAX_SAFE_INTEGER
+      for(let k=0; k<3; k++) {
+        // 相邻房子颜色不能相同
+        if(j===k) continue
+        // res[i-1][k]代表粉刷前(i-1)座房子的花费,加上costs[i-1][j]，即粉刷第(i-1)座房子的花费，结果为res[i][j]
+        // 这里的j代表第(i-1)座房子的颜色，k=0,1,2,记录第(i-2)座房子的颜色，因此不能相等
+        if(res[i-1][k] + costs[i-1][j] < res[i][j]) {
+          res[i][j] = res[i-1][k] + costs[i-1][j]
+        }
+      }
+    }
+  }
+  
+  let result = res[n][0]
+  if(res[n][1]<result) {
+    result = res[n][1]
+  }
+  if(res[n][2] < result) {
+    result = res[n][2]
+  }
+  return result
 }
 ```
 

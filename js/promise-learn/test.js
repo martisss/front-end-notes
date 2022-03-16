@@ -1,22 +1,30 @@
-const quickSort = (arr, l, r) => {
-  const partition = (arr, l, r) => {
-    let p = l + Math.floor(Math.random()*(r-l));
-    [arr[p], arr[l]] = [arr[l], arr[p]]
-    let j = l
-    for(i=l+1; i<=r; i++) {
-      if(arr[i]<arr[l]) {
-        j++
-        [arr[i], arr[j]] = [arr[j], arr[i]]
+const minCost = costs => {
+  let n = costs.length
+  if(n===0) return 0
+  let res = new Array(n+1).fill(0).map(() => new Array(3).fill(0))
+  // res[i][j] j=0,1,2 代表粉刷完前i座房子的最小花费，且第i-1座房子的颜色为红（绿、蓝）
+  // 注意这里的定义是前i座房子，意思是粉刷的房子是0到i-1。
+  for(let i=1; i<=n; i++) {
+    for(let j=0; j<3; j++) {
+      res[i][j] = Number.MAX_SAFE_INTEGER
+      for(let k=0; k<3; k++) {
+        // 相邻房子颜色不能相同
+        if(j===k) continue
+        // res[i-1][k]代表粉刷前(i-1)座房子的花费,加上costs[i-1][j]，即粉刷第(i-1)座房子的花费，结果为res[i][j]
+        // 这里的j代表第(i-1)座房子的颜色，k=0,1,2,记录第(i-2)座房子的颜色，因此不能相等
+        if(res[i-1][k] + costs[i-1][j] < res[i][j]) {
+          res[i][j] = res[i-1][k] + costs[i-1][j]
+        }
       }
     }
-    [arr[l], arr[j]] = [arr[j], arr[l]]
-    return j
   }
-  if(l>=r) return
-  let mid = partition(arr, l, r)
-  quickSort(arr,l,mid-1)
-  quickSort(arr,mid+1,r)
+  
+  let result = res[n][0]
+  if(res[n][1]<result) {
+    result = res[n][1]
+  }
+  if(res[n][2] < result) {
+    result = res[n][2]
+  }
+  return result
 }
-const arr = [1, 3, 53, 9, 8, 5, 4]
-quickSort(arr, 0, arr.length-1)
-console.log(arr)
