@@ -4889,9 +4889,88 @@ const hash = (x, y) => {
 >
 > 最后一步
 
-## 计数
 
-### [62. 不同路径](https://leetcode-cn.com/problems/unique-paths/)
+
+## 坐标型
+
+- 给定序列或者网格
+
+- 需要找到序列中某个/些子序列或网格中的某条路径
+
+  - 某种性质最大/最小
+  - 计数
+  - 存在性
+
+  > 动态规划方程f[1]中的下标i表示以ai为结尾的满足条件的子序列的性质，`f[i][j]`
+  > 中的下标i, j表示以格子(i, j)为结尾的满足条件的路径的性质
+
+### 计数
+
+**对于网格上的动态规划，如果`f[i][j]`只 依赖于本行的`f[i][x]`与前一行的`f[i-1][y]`，那么就可以采用滚动数组的方法压缩空间。空间复杂度0(N)**
+
+如果网格行数少列数多(大胖子网格)，那么就可以逐列计算， 滚动数组的长度为行数，空间复杂度0(M)
+
+#### [674. 最长连续递增序列](https://leetcode-cn.com/problems/longest-continuous-increasing-subsequence/)
+
+```js
+var findLengthOfLCIS = function(nums) {
+    // res[i] = Max { 1, res[i-1]+1 (i>0 && nums[i-1]<nums[i]) }
+    let res = new Array(nums.length).fill(1)
+    let result = 1
+    for(let i=1; i<nums.length; i++) {
+        if(nums[i-1]<nums[i]) {
+            res[i] = res[i-1] + 1
+        }
+        if(res[i] > result) {
+            result = res[i]
+        }
+    }
+    return result
+};
+
+// 滚动数组
+var findLengthOfLCIS = function(nums) {
+    let a = 1, b = 0
+    let result = 1
+    for(let i=1; i<nums.length; i++) {
+        if(nums[i-1]<nums[i]) {
+            b = a + 1;
+        } else {
+            b = 1
+            a = 0
+        }
+        if(b > result) {
+            result = b
+        };
+        [a, b] = [b, a]
+    }
+    return result
+}
+```
+
+#### [300. 最长递增子序列](https://leetcode-cn.com/problems/longest-increasing-subsequence/)
+
+> 动态规划
+
+```js
+var lengthOfLIS = function(nums) {
+    let res = new Array(nums.length).fill(1)
+    let result = 1
+    for(let i=1; i<nums.length; i++) {
+        for(let j=0; j<i; j++) {
+            if(nums[i]>nums[j]) {
+                res[i] = Math.max(res[i], res[j]+1)
+            }
+        }
+        result = Math.max(result, res[i])
+    }
+    return result
+};
+```
+
+#### :question: TODO [673. 最长递增子序列的个数](https://leetcode-cn.com/problems/number-of-longest-increasing-subsequence/) 
+
+#### [62. 不同路径](https://leetcode-cn.com/problems/unique-paths/)
 
 ```js
 var uniquePaths = function(m, n) {
@@ -4908,7 +4987,7 @@ var uniquePaths = function(m, n) {
 };
 ```
 
-### [63. 不同路径 II](https://leetcode-cn.com/problems/unique-paths-ii/)
+#### [63. 不同路径 II](https://leetcode-cn.com/problems/unique-paths-ii/)
 
 > 增加了障碍物
 
@@ -4944,9 +5023,7 @@ var uniquePathsWithObstacles = function(obstacleGrid) {
 };
 ```
 
-
-
-### [322. 零钱兑换](https://leetcode-cn.com/problems/coin-change/)
+#### [322. 零钱兑换](https://leetcode-cn.com/problems/coin-change/)
 
 ```js
  var coinChange = function(coins, amount)  {
@@ -4969,9 +5046,95 @@ var uniquePathsWithObstacles = function(obstacleGrid) {
  }
 ```
 
-## 求存在性
+#### 553 · 炸弹袭击
 
-### [55. 跳跃游戏](https://leetcode-cn.com/problems/jump-game/)
+https://www.lintcode.com/problem/553/leaderboard
+
+```js
+ maxKilledEnemies(grid) {
+    // write your code here
+    let m = grid.length
+    let n = grid[0].length
+    let res = new Array(m).fill(0).map(() => new Array(n).fill(0))
+    let f = new Array(m).fill(0).map(() => new Array(n).fill(0))
+    // up
+    for(let i=0; i<m; i++) {
+        for(let j=0; j<n; j++) {
+            // 墙不会被摧毁
+            if(grid[i][j] === 'W') f[i][j] = 0
+            else {
+                f[i][j] = 0
+                // 放炸弹的地方有敌人
+                if(grid[i][j] === 'E') f[i][j] =  1
+                if(i-1>=0) {
+                    f[i][j] += f[i-1][j]
+                }
+            }
+            res[i][j] += f[i][j]
+        }
+    }
+
+    // down
+    for(let i=m-1; i>=0; i--) {
+        for(let j=0; j<n; j++) {
+            if(grid[i][j] === 'W') f[i][j] = 0
+            else {
+                f[i][j] = 0
+                if(grid[i][j] === 'E') f[i][j] =  1
+                if(i+1<m) {
+                    f[i][j] += f[i+1][j]
+                }
+            }
+            res[i][j] += f[i][j]
+        }
+    }
+    // left
+    for(let i=0; i<m; i++) {
+        for(let j=0; j<n; j++) {
+            if(grid[i][j] === 'W') f[i][j] = 0
+            else {
+                f[i][j] = 0
+                if(grid[i][j] === 'E') f[i][j] =  1
+                if(j-1>=0) {
+                    f[i][j] += f[i][j-1]
+                }
+            }
+            res[i][j] += f[i][j]
+        }
+    }
+    // right
+    for(let i=0; i<m; i++) {
+        for(let j=n-1; j>=0; j--) {
+            if(grid[i][j] === 'W') f[i][j] = 0
+            else {
+                f[i][j] = 0
+                if(grid[i][j] === 'E') f[i][j] =  1
+                if(j+1<n) {
+                    f[i][j] += f[i][j+1]
+                }
+            }
+            res[i][j] += f[i][j]
+        }
+    }
+    let result = 0
+    for(let i=0; i<m; i++) {
+        for(let j=0; j<n; j++) {
+            if(grid[i][j] === '0') {
+                if(res[i][j]>result) {
+                    result = res[i][j]
+                }
+            }
+        }
+    }
+    return result
+  }
+```
+
+
+
+### 求存在性
+
+#### [55. 跳跃游戏](https://leetcode-cn.com/problems/jump-game/)
 
 ```js
 // 动态规划
@@ -5010,9 +5173,51 @@ var canJump = function(nums) {
 
 
 
-## 求最大最小值
+## 
 
-### [53. 最大子数组和](https://leetcode-cn.com/problems/maximum-subarray/)
+### 求最值
+
+#### [64. 最小路径和](https://leetcode-cn.com/problems/minimum-path-sum/)
+
+```js
+var minPathSum = function(grid) {
+    let dp = new Array(grid.length).fill(0).map(() => new Array(grid[0].length).fill(0))
+    dp[0][0] = grid[0][0]
+    for(let i=1; i<grid.length; i++) {
+        dp[i][0] += (dp[i-1][0] + grid[i][0])
+    }
+    for(let j=1; j<grid[0].length; j++) {
+        dp[0][j] += (dp[0][j-1] + grid[0][j])
+    }
+    for(let i=1; i< grid.length; i++) {
+        for(j=1; j<grid[0].length; j++) {
+            dp[i][j] = Math.min(dp[i-1][j], dp[i][j-1]) + grid[i][j]
+        }
+    }
+    return dp[grid.length-1][grid[0].length-1]
+};
+
+
+//空间优化  
+//当前值等于左方或者上方的最小值加上当前值，原矩阵中的值被dp值覆盖之后不会再被用到
+var minPathSum = function(grid) {
+    let m = grid.length
+    let n = grid[0].length
+    for(let i=0; i<m; i++) {
+        for(let j=0; j<n; j++) {
+            if(i==0 && j===0) continue
+            else if(i===0) grid[i][j] = grid[i][j-1] + grid[i][j]
+            else if(j===0) grid[i][j] = grid[i-1][j] + grid[i][j]
+            else grid[i][j] = Math.min(grid[i][j-1], grid[i-1][j]) + grid[i][j]
+        }
+    }
+    return grid[m-1][n-1]
+}
+```
+
+#### :question: TODO: 输出最小路径
+
+#### [53. 最大子数组和](https://leetcode-cn.com/problems/maximum-subarray/)
 
 ```js
 // 贪心
@@ -5067,7 +5272,7 @@ var maxSubArray = function(nums) {
 }
 ```
 
-### [5. 最长回文子串](https://leetcode-cn.com/problems/longest-palindromic-substring/)
+#### [5. 最长回文子串](https://leetcode-cn.com/problems/longest-palindromic-substring/)
 
 > 动态规划
 
@@ -5164,17 +5369,15 @@ const getLen = (s, left, right) => {
 }
 ```
 
-## 其他
+## 
 
-## 坐标型
+## 序列型
 
-[62. 不同路径](https://leetcode-cn.com/problems/unique-paths/)
+### Leetcode 256.粉刷房子
 
-[63. 不同路径 II](https://leetcode-cn.com/problems/unique-paths-ii/)
-
-> 序列型
-
-Leetcode 256.粉刷房子
+> **所设状态是前i个。。。最小/方式数/可行性**，**如果f(i-1）无法区分，那么就增加状态**
+>
+> > 例如【粉刷房子】中因为相邻两个房子的颜色不能相同，那么单纯的用f(i)表示粉刷前i座房子的最小花费时，如果不知道第（i-1）座房子的颜色，那么也就不能确定第（i-2）座房子的颜色。因此确定状态确定为`f[i][j]`,代表粉刷前i座房子的最小花费，且第（i-1）座（即最后一座）房子的颜色为`j`，那么显然粉刷前`i`座房子的最小花费就等于粉刷前`i-1`座房子的最小花费，且第（i-2）座房子的颜色是不同于颜色`j`的另外两种颜色，这也就是进行状态转移的表达式。
 
 > ### 题目描述
 >
@@ -5228,7 +5431,38 @@ const minCost = costs => {
 }
 ```
 
+## 划分型
 
+> 与序列型相似，状态设定也是前i个。。。。
+
+解密字符串即划分成若干段数字，每段数字对应一个字母
+
+### [91. 解码方法](https://leetcode-cn.com/problems/decode-ways/)
+
+```js
+var numDecodings = function(s) {
+    let n = s.length
+    let res = new  Array(n+1).fill(0)
+    // 前0个字符的解码方法总数，即输入为空字符
+    res[0] = 1
+    // res[i]代表前i个字符解码方法的总数
+    // 分为两种情况 res[i] = res[i-1] + res[i-2]
+    // 需要判断后面一种情况是否符合要求
+    for(let i=1; i<=n; i++) {
+        if(s[i-1].charCodeAt()>='1'.charCodeAt() && s[i-1]<='9'.charCodeAt()) {
+            res[i] += res[i-1]
+        }
+        if(i>=2) {
+            if((parseInt(s[i-1]) + parseInt(s[i-2])*10) >= 10 && (parseInt(s[i-1]) + parseInt(s[i-2])*10) <= 26) {
+                res[i] += res[i-2]
+            }
+        }
+    }
+    return res[n]
+};
+```
+
+## 
 
 # 贪心
 
