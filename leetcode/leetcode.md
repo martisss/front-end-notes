@@ -2159,7 +2159,7 @@ class Solution:
 
 ```
 
-
+#### [199. 二叉树的右视图](https://leetcode-cn.com/problems/binary-tree-right-side-view/)
 
 ## 题型
 
@@ -4952,21 +4952,32 @@ var findLengthOfLCIS = function(nums) {
 
 > 动态规划
 
+同时输出了对应的路径
+
 ```js
 var lengthOfLIS = function(nums) {
     let res = new Array(nums.length).fill(1)
+    let path = new Array(nums.length).fill(-1)
     let result = 1
     for(let i=1; i<nums.length; i++) {
         for(let j=0; j<i; j++) {
-            if(nums[i]>nums[j]) {
-                res[i] = Math.max(res[i], res[j]+1)
+            if(nums[i]>nums[j] && res[i]<res[j]+1) {
+                res[i] = res[j]+1
+                path[i] = j
             }
         }
         result = Math.max(result, res[i])
     }
+    let s = res.findIndex(item => item===result)
+    while(s>0) {
+        console.log(nums[s])
+        s=path[s]
+    }
     return result
 };
 ```
+
+
 
 #### :question: TODO [673. 最长递增子序列的个数](https://leetcode-cn.com/problems/number-of-longest-increasing-subsequence/) 
 
@@ -5373,7 +5384,7 @@ const getLen = (s, left, right) => {
 
 ## 序列型
 
-### Leetcode 256.粉刷房子
+### :star: Leetcode 256.粉刷房子
 
 > **所设状态是前i个。。。最小/方式数/可行性**，**如果f(i-1）无法区分，那么就增加状态**
 >
@@ -5430,6 +5441,25 @@ const minCost = costs => {
   return result
 }
 ```
+
+### TODO :star: 516 · 房屋染色 II
+
+
+
+### [338. 比特位计数](https://leetcode-cn.com/problems/counting-bits/)
+
+```js
+var countBits = function(n) {
+    let f = new Array(n+1).fill(0)
+    for(let i=1; i<=n; i++) {
+        // f[i] = f[i>>1] + (i&1)
+        f[i] = f[i>>1] + (i%2)
+    }
+    return f
+};
+```
+
+
 
 ## 划分型
 
