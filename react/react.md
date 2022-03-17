@@ -155,3 +155,15 @@ Diff`的入口函数`[reconcileChildFibers](https://github.com/facebook/react/bl
 
 > 此外，`JSX对象` `newChildren`为数组形式，但是和`newChildren`中每个组件进行比较的是`current fiber`，同级的`Fiber节点`是由`sibling`指针链接形成的单链表，即不支持双指针遍历。
 
+# 面试题
+
+## react为什么使用jsx?
+
+![image-20220317223916456](D:\NOTES\react\react.assets\image-20220317223916456.png)
+
+首先JSX是Javascript的语法扩展，结构类似XML, JSX在react中主要用于声明react元素，但是react中并不强制使用JSX语法，即使使用了，之后也会被babel插件转换为React.creatElement语法，从这个角度来看，JSX可以说是React.creatElement的语法糖，React在没有引入过多概念的同时实现了关注点分离，保证了组件开发的纯粹性。 
+
+相比模板来说，模板引入了模板语法、模板指令等新的概念，关注点分离的程度没有react高，另外模板字符串的多次内部嵌套导致结构描述复杂，语法提示也和JSON的方案一样，实现起来很困难。
+
+#### Babel插件如何实现JSX到JS的编译?
+
