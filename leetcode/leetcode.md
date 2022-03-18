@@ -47,6 +47,37 @@ var threeSum = function(nums) {
 };
 ```
 
+## [31. 下一个排列](https://leetcode-cn.com/problems/next-permutation/)
+
+```js
+var nextPermutation = function(nums) {
+    let n = nums.length
+    // 排除特殊情况
+    if(n<2) return
+    // 初始化
+    let i=n-2, j=n-1, k=n-1
+    // 从后向前找到第一个升序对nums[i]<nums[j]
+    while(i>=0 && nums[i]>=nums[j]) {
+        i--
+        j--
+    }
+    // i>=0 表明找到了符合条件的升序对，如果找不到，按照上方while循环条件，此时i=-1,j=0
+    // 即此时原数组为降序排列,因此跳过下方的if代码块，直接进行反转
+    if(i>=0) {
+        // 从后向前进行查找，直到找到第一对num[i]<nums[k]
+        while(nums[i]>=nums[k]) {
+            k--
+        }
+        [nums[i], nums[k]] = [nums[k], nums[i]]
+    }
+
+    // 反转[j,n-1]（闭区间）这一段
+    for(let m=n-1; j<m; j++, m--) {
+        [nums[j], nums[m]] = [nums[m], nums[j]]
+    }
+};
+```
+
 
 
 # 排序
@@ -2160,6 +2191,44 @@ class Solution:
 ```
 
 #### [199. 二叉树的右视图](https://leetcode-cn.com/problems/binary-tree-right-side-view/)
+
+#### [129. 求根节点到叶节点数字之和](https://leetcode-cn.com/problems/sum-root-to-leaf-numbers/)
+
+```js
+var sumNumbers = function(root) {
+    if(!root) return 0
+    let nodeQueue = [root]
+    let numQueue = [root.val]
+    let sum=0
+    while(nodeQueue.length) {
+        let node = nodeQueue.shift()
+        let num = numQueue.shift()
+        // 没有左右子节点，将父级传下来的num加到sum上
+        if(!node.left && !node.right) sum += num
+        if(node.left) {
+            nodeQueue.push(node.left)
+            numQueue.push(num*10 + node.left.val)
+        }
+        if(node.right) {
+            nodeQueue.push(node.right)
+            numQueue.push(num*10 + node.right.val)
+        }
+    }
+    return sum
+}
+
+var sumNumbers = function(root)  {
+    const dfs = (node, pre) => {
+        if(!node) return 0
+        const sum = pre*10 + node.val
+        if(!node.left && !node.right) return sum
+        return dfs(node.left, sum) + dfs(node.right, sum)
+    }
+    return dfs(root,  0)
+}
+```
+
+
 
 ## 题型
 
