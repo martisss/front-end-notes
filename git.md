@@ -196,8 +196,37 @@ git log --left-right dev...master
 # git revert
 
 1. 在当前提交后面，新增一次提交，抵消掉上一次提交导致的所有变化。它不会改变过去的历史，所以是首选方式，没有任何丢失代码的风险
-
 2. revert可以抵消上一个提交，那么如果想要抵消多个需要执行 `git revert 倒数第一个commit id 倒数第二个commit`
-
 3. 会把你后面提交的记录都放到工作区
+
+
+
+TODO
+
+````js
+\1. 代码回退
+
+首先你要用git log 查看你要回到的那个本版，
+
+然后用
+
+```ruby
+git reset --hard HEAD^        回退到上个版本
+git reset --hard commit_id    退到/进到 指定commit_id
+
+来把你的本地代码回到你复制的某个版本上
+如果你要吧回退的某个版本提交的远程的话
+git push origin HEAD --force
+```
+
+当你回滚之后，又后悔了，想恢复到新的版本怎么办？
+
+用`git reflog`打印你记录你的每一次操作记录
+
+git reflog 可以查看所有分支的所有操作记录（包括（包括commit和reset的操作），包括已经被删除的commit记录，git log则不能察看已经删除了的commit记录，而且跟进结果可以回退道某一个修改
+
+\2. 如果你要回吧本地的代码回到最新的并且你回退的版本没有提交到远程 就用
+
+git checkout master
+````
 

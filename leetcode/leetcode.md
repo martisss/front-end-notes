@@ -608,6 +608,139 @@ var mergeKLists = function(lists) {
 
 ```
 
+### [148. 排序链表](https://leetcode-cn.com/problems/sort-list/)
+
+```js
+// 归并排序 递归实现
+var sortList = function(head) {
+    if(!head || !head.next) return head
+    let head1 = head
+    let head2 = head.next
+    while(head2 && head2.next) {
+        head1 = head1.next
+        head2 = head2.next.next
+    }
+    let head3 = head1.next
+    head1.next = null
+    return merge(sortList(head), sortList(head3))
+}
+
+const merge = (head1, head2) => {
+    if(!head1) return head2
+    if(!head2) return head1
+    if(head1.val < head2.val) {
+        head1.next = merge(head1.next, head2)
+        return head1
+    } else {
+        head2.next = merge(head1, head2.next)
+        return head2
+    }
+}
+
+
+
+//归并排序 迭代实现
+var sortList = function(head) {
+    if(!head || !head.next) return head
+    // 1. 计算链表长度len
+    let len = 0, cur = head
+    while(cur) {
+        cur = cur.next
+        len++
+    }
+    // 2. 初始化，增加虚拟头节点 dummmyHead
+    let dummmyHead = new ListNode(-1, head)
+    // 3. 拆分链表，两两归并，单个长度为subLen, 长度变化为1, 2, 3, 4, 5
+    // 注意此处是sublen<<=1, 而不是sunblen<<1
+    for(let subLen=1; subLen<len; subLen<<=1) {
+        let pre = dummmyHead, curr = pre.next
+        // 一直划分，直到cur为空
+        while(curr) {
+            // 3.1 划分链表 head1
+            let head1 = curr
+            for(let i=1; i<subLen && curr &&  curr.next; i++) {
+                curr = curr.next
+            }
+            // 3.2 将链表head1与后方断开
+            let head2 = curr.next
+            curr.next = null
+            curr = head2
+            // 3.3 划分链表head2
+            for(let i=1; i<subLen && curr && curr.next; i++) {
+                curr = curr.next
+            }
+            // 3.4 将链表head2与后方断开
+            let next = null
+            if(curr) {
+                next = curr.next
+                curr.next = null
+            }
+            // 4. 合并链表
+            pre.next = merge(head1, head2)
+            // 合并完后记得将pre节点移动到合并后链表的最后一个节点，方便后续合并
+            while(pre.next) {
+                pre = pre.next
+            }
+            // curr 指向下一次进行划分的链表的头节点
+            curr = next
+        }
+    }
+    return dummmyHead.next
+}
+
+const merge = (head1, head2) => {
+    let dummmyHead = new ListNode(-1)
+    let cur = dummmyHead
+    while(head1 && head2) {
+        if(head1.val < head2.val) {
+            cur.next = head1
+            head1 = head1.next
+        } else {
+            cur.next = head2
+            head2 = head2.next
+        }
+        cur = cur.next
+    }
+    if(head1) cur.next = head1
+    if(head2) cur.next = head2
+    return dummmyHead.next
+}
+
+
+// 快速排序
+var sortList = function(head) {
+    //排除特殊情况
+    if(!head || !head.next) return head
+    //值小于头节点值的节点放在dummyLeft中,反之放在dummyRight中
+    //left, right分别指向dummyLeft, dummyRight链表的最后一个节点
+    let left = new ListNode(-1), right = new ListNode(-1)
+    let dummyLeft = left, dummyRight = right
+    let node = head.next
+    //根据节点的值将其放在两个不同链表中
+    while(node){
+        if(node.val < head.val) {
+            left.next = node
+            left = left.next
+        } else  {
+            right.next = node
+            right = right.next
+        }
+        node = node.next
+    }
+    right.next = null
+    //dummyLeft链表中节点值都小于头节点的值
+    //因此直接将头节点放在最后即可
+    left.next = head
+    head.next = null
+    left = sortList(dummyLeft.next)
+    right = sortList(dummyRight.next)
+    //因为head在dummyLeft的末尾
+    head.next = right
+    return left
+}
+
+```
+
 
 
 # 栈与队列

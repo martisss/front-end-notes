@@ -1,8 +1,153 @@
+# 内存与数据结构
 
+JS中，有7中基本数据类型，`Boolean, Number, Null, Undefined, String, Symbol, BigInt`,  一种引用数据类型（Object）, 基本数据类型是**按值访问的，其值不可变**，引用数据类型是**按引用访问，其值可以被改变，**引用类型的**引用是指在内存中的地址**，引用类型数据之间的比较其实也是**内存地址之间的比较**。js中基本数据类型也能够访问方法，访问时实际上是先用包装对象创建对象，再用包装对象的实例访问方法，最后销毁包装对象。
 
+## 栈
 
+```js
+class Stack {
+  constructor() {
+    this._i = Symbol('Stack')
+      //保护其不被外部访问到
+    this[this._i] = {}
+    this.length = 0
+  }
+  push(node) {
+    this[this._i][this.length] = node;
+    this.length++
+  }
+  pop() {
+    if (this.isEmpty()) {
+      return null;
+    }
+    this.length--
+    const r = this[this._i][this.length]
+    delete this[this._i][this.length]
+    return r
+  }
+  getItems() {
+    return this[this._i]
+  }
+  // 获取栈顶节点
+  peek() {
+    if (this.isEmpty()) {
+      return null
+    }
+    return this[this._i][this.length - 1]
+  }
+  isEmpty() {
+    return this.length === 0
+  }
+  clear() {
+    this[this._i] = {}
+    this.length = 0
+  }
+}
+```
 
+> 1. Object.getOwnPropertyNames()方法返回一个由指定对象的所有自身属性的属性名（包括不可枚举属性但不包括Symbol值作为名称的属性）组成的数组。    
+> 2. `Object.getOwnPropertySymbols()`方法返回一个给定对象自身的所有 Symbol 属性的数组。
 
+```js
+let stack = new Stack()
+stack.push(5)
+stack.push(7)
+console.log(stack[Object.getOwnPropertySymbols(stack)[0]])
+```
+
+## 堆
+
+![image-20220320221153994](../pictures/image-20220320221153994.png)
+
+掌握二叉堆这种数据结构
+
+```js
+class Heap {
+  constructor(compare) {
+    this.arr = [0]
+    this.compare = (typeof compare === 'function') ? compare : this._defaultCompare
+    }
+    static heapify(data, compare=undefined) {
+      let heap = new Heap(compare)
+      for(let item of data) {
+        heap.push(item)
+      }
+      return heap
+    }
+
+    push(item) {
+      let {arr} = this
+      arr.push(item)
+      this._up(arr.length - 1)
+    }
+
+    pop() {
+      if(this.size === 0) return null
+      let {arr} = this
+      this._swap(1, arr.length - 1)
+      let res = arr.pop()
+      this._down(1)
+      return res
+    }
+
+    get size() {
+      return this.arr.length - 1
+    }
+
+    peek() {
+      return this.arr[1]
+    }
+
+    _up(k) {
+      let {arr, compare, _parent} = this
+      while(k>1 && compare(arr[k], arr[_parent(k)])) {
+        this._swap(_parent(k), k)
+        k = _parent(k)
+      }
+    }
+
+    _down(k) {
+      let {arr, compare, _left, _right} = this
+      let size = this.size
+      while(_left(k) <= size) {
+        let child = _left(k)
+        if(_right(k) <= size && compare(arr[_right(k)], arr[child])) {
+          child = _right(k)
+        }
+        if(compare(arr[k], arr[child])) return
+        this._swap(k, child)
+        k = child
+      }
+    }
+
+    _left(k) { return k*2 }
+    _right(k) { return k*2 + 1}
+    _parent(k) { return Math.floor(k/2)}
+    _swap(i, j) {
+      let arr = this.arr;
+      [ arr[i], arr[j] ] = [ arr[j], arr[i] ]
+    }
+    // 默认小顶堆
+    _defaultCompare(a, b) {
+      return a < b
+    }
+}
+```
+
+除此之外，在实践中，参与比较的可能并非节点本身，而是节点的某个字段。
+
+```javascript
+const array = [
+  {name: 'Jake', id: 29}, 
+  {name: 'Toms', id: 22},
+  {name: 'Jone', id: 40},
+  ...
+]
+```
+
+**这个时候，我们要针对这样的数组构建一个二叉堆，比较函数就会按照需求比较 id，而非节点本身**
+
+比如 leetcode  排序K个升序链表。
 
 # 作用域
 
@@ -1578,7 +1723,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                                                       
+> >                                                          
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
