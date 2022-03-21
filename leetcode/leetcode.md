@@ -3682,6 +3682,22 @@ var shipWithinDays = function(weights, days) {
 };
 ```
 
+### [162. 寻找峰值](https://leetcode-cn.com/problems/find-peak-element/)
+
+```js
+var findPeakElement = function(nums) {
+    let l = 0, r = nums.length - 1
+    // 关键在于两边被视作负无穷，往递增的方向去寻找，一定能够找到
+    // 但是往递减的方向去找，不一定找到，因为可能到边界一直是递减
+    while(l < r) {
+        let mid = (l+r) >> 1
+        if(nums[mid] > nums[mid+1]) r = mid
+        else l = mid+1
+    }
+    return l
+}
+```
+
 
 
 # 单调栈
@@ -3853,6 +3869,8 @@ void backtracking(参数) {
     }
 }
 ```
+
+
 
 ## 组合问题
 
@@ -4163,7 +4181,35 @@ var combinationSum2 = function(candidates, target) {
 };
 ```
 
+#### [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
 
+模板题，关键在理解题意
+
+```js
+var generateParenthesis = function(n) {
+    const backtrack = (path, left, right) => {
+        if(left ===0 && right === 0) {
+            res.push(path.join(''))
+            return
+        }
+        // 剪枝
+        if(left > right) return
+        if(left>0) {
+            path.push('(')
+            backtrack(path, left-1, right)
+            path.pop()
+        }
+        if(right>0) {
+            path.push(')')
+            backtrack(path,left, right-1)
+            path.pop()
+        }
+    }
+    let res = []
+    backtrack([], n, n)
+    return res
+};
+```
 
 
 
