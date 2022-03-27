@@ -568,9 +568,124 @@ Object.assign = (obj, ...source) => {
 }
 ```
 
+# 图片懒加载
+
+```js
+    const lazyLoad = function (loadingUrl, targetUrl) {
+      let imgNode = document.createElement('img')
+      document.body.appendChild(imgNode)
+      imgNode.src = loadingUrl
+      let image = new Image()
+      // 图片加载完成之前放一张占位图
+      // 模拟图片加载延时
+      // setTimeout(() => {
+      //   image.src = targetUrl
+      // }, 3000)
+      image.src = targetUrl
+      image.onload = image.onerror = () => imgNode.src= image.src
+    }
+```
+
 
 
 # 数组
+
+```js
+Array.prototype._forEach = function(callback, thisArgs) {
+  if(!this) throw new TypeError('this is null or not defined')
+  if(typeof callback !== 'function') return new TypeError('callback is not a function')
+  let O = this
+  let len = this.length
+  let k = 0
+  for(; k<len; k++) {
+    if(k in O) {
+      callback.call(thisArgs, O[k], k, O)
+    }
+  }
+}
+Array.prototype._map = function(callback, thisArgs) {
+  if(!this) throw new TypeError('this is null or not defined')
+  if(typeof callback !== 'function') return new TypeError('callback is not a function')
+  let O = this
+  let res = []
+  let len = this.length
+  let k = 0
+  for(; k<len; k++) {
+    if(k in O) {
+      res.push(callback.call(thisArgs, O[k], k, O))
+    }
+  }
+  return res
+}
+
+Array.prototype._filter = function(callback, thisArgs) {
+  if(!this) throw new TypeError('this is null or not defined')
+  if(typeof callback !== 'function') return new TypeError('callback is not a function')
+  let O = this
+  let res = []
+  let len = this.length
+  let k = 0
+  for(; k<len; k++) {
+    if(k in O) {
+      if(callback.call(thisArgs, O[k], k, O)) {
+        res.push(O[k])
+      }
+    }
+  }
+  return res
+}
+
+Array.prototype._some = function(callback, thisArgs) {
+  if(!this) throw new TypeError('this is null or not defined')
+  if(typeof callback !== 'function') return new TypeError('callback is not a function')
+  let O = this
+  let len = this.length
+  let k = 0
+  for(; k<len; k++) {
+    if(k in O) {
+      if(callback.call(thisArgs, O[k], k, O)) {
+        return true
+      }
+    }
+  }
+  return false
+}
+Array.prototype._reduce = function(callback, initialValue) {
+  if(!this) throw new TypeError('this is null or not defined')
+  if(typeof callback !== 'function') return new TypeError('callback is not a function')
+  let O = this, acc
+  let len = this.length
+  let k = 0
+  if(arguments.length>1) {
+    acc = initialValue
+  } else {
+    while(k<len && !(k in O)) {
+      k++
+    }
+    if(k>len) {
+      throw new TypeError( 'Reduce of empty array with no initial value' );
+    }
+    acc = O[k++]
+    while(k<len) {
+      if(k in O ) {
+        acc = callback(acc, O[k], k ,O)
+      }
+      k++
+    }
+  }
+  return acc
+}
+
+
+
+let arr = [1,2,3,4,55,6]
+console.log(arr._reduce((acc, item) => item+acc, 0))
+// console.log(arr)
+
+
+```
+
+
 
 ## forEach
 
@@ -745,6 +860,7 @@ if (!Array.prototype.every) {
       }
       k++;
     }
+      
     return true
   };
 }

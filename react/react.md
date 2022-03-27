@@ -161,7 +161,13 @@ Diff`的入口函数`[reconcileChildFibers](https://github.com/facebook/react/bl
 
 > 此外，`JSX对象` `newChildren`为数组形式，但是和`newChildren`中每个组件进行比较的是`current fiber`，同级的`Fiber节点`是由`sibling`指针链接形成的单链表，即不支持双指针遍历。
 
+# 其他
 
+## 有react fiber，为什么不需要vue fiber呢？
+
+简单地说就是更新粒度不一样，react组件级更新，vue是数据劫持
+
+https://juejin.cn/post/7077545184807878692
 
 # 面试题
 
@@ -380,7 +386,7 @@ export default App;
 
 1. 未来趋势
      由于 React Hooks 的推出，函数组件成了社区未来主推的方案。
-     React 团队从 Facebook 的实际业务出发，通过探索时间切片与并发模式，以及考虑性能的进一步优化与组件间更合理的代码拆分结构后，认为类组件的模式并不能很好地适应未来的趋势。 他们给出了 3 个原因：
+        React 团队从 Facebook 的实际业务出发，通过探索时间切片与并发模式，以及考虑性能的进一步优化与组件间更合理的代码拆分结构后，认为类组件的模式并不能很好地适应未来的趋势。 他们给出了 3 个原因：
 
 - this 的模糊性
 - 业务逻辑散落在生命周期中
@@ -1003,7 +1009,7 @@ class Test extends React.Component {
 
 1. “如果改为同步更新的方式，尽管 setState 变成了同步，但是 props 不是”。为什么props不是同步？
      这句话原文对应的是<RFClarification: why is `setState` asynchronous?>(https://github.com/facebook/react/issues/11527) 中的 “even if state is updated synchronously, props are not. (You can’t know props until you re-render the parent component, and if you do this synchronously, batching goes out of the window.)”
-     以展示组件为例，展示组件的 props 通常是由父级组件的 state 驱动的，那 state 更新改为同步了，但你无法控制父级什么时候会去变更子组件的 props， 父级在各种场景都有可能会去发起更新。为了提升性能，更新操作仍然需要做成批处理的形式，但这就很有可能会是的处理超过窗口期。《RFClarification: why is `setState` asynchronous?》原文整篇论述非常有意义，翻译可能存在失真，所以还是建议直接看原文理解。 2.因为在 setTimeout 中的 setState，isbatchingupdates 的标识符并不会被设为 true， 不会将变更放入队列，等待合并更新，所以每次 setState 都会被立即执行，拿到结果。
+        以展示组件为例，展示组件的 props 通常是由父级组件的 state 驱动的，那 state 更新改为同步了，但你无法控制父级什么时候会去变更子组件的 props， 父级在各种场景都有可能会去发起更新。为了提升性能，更新操作仍然需要做成批处理的形式，但这就很有可能会是的处理超过窗口期。《RFClarification: why is `setState` asynchronous?》原文整篇论述非常有意义，翻译可能存在失真，所以还是建议直接看原文理解。 2.因为在 setTimeout 中的 setState，isbatchingupdates 的标识符并不会被设为 true， 不会将变更放入队列，等待合并更新，所以每次 setState 都会被立即执行，拿到结果。
 
 https://codesandbox.io/embed/setstate-uxlec?fontsize=14&hidenavigation=1&theme=dark
 
@@ -1441,7 +1447,7 @@ class ReportPage extends React.Component {
 - Dispatcher是管理数据流动的中央枢纽。每一个 Store 提供一个回调。当 Dispatcher 接收一个 Action 时，所有的 Store 接收注册表中的 Action，然后通过回调产生数据。
 - Action可以理解为一种事件通知，通常用 type 标记。
     具体的流程是这样的，Store 存储了视图层所有的数据，当 Store 变化后会引起 View 层的更新。如果在视图层触发 Action，比如点击一个按钮，当前的页面数据值会发生变化。Action 会被 Dispatcher 进行统一的收发处理，传递给 Store 层。由于 Store 层已经注册过相关 Action 的处理逻辑，处理对应的内部状态变化后，会触发 View 层更新。
-    从应用场景来看，Flux 除了在 Facebook 内部大规模应用以外，业界很少使用。因为它的概念及样板代码相比后起之秀，还是有点多。从如今的视角看，Flux 可称为抛砖引玉的典范，开启了一轮状态管理的军备竞赛。
+      从应用场景来看，Flux 除了在 Facebook 内部大规模应用以外，业界很少使用。因为它的概念及样板代码相比后起之秀，还是有点多。从如今的视角看，Flux 可称为抛砖引玉的典范，开启了一轮状态管理的军备竞赛。
 
 ## Redux
 

@@ -625,6 +625,21 @@ Function.prototype.bind = function (context) {
 ```
 ## 模拟new实现
 
+```js
+function myNew(fn, ...args){
+    //首先得是个函数
+  if(typeof fn !== 'function') {
+    throw new TypeError('fn is not a constructor')
+  }
+  //注意 构造函数原型为空的情况
+  let obj = fn.prototype instanceof Object ? Object.create(fn.prototype) : Object.create(Object.prototype)
+  let res = fn.apply(obj, args)
+  return typeof res === 'object' ? res : obj
+}
+```
+
+
+
 ### 使用new时发生了什么
 
 **`new`** 关键字会进行如下的操作：
@@ -650,6 +665,8 @@ function myNew(fn, ...args) {
   return typeof ret === 'object' ? res : obj;
 };
 ```
+
+
 
 **注意：**下面这个例子，要能清楚new时发生了什么，同时要注意成员访问运算符(.)的优先级大于`new`,小括号()的优先级又大于(.)
 
@@ -2685,6 +2702,10 @@ var chalk = require('chalk');
   - 如果声明的是复合类型数据，可以修改其属性
 
 ## proxy   TODO
+
+# 设计模式
+
+
 
 # 浏览器
 
