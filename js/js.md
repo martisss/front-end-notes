@@ -1740,7 +1740,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                                                          
+> >                                                             
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
@@ -3490,7 +3490,32 @@ img.src = img.getAttribute("original-src")
 
 ### 8. 图片优化
 
+### 9. css
 
+1. 使用（critical css/ critical）等工具提取关键css, 延迟加载非关键css
+
+2. css 文件压缩
+
+3. 使用媒体查询优化背景图像
+
+   > ```CSS
+   > body {
+   >   background-position: center center;
+   >   background-attachment: fixed;
+   >   background-repeat: no-repeat; background-size: cover;
+   >   background-image: url(images/background-desktop.jpg);
+   > }
+   > ```
+   >
+   > ```CSS
+   > @media (max-width: 480px) {
+   >     body {
+   >         background-image: url(images/background-mobile.jpg);
+   >     }
+   > }
+   > ```
+   >
+   > 
 
 ## 运行时性能优化
 
