@@ -1,8 +1,17 @@
+## useState
+
+适用于与DOM状态改变相关的变量
+
 jsx语法 用声明式方式描述数据与UI的关系
+
 ## useEffect
 :question: 函数体也是每次 render 都会执行，那么，需要每次都会 render 执行的语句是放在 无依赖的 useEffect 中呢，还是直接放在函数体中比较好呢？
-- :raised_hands:  这两种情况的语义是不一样的。useEffect 代表副作用，是在函数 render 完后执行。而函数体中的代码，是直接影响当次 render 的结果。副作用一定是和当前 render 的结果没关系的，而只是 render 完之后做的一些额外的事情。
+- :raised_hands:  这两种情况的语义是不一样的。**useEffect 代表副作用，是在函数 render 完后执行。而函数体中的代码，是直接影响当次 render 的结果。副作用一定是和当前 render 的结果没关系的，而只是 render 完之后做的一些额外的事情。**
   <br>
+
+- 每次副作用执行，都会返回一个新的clear函数, **clear函数会在DOM渲染完成之后,下一次副作用逻辑之前执行**
+
+- **组件销毁也会执行一次**
 
 :question: 两种写法的异同
 ```js
@@ -73,7 +82,14 @@ function useSingleton(callback) {
 
 ```
 ## 自定义hooks的四个典型使用场景
+基于state的改变会导致函数组件的重新执行这一特性
+
+自定义hook能够跟随函数组件重复执行，并且每次都返回最新结果。
+
+因此，我们可以非常放心大胆的封装异步逻辑。
+
 ### hooks优点：
+
 更好地体现了 React 的开发思想，即从 State => View 的函数式映射。此外， Hooks 也解决了 Class 组件存在的一些代码冗余、难以逻辑复用的问题。
 - 简化了逻辑复用
   - 没有hooks之前要想实现逻辑复用 必须依赖高洁组件，这样带来的问题是：高阶组件会产生冗余的组件节点，让调试变得困难
@@ -537,6 +553,7 @@ export default (id) => {
 - :raised_hands: React 需要在函数组件内部维护所用到的 Hooks 的状态，所以我们无法在条件语句中使用 Hooks
 - :question: 具体是怎么维护的呢？  //TODO
   
+
 示例：
 ```js
 

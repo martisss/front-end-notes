@@ -1827,54 +1827,121 @@ right 指针每次向右移动一步，开始探索新的区间。
 > - 对于 `t` 中重复字符，我们寻找的子字符串中该字符数量必须不少于 `t` 中该字符数量。
 > - 如果 `s` 中存在这样的子串，我们保证它是唯一的答案。
 
+***\*定义\****：
+
+`start`，`len`分别是最小覆盖子串的起始位置和长度，用于最后生成最小覆盖字串
+
+`left`，`right` 分别为左右边界，`valid`表示当前窗口已验证的字符数
+
+`need` 为需要验证的字符的字符数的集合，格式为`{'char': number}`，初始化后是不变的
+
+`window` 为当前窗口中目标字符的集合，格式为`{'char': number}`，初始为空，随着窗口的移动不断更新
+
+***\*步骤\****：
+
+1. 不断移动右指针，直到当前窗口中已经包括了`t`中的所有字符
+
+2. 更新最短字串的长度和起始位置，向右收缩左指针，重复这一步骤，如果收缩前左指针指向一个目标字符，`valid--`
+
+3. `valid < Object.keys(need)`,不满足2的循环条件，重新进入步骤1
+
 ```js
 var minWindow = function(s, t) {
-    // 最小覆盖字串的起始位置及长度
-    let start = 0, len = Number.MAX_VALUE
-    // 滑动窗口的左右指针
-    let left = 0, right = 0
-    // 表示当前窗口已验证的字符数（种类）
-    let valid = 0
-    // need为需要验证的字符的字符数的集合
-    // window为当前窗口中 所需要的字符的字符数的集合
-    let need = {}, window = {}
-    // 生成need集合
-    for(let c of t) {
-        need[c] = (need[c] || 0) + 1
-    }
-    while(right < s.length) {
-        let c = s[right]
-        right++
-        // 当前字符属于需验证字符，更新当前窗口统计
-        if(need[c]) {
-            window[c] = (window[c] || 0) + 1
-            // 相应字符数量与验证字符数量匹配，
-            if(window[c] === need[c]) {
-                valid++
-            }
-        }
-        // 当窗口中所需字符数量与所需要的字符个数相同时，开始收缩窗口
-        // 更新最小覆盖字串
-        while(valid === Object.keys(need).length) {
-            // 注意此处 right已经右移过了，因此字串长度为right-left, 而不是right-left+1
-            if(right-left< len) {
-                start = left
-                len = right-left
-            }
-            // 左移窗口，移动过程中注意更新valid 与 window
-            let d = s[left]
-            left++
-            if(need[d]) {
-                if(window[d] === need[d]) {
-                    valid--
-                }
-                window[d]--
-            }
-        }
-    }
-    return len == Number.MAX_VALUE ? '' : s.substr(start, len)
+
+  // 最小覆盖字串的起始位置及长度
+
+  let start = 0, len = Number.MAX_VALUE
+
+  // 滑动窗口的左右指针
+
+  let left = 0, right = 0
+
+  // 表示当前窗口已验证的字符数（种类）
+
+  let valid = 0
+
+  // need为需要验证的字符的字符数的集合，格式为{'char': number}
+
+  // window为当前窗口中 所需要的目标字符的集合，格式为{'char': number}
+
+  let need = {}, window = {}
+
+  // 生成need集合
+
+  for(let c of t) {
+
+​    need[c] = (need[c] || 0) + 1
+
+  }
+
+  while(right < s.length) {
+
+​    let c = s[right]
+
+​    right++
+
+​    // 当前字符属于需验证字符，更新当前窗口统计
+
+​    if(need[c]) {
+
+​      window[c] = (window[c] || 0) + 1
+
+​      // 相应字符数量与验证字符数量匹配，
+
+​      if(window[c] === need[c]) {
+
+​        valid++
+
+​      }
+
+​    }
+
+​    // 当窗口中目标字符数量与所需要的字符个数相同时，开始收缩窗口
+
+​    // 更新最小覆盖字串
+
+​    while(valid === Object.keys(need).length) {
+
+​      // 注意此处 right已经右移过了，因此字串长度为right-left, 而不是right-left+1
+
+​      if(right-left< len) {
+
+​        start = left
+
+​        len = right-left
+
+​      }
+
+​      // 左移窗口，移动过程中注意更新valid 与 window
+
+​      let d = s[left]
+
+​      left++
+
+​      if(need[d]) {
+
+​        if(window[d] === need[d]) {
+
+​          valid--
+
+​        }
+
+​        window[d]--
+
+​      }
+
+​    }
+
+  }
+
+  return len == Number.MAX_VALUE ? '' : s.substr(start, len)
+
 };
 ```
+
+
+
+
 
 ### [567. 字符串的排列](https://leetcode-cn.com/problems/permutation-in-string/)
 
@@ -2012,7 +2079,7 @@ var lengthOfLongestSubstring = function(s) {
 }
 ```
 
-#### [209. 长度最小的子数组](https://leetcode-cn.com/problems/minimum-size-subarray-sum/)
+##[209. 长度最小的子数组](https://leetcode-cn.com/problems/minimum-size-subarray-sum/)
 
 ```js
 var minSubArrayLen = function(target, nums) {

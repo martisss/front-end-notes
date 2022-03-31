@@ -490,18 +490,132 @@ checkscope();
 ## this
 
 ## 闭包
-函数和函数对其词法环境的引用的组合就是闭包，或者说，函数和函数能够访问的自由变量的组合就是闭包
 
-闭包是依靠作用域链实现的
+**从概念上来说，闭包是一个特殊的对象，当函数 A 内部创建函数 B，并且函数 B 访问函数 A 中声明的变量等声明时，闭包就会产生。**
 
-从理论角度讲，所有的js函数都是闭包，
-从实践角度来说，要满足以下两点：
+闭包也是会被垃圾回收机制回收的，视情况而定
 
-1. 即使创建它的上下文对象已经销毁，它依然存在
-2. 代码中引用了自由变量
+
+
+> 函数和函数对其词法环境的引用的组合就是闭包，或者说，函数和函数能够访问的自由变量的组合就是闭包
+>
+> 闭包是依靠作用域链实现的
+>
+> 从理论角度讲，所有的js函数都是闭包，
+> 从实践角度来说，要满足以下两点：
+>
+> 1. 即使创建它的上下文对象已经销毁，它依然存在
+> 2. 代码中引用了自由变量
+
+### 闭包也是会被回收的
+
+```js
+const g = 10
+
+function foo() {
+  let a = 10;
+  let b = 20;
+
+  function bar() {
+    a = a + 1;
+    console.log(a)
+    const c = 30;
+
+    return a + b + c;
+  }  
+    console.dir(bar)
+  return bar
+}
+
+// 函数作为返回值的应用：此时实际调用的是 bar 函数
+foo()()
+foo()()
+foo()()
+foo()()
+// 闭包被回收，每次执行产生不同的闭包
+```
+
+![image-20220331101952164](../pictures/image-20220331101952164.png)
+
+foo在全局上下文中声明，全局上下文持有foo函数的引用，因此它不会被回收，而bar函数在foo函数的执行上下文中声明，foo函数执行完毕后，执行上下文被回收， bar 作为 foo 执行上下文的一部分，自然也会被回收。**如果不做特殊处理，foo 与 bar 产生的闭包对象，同样会被回收。**
+
+```js
+...
+...
+...
+// 在全局上下文中，保留 foo 的执行结果，也就是 内部函数 bar 的引用
+var bar = foo()
+
+// 多次执行
+bar()
+bar()
+bar()
+```
+
+现在bar函数有新的引用，因此即使创建bar函数的上下文被销毁，它也不会被挥手，而是在内存中一直存在
+
+后面bar()多次执行，修改的是同一个闭包对象
+
+![image-20220331102359665](../pictures/image-20220331102359665.png)
+
+```js
+...
+...
+...
+// 在全局上下文中，保留 foo 的执行结果，也就是 内部函数 bar 的引用
+var bar1 = foo()
+
+// 多次执行
+bar1()
+bar1()
+bar1()
+
+// 在全局上下文中，保留 foo 的执行结果，也就是 内部函数 bar 的引用
+var bar2 = foo()
+
+// 多次执行
+bar2()
+bar2()
+bar2()
+```
+
+虽然 bar1 与 bar2 都是在保存 foo 执行结果返回的 bar 函数的引用。但是他们对应的函数体却不是同一个。foo 每次执行都会创建新的上下文，因此 bar1 和 bar2 是不同的 bar 函数引用。因此他们对应的闭包对象也就不同。
+
+```js
+function foo() {
+  let a = 10;
+  let b = 20;
+
+  function bar() {
+    a = a + 1;
+    console.log('in bar', a)
+    let c = 30;
+
+    function fn() {
+      a = a + 1;
+      c = c + 1
+      console.log('in fn', a)
+    }
+
+    console.dir(fn)
+    return fn
+  }
+
+  console.dir(bar)
+  return bar()
+}
+
+var fn = foo()
+fn()
+fn()
+fn()
+```
+
+bar.[[Scopes]] 中的闭包对象「Closure (foo)」与 fn.[[Scopes]] 中的闭包对象 「Closure (foo)」是同一个闭包对象。
 
 **思考**
 [参考链接](https://github.com/mqyqingfeng/Blog/issues/8)
+
 ```js
 var nAdd;
 var t = function() {
@@ -1740,7 +1854,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                                                             
+> >                                                                   
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
@@ -2328,7 +2442,172 @@ p1().then((arg) => { //微任务
 console.log(10);//同步
 ```
 
+**示例2**
 
+```js
+console.log('script start')
+
+async function async1() {
+    await async2()
+    console.log('async1 end')
+}
+async function async2() {
+    console.log('async2 end')
+    // 相当于 返回的结果是undefined
+}
+async1()
+
+setTimeout(function() {
+    console.log('setTimeout')
+}, 0)
+
+new Promise(resolve => {
+    console.log('Promise')
+    resolve()
+})
+.then(function() {
+    console.log('promise1')
+})
+.then(function() {
+    console.log('promise2')
+}).then(function() {
+    console.log('promise3')
+}).then(function() {
+    console.log('promise4')
+}).then(function() {
+    console.log('promise5')
+})
+```
+
+> **运行结果**
+>
+> ```text
+> script start
+> async2 end
+> Promise
+> async1 end  *
+> promise1
+> promise2
+> promise3
+> promise4
+> promise5
+> setTimeout
+> ```
+>
+> 
+
+**示例3**
+
+```js
+console.log('script start')
+
+async function async1() {
+    await async2()
+    console.log('async1 end')
+}
+async function async2() {
+    console.log('async2 end')
+    return Promise.resolve()
+    // works
+    // Promise.resolve().then(() => res.then(resolve, reject ))
+}
+async1()
+
+setTimeout(function() {
+    console.log('setTimeout')
+}, 0)
+
+new Promise(resolve => {
+    console.log('Promise')
+    resolve()
+})
+.then(function() {
+    console.log('promise1')
+})
+.then(function() {
+    console.log('promise2')
+}).then(function() {
+    console.log('promise3')
+}).then(function() {
+    console.log('promise4')
+}).then(function() {
+    console.log('promise5')
+})
+```
+
+> 运行结果
+>
+> ```js
+> script start
+> async2 end
+> Promise
+> promise1
+> promise2
+> async1 end *
+> promise3
+> promise4
+> promise5
+> setTimeout
+> ```
+>
+> 
+
+**示例4**
+
+```js
+console.log('script start')
+
+async function async1() {
+    await async2()
+    console.log('async1 end')
+}
+async function async2() {
+    console.log('async2 end')
+    return Promise.resolve().then(()=>{
+      console.log('async2 end1')
+  })
+}
+async1()
+
+setTimeout(function() {
+    console.log('setTimeout')
+}, 0)
+
+new Promise(resolve => {
+    console.log('Promise')
+    resolve()
+})
+.then(function() {
+    console.log('promise1')
+})
+.then(function() {
+    console.log('promise2')
+}).then(function() {
+    console.log('promise3')
+}).then(function() {
+    console.log('promise4')
+}).then(function() {
+    console.log('promise5')
+})
+```
+
+> **运行结果**
+>
+> ```js
+> script start
+> async2 end
+> Promise
+> async2 end1
+> promise1
+> promise2
+> async1 end 
+> promise3
+> promise4
+> promise5
+> setTimeout
+> ```
+>
+> 
 
 ## 柯里化
 
@@ -2704,6 +2983,43 @@ var chalk = require('chalk');
 ## proxy   TODO
 
 # 设计模式
+
+## 单例模式
+
+本质上是一个只有一个实例的对象
+
+基于闭包与自执行函数
+
+```js
+const Person = (function(){
+    let instance = null
+    let name = 'xx'
+    let age = 18
+
+    function initial() {
+        return {
+            getName: function() {
+                return name
+            },
+            getAge: function() {
+                return age
+            }
+        }
+    }
+    return {
+        getInstance: function() {
+            if(!instance) {
+                instance = initial()
+            }
+            return instance
+        }
+    }
+})()
+
+let person1 = Person.getInstance()
+let person2 = Person.getInstance()
+console.log(person1 === person2)
+```
 
 
 
@@ -3520,6 +3836,8 @@ img.src = img.getAttribute("original-src")
 ## 运行时性能优化
 
 ### 1. 减少重绘与重排
+
+https://juejin.cn/post/6844903779700047885#heading-9
 
 1. 解析HTML生成DOM树
 2. 解析CSS生成CSSOM规则树
