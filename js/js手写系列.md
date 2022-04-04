@@ -83,10 +83,6 @@ fn(18)
 
 # 防抖
 
-## todo
-
-
-
 ```js
 function debounce(func, wait) {
   let timeout
@@ -106,7 +102,7 @@ function debounce(func, wait) {
     let args = arguments
     let context = this
     clearTimeout(timeout)
-    timeout = setTimeout(func.apply(this, args), wait)
+    timeout = setTimeout(func.apply(context, args), wait)
   }
 }
 ```
@@ -390,6 +386,26 @@ function flatten(arr) {
 console.log(flatten(arr))
 ```
 
+> 4
+
+```js
+function* flatten(arr) {
+    for(const item of arr) {
+        if(Array.isArray(item)){
+            yield* flatten(item)
+        } else {
+            yield item
+        }
+    }
+}
+
+console.log([...flatten([1,2,3,[1,[3,5]]])])
+console.log(flatten([1,2,3,[1,[3,5]]]))}
+
+```
+
+
+
 # 深浅拷贝
 
 对于数组来说
@@ -447,7 +463,7 @@ function deepClone(obj) {
   return newObj
 }
 
-let arr = [null ,null, 4,5]
+let arr = [null ,[{name: 1, age: 2},{name: 2, age: 3}], 4,5, undefined]
 console.log(deepClone(arr))
 ```
 
@@ -1034,7 +1050,7 @@ Promise.race = function(promiseArr) {
             Promise.resolve(p).then(val => {
                 resolve(val)
             }, err => {
-                rejecte(err)
+                reject(err)
             })
         })
     })
@@ -1093,5 +1109,77 @@ Promise.any = function(promiseArr) {
     })
 }
 
+```
+
+## 最大并发控制实现方式
+
+```js
+function concurrentPoll() {
+    this.tasks = []
+    this.max = 10
+    setTimeout(() => {
+        this.run()
+    }, 0)
+}
+
+concurrentPoll.prototype.addTask = function(task) {
+    this.tasks.push(task)
+}
+
+concurrentPoll.prototype.run = function() {
+    if(this.tasks.length === 0) return
+    let min = Math.min(this.tasks.length, this.max)
+    for(let i=0; i<min; i++) {
+        let task = this.tasks.shift()
+        this.max--
+        task().then(res => {
+            console.log(res)
+        }).catch(err => console.log(err))
+        .finally(() => {
+            this.max++
+            this.run()
+        })
+    }
+}
+
+const poll = new concurrentPoll(); // 实例
+for (let i = 0; i < 100; i++) { // 数据模拟
+    poll.addTask(function () {
+        return new Promise(
+            function (resolve, reject) {
+                setTimeout(() => resolve(i), 700)
+            }
+        )
+    })
+}
+```
+
+# 其他
+
+## 括号匹配
+
+```js
+var isValid = function(s) {
+    if(s.length % 2 === 1) return false
+    let stack = []
+    let match = new Map([
+        [')', '('],
+        ['}', '{'],
+        [']', '['],
+    ])
+    for(let ch of s) {
+        if(match.has(ch)) {
+            // 不匹配直接返回结果 false
+            if(!stack.length || stack[stack.length-1] !== match.get(ch)) return false
+            // 匹配之后要消去辅助栈栈顶的元素
+            stack.pop()
+        } 
+        // 如果是左括号，直接入栈
+        else {
+            stack.push(ch)
+        }
+    }
+    return !stack.length
+};
 ```
 

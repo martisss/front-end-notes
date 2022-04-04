@@ -1854,7 +1854,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                                                                   
+> >                                                                         
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
@@ -2980,6 +2980,30 @@ var chalk = require('chalk');
   - 声明后不能再修改
   - 如果声明的是复合类型数据，可以修改其属性
 
+## 新特性
+
+1. Default Parameters（默认参数） in ES6
+2. Template Literals （模板文本）in ES6
+3. Multi-line Strings （多行字符串）in ES6
+4. Destructuring Assignment （解构赋值）in ES6
+5. Enhanced Object Literals （增强的对象文本）in ES6
+6. Arrow Functions （箭头函数）in ES6
+7. Promises in ES6
+8. Block-Scoped Constructs Let and Const（块作用域构造 Let and Const）
+9. Classes（类） in ES6
+10. Modules（模块） in ES6
+
+
+
+## ES6箭头函数与普通函数的区别
+
+- **没有this、super、arguments和new.target绑定**
+- **不能通过new关键字调用**，不能被用作构造函数
+- **没有原型**
+- **不可以改变this的绑定**
+- **不支持arguments对象**
+- **不支持重复的命名参数**
+
 ## proxy   TODO
 
 # 设计模式
@@ -3380,6 +3404,168 @@ https://www.cnblogs.com/LuckyWinty/p/11739573.html
 
 
 # 前端安全
+
+## 跨域
+
+定义：违反了同源策略（协议，域名，端口），三者缺一不可，即使两个不同域名指向同一个ip，也不可以，同一域名下的两个不同子域名，也不可以。协议、端口造成的跨域，前端无能为力
+
+
+
+限制内容：
+
+- Cookie、LocalStorage、IndexedDB 等存储性内容
+- DOM 节点
+- AJAX 请求发送后，结果被浏览器拦截了
+
+以下三个标签允许跨域：
+
+```js
+<img src=XXX>
+<link href=XXX>
+<script src=XXX>
+```
+
+
+
+### jsonp
+
+##### 优缺点
+
+优点是简单兼容性好，可用于解决主流浏览器的跨域数据访问的问题。**缺点是仅支持get方法具有局限性,不安全可能会遭受XSS攻击。**
+
+## 实例
+
+```js
+// index.html
+function jsonp({ url, params, callback }) {
+  return new Promise((resolve, reject) => {
+    let script = document.createElement('script')
+    window[callback] = function(data) {
+      resolve(data)
+      document.body.removeChild(script)
+    }
+    params = { ...params, callback } // wd=b&callback=show
+    let arrs = []
+    for (let key in params) {
+      arrs.push(`${key}=${params[key]}`)
+    }
+    script.src = `${url}?${arrs.join('&')}`
+    document.body.appendChild(script)
+  })
+}
+jsonp({
+  url: 'http://localhost:3000/say',
+  params: { wd: 'Iloveyou' },
+  callback: 'show'
+}).then(data => {
+  console.log(data)
+})
+```
+
+server.js
+
+```js
+// server.js
+let express = require('express')
+let app = express()
+console.log('running')
+app.get('/say', function(req, res) {
+  console.log(req.query)
+  let {callback} = req.query
+  res.end(`${callback}('hello jsonp!!!')`)
+})
+app.listen(3000)
+
+```
+
+## cors
+
+**简单请求**:
+
+- 请求方法为 GET、POST 或者 HEAD
+- 请求头的取值范围: Accept、Accept-Language、Content-Language、Content-Type(只限于三个值`application/x-www-form-urlencoded`、`multipart/form-data`、`text/plain`)
+
+浏览器画了这样一个圈，在这个圈里面的就是**简单请求**, 圈外面的就是**非简单请求**，然后针对这两种不同的请求进行不同的处理。
+
+#### 简单请求
+
+请求发出去之前，浏览器会自动在请求头当中，添加一个`Origin`字段，用来说明请求来自哪个`源`。服务器拿到请求之后，在回应时对应地添加`Access-Control-Allow-Origin`字段，如果`Origin`不在这个字段的范围中，那么浏览器就会将响应拦截。
+
+**Access-Control-Allow-Credentials**。这个字段是一个布尔值，表示是否允许发送 Cookie，对于跨域请求，浏览器对这个字段默认值设为 false，而如果需要拿到浏览器的 Cookie，需要添加这个响应头并设为`true`, 并且在前端也需要设置`withCredentials`属性:
+
+```
+let xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+复制代码
+```
+
+**Access-Control-Expose-Headers**。这个字段是给 XMLHttpRequest 对象赋能，让它不仅可以拿到基本的 6 个响应头字段（包括`Cache-Control`、`Content-Language`、`Content-Type`、`Expires`、`Last-Modified`和`Pragma`）, 还能拿到这个字段声明的**响应头字段**。比如这样设置:
+
+```
+Access-Control-Expose-Headers: aaa
+```
+
+那么在前端可以通过 `XMLHttpRequest.getResponseHeader('aaa')` 拿到 `aaa` 这个字段的值。
+
+#### 非简单请求
+
+非简单请求相对而言会有些不同，体现在两个方面: **预检请求**和**响应字段**。
+
+我们以 PUT 方法为例。
+
+```
+var url = 'http://xxx.com';
+var xhr = new XMLHttpRequest();
+xhr.open('PUT', url, true);
+xhr.setRequestHeader('X-Custom-Header', 'xxx');
+xhr.send();
+```
+
+当这段代码执行后，首先会发送**预检请求**。这个预检请求的请求行和请求体是下面这个格式:
+
+```
+OPTIONS / HTTP/1.1
+Origin: 当前地址
+Host: xxx.com
+Access-Control-Request-Method: PUT
+Access-Control-Request-Headers: X-Custom-Header
+复制代码
+```
+
+预检请求的方法是`OPTIONS`，同时会加上`Origin`源地址和`Host`目标地址，这很简单。同时也会加上两个关键的字段:
+
+- Access-Control-Request-Method, 列出 CORS 请求用到哪个HTTP方法
+- Access-Control-Request-Headers，指定 CORS 请求将要加上什么请求头
+
+这是`预检请求`。接下来是**响应字段**，响应字段也分为两部分，一部分是对于**预检请求**的响应，一部分是对于 **CORS 请求**的响应。
+
+**预检请求的响应**。如下面的格式:
+
+```
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, POST, PUT
+Access-Control-Allow-Headers: X-Custom-Header
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 1728000
+Content-Type: text/html; charset=utf-8
+Content-Encoding: gzip
+Content-Length: 0
+```
+
+其中有这样几个关键的**响应头字段**:
+
+- Access-Control-Allow-Origin: 表示可以允许请求的源，可以填具体的源名，也可以填`*`表示允许任意源请求。
+- Access-Control-Allow-Methods: 表示允许的请求方法列表。
+- Access-Control-Allow-Credentials: 简单请求中已经介绍。
+- Access-Control-Allow-Headers: 表示允许发送的请求头字段
+- Access-Control-Max-Age: 预检请求的有效期，在此期间，不用发出另外一条预检请求。
+
+在预检请求的响应返回后，如果请求不满足响应头的条件，则触发`XMLHttpRequest`的`onerror`方法，当然后面真正的**CORS请求**也不会发出去了。
+
+**CORS 请求的响应**。绕了这么一大转，到了真正的 CORS 请求就容易多了，现在它和**简单请求**的情况是一样的。浏览器自动加上`Origin`字段，服务端响应头返回**Access-Control-Allow-Origin**。可以参考以上简单请求部分的内容
+
+
 
 ## XSS 跨站脚本攻击
 

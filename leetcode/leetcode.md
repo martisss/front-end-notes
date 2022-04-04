@@ -1309,16 +1309,62 @@ var hasCycle = function(head) {
 > // 或者 跳进循环，最终相等
 > // 是否会无限增大？不会，如9999 ，下一个数为324最终都不会超过三位数，即不会无限增大
 > var isHappy = function(n) {
->     const getNext = (n) => {
+>  const getNext = (n) => {
 > …    while(fast !== 1 && slow !== fast) {
->         slow = getNext(slow)
->         fast = getNext(getNext(fast))
->     }
->     return fast === 1
+>      slow = getNext(slow)
+>      fast = getNext(getNext(fast))
+>  }
+>  return fast === 1
 > };
 > ```
 >
-> 
+
+### [287. 寻找重复数](https://leetcode-cn.com/problems/find-the-duplicate-number/)
+
+```js
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+// var findDuplicate = function(nums) {
+//     let l = 0, r = nums.length-1
+//     while(l<r) {
+//         let mid = l + ((r-l)>>1)
+//         let cnt = 0
+//         for(let num of nums) {
+//             if(num<=mid) cnt++
+//         }
+//         if(cnt>mid) {
+//             r=mid
+//         } else {
+//             l = mid+1
+//         }
+//     }
+//     return l
+// };
+
+// 看成是一个链表，0指向nums[0]，nums[0]指向nums[nums[0]], c = nums[c]也就相当于node = node.next
+// 快指针走了2n, 慢指针走了n,环的长度为c, 快指针比慢指针多走了n,多走的都是在环里面走的，因此n%c=0
+// 环之前的长度为m, 慢指针和快指针相遇时慢指针在环中经过了n-m，因此再设一个新指针flag=0，二者同时走，每次
+// 走一步，最终会在环的入口相遇，因为此时走过了m步，而n%c=0，因此慢指针刚好到入口处
+var findDuplicate = function(nums) {
+    let fast = 0, slow = 0
+    while(true) {
+        fast = nums[nums[fast]]
+        slow = nums[slow]
+        if(fast === slow) break
+    }
+    let flag = 0
+    while(true) {
+        flag = nums[flag]
+        slow = nums[slow]
+        if(flag  === slow) break
+    }
+    return slow
+}
+```
+
+
 
 #### 删除链表的倒数第 N 个结点
 
@@ -3785,7 +3831,7 @@ var findPeakElement = function(nums) {
 }
 ```
 
-
+### [287. 寻找重复数](https://leetcode-cn.com/problems/find-the-duplicate-number/)
 
 # 单调栈
 
