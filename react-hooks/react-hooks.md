@@ -22,6 +22,11 @@ const handleIncrement = useCallback(() => setCount(q => q + 1), []);
 ```
 
 - :raised_hands: 后者是更好的写法，因为 handleIncrement 不会每次在 count 变化时都使用新的。从而接收这个函数的组件 props 就认为没有变化，避免可能的性能问题。但是有时候如果 DOM 结构很简单，其实怎么写都没什么影响。但两种代码实际上都是每次创建函数的，只是第二种写法后面创建的函数是被 useCallback 忽略的。所以这里也看到了 setState 这个 API 的另外一种用法，就是可以接收一个函数作为参数：setSomeState(previousState => {})。这样在这个函数中通过参数就可以直接获取上一次的 state 的值了，而无需将其作为一个依赖项。这样做可以减少一些不必要的回调函数的创建。
+
+如果在useEffect中调用了一些函数，如果只在这其中调用，可以考虑将其定义到useEffect中，如果该函数中使用了state, props，那么也要把相应的依赖放进依赖数组中；
+
+如果该函数没有使用prop或者state中的值，也可以考虑将其提到组件之外定义，或者将其用useCallback包裹
+
 ## Hooks检查
 ```shell
 npm install eslint-plugin-react-hooks --save-dev
@@ -49,9 +54,12 @@ ESLint 配置文件中加入两个规则：rules-of-hooks 和 exhaustive-deps。
 ## useCallback
 ## useRef
 - ref 的值发生变化时，是不会触发组件的重新渲染的
-
 - ref 的值发生变化时，是不会触发组件的重新渲染的
-  
+
+## useReduer
+
+**当你想更新一个状态，并且这个状态更新依赖于另一个状态的值时，你可能需要用`useReducer`去替换它们。**
+
 ## 对比类组件生命周期
 componentDidMount,componentWillUnmount，和 componentDidUpdated **大致可以**对应useEffect，但不是完全对应
 原因如下：

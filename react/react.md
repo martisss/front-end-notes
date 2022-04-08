@@ -169,6 +169,27 @@ Diff`的入口函数`[reconcileChildFibers](https://github.com/facebook/react/bl
 
 https://juejin.cn/post/7077545184807878692
 
+## setState是同步还是异步的
+
+https://github.com/facebook/react/issues/11527
+
+一般来说是异步的，主要是为了保持内部一致性
+
+1. 在正常的react的事件流里（如onClick等）
+
+- setState和useState是异步执行的（不会立即更新state的结果）
+- 多次执行setState和useState，只会调用一次重新渲染render
+- 不同的是，setState会进行state的合并，而useState则不会
+
+1. 在setTimeout，Promise.then等异步事件中
+
+- setState和useState是同步执行的（立即更新state的结果）
+- 多次执行setState和useState，每一次的执行setState和useState，都会调用一次render
+
+## redux
+
+
+
 # 面试题
 
 # 为什么React要用JSX
