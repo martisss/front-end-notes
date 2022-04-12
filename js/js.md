@@ -1854,7 +1854,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                                                                            
+> >                                                                                     
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
@@ -3688,7 +3688,7 @@ eval("UNTRUSTED")
 
 
 
-关键是用户保存了被攻击用户的登录凭证， 即cookie
+关键是用户保存了被攻击网站的登录凭证， 即cookie
 
 ### 常见类型
 
@@ -3798,6 +3798,14 @@ eval("UNTRUSTED")
 
 白屏时间：指的是从输入网址， 到页面开始显示内容的时间。
 
+```js
+<script>
+    new Date().getTime() - performance.timing.navigationStart
+</script>
+```
+
+
+
 #### 首屏时间
 
 白屏时间：指的是从输入网址， 到页面开始显示内容的时间。
@@ -3808,7 +3816,9 @@ eval("UNTRUSTED")
 new Date().getTime() - performance.timing.navigationStart
 ```
 
-### 1. DNS预解析
+### 1. 预解析
+
+#### DNS预解析
 
 `DNS Prefetching`是具有此属性的域名不需要用户点击链接就在后台解析，而域名解析和内容载入是串行的网络操作，所以这个方式能减少用户的等待时间，提升用户体验。
 
@@ -3833,6 +3843,45 @@ new Date().getTime() - performance.timing.navigationStart
 ```
 
 > 注意：dns-prefetch需慎用，多页面重复DNS预解析会增加重复DNS查询次数。
+
+#### preload 与 prefetch
+
+`preload`: 提前加载本页面需要用到的资源，需要用as属性表明类型（style,font, img, ....style优先级最高）`preload as =“style”`将获得最高优先级，而`as =“script”`将获得低优先级或中优先级，可查看performance面板
+
+```html
+<link rel="preload"></link>
+<link rel="prefetch"></link>
+```
+
+**应用：**
+
+- 提前加载字体文件，避免文字闪动
+
+  > 需要加crossorigin属性，否则会导致重复加载
+  >
+  > 如果不指定crossorigin属性(即使同源)，浏览器会采用匿名模式的CORS去preload，导致两次请求无法共用缓存
+
+- 提前加载图片，减少首屏绘制时间
+
+- 提前加载脚本文件
+
+`prefetch`：提前加载其他页面可能会用到的资源，需要用到时直接从缓存中读取
+
+> 注：当prefetch的资源还没有下载完成时， 浏览器发现script标签引用了同样的资源，浏览器会再次发起请求，
+
+##### 导致两次获取的情况
+
+- preload未设定有效as
+
+- preload加载字体时未添加`crossorigin`
+
+  > 请求使用匿名的跨域模式。 即使字体与页面位于同个域 下，也建议使用。也适用于其他域名的获取(比如说默认的异步获取)。
+
+##### 何时使用？
+
+二者的区别：进行中的preload的资源会被中断，而prefetch不会。
+
+从二者的区别入手：preload加载的是当前页面需要的资源，而prefetch加载的是用户可能跳转到其他页面后所需要的资源。。如果 **A** 页面发起一个 **B** 页面的 `prefetch` 请求，这个资源获取过程和导航请求可能是同步进行的，而如果我们用 `preload` 的话，页面 **A** 离开时它会立即停止。
 
 ### 2. 使用HTTP2
 
@@ -3882,7 +3931,7 @@ img.src = img.getAttribute("original-src")
 
 **css中图片懒加载**
 
-最常见的场景就是 `background-url`。
+r最常见的场景就是 `background-url`。
 
 ```css
 .login {
@@ -3979,12 +4028,24 @@ img.src = img.getAttribute("original-src")
 
 优点：首屏渲染快，SEO 好。缺点：配置麻烦，增加了服务器的计算压力。
 
-### 6. 使用 Defer 加载JS
+### 6. async与defer
 
 - **所有放在 head 标签里的 CSS 和 JS 文件都会堵塞渲染。**如果这些 CSS 和 JS 需要加载和解析很久的话，那么页面就空白了。
 - css要放在头部，避免用户第一时间看到的页面是没有样式的
 
 给 script 标签加上 defer 属性就可以了，异步下载，延迟执行。
+
+head标签中引入的css和js文件都会阻塞渲染，因此一般将js文件放在body尾部，但是为了防止用户首先看到的是没有样式的页面，将css文件放在head头部。
+
+> css的加载和解析一般不会阻塞html解析，GUI线程可以一边解析HTML，一边解析CSS，这两个是不冲突的；js文件的加载和执行都会阻塞html解析，如果js修改了样式，会先等css解析完成，再去执行js，最后再去解析html，从这个角度来说，css有可能阻塞html解析。
+>
+> async  异步执行js文件，加载阶段不阻塞解析，加载好直接执行
+>
+> defer 延迟到dom解析完成，再执行js文件
+
+**preload 与 prefetch**
+
+
 
 ### 7. 静态资源使用 CDN
 
