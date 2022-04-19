@@ -853,48 +853,7 @@ function withLoading(WrappedComponent) {
 当调用 setState 函数时，就会把当前的操作放入队列中。React 根据队列内容，合并 state 数据，完成后再逐一执行回调，根据结果更新虚拟 DOM，触发渲染。
 
 ```js
-class Test extends Component {
-    state = {
-        count: 0
-    }
 
-    componentDidMount(){
-        this.setState({
-           count: 1
-         }, () => {
-            console.log(this.state.count) //1
-         })
-        console.log(this.state.count) // 0
-    }
-
-    render(){
-        ...
-    }
-}
-123456789101112131415161718
-class Test extends Component {
-    state = {
-        count: 0
-    }
-
-    componentDidMount(){
-        this.setState({
-           count: this.state.count + 1
-         }, () => {
-            console.log(this.state.count)
-         })
-         this.setState({
-           count: this.state.count + 1
-         }, () => {
-            console.log(this.state.count)
-         })
-    }
-
-    render(){
-        ...
-    }
-}
-12345678910111213141516171819202122
 ```
 
 如果你觉得答案是 1,2，那肯定就错了。这种迷惑性极强的考题在面试中非常常见，因为它反直觉。

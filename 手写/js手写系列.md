@@ -96,13 +96,14 @@ function debounce(func, wait) {
 上述实现setTimeout中func的this指向window，需修改；JavaScript 在事件处理函数中会提供事件对象 event，上述实现在func函数中打印event是undefind，需修改
 
 ```js
-function debounce(func, wait) {
+const debounce = (func, delay) => {
+  // 通过闭包取得上一次的timeout
   let timeout
-  return function(){
-    let args = arguments
+  return function() {
     let context = this
+    let args = arguments
     clearTimeout(timeout)
-    timeout = setTimeout(func.apply(context, args), wait)
+    timeout = setTimeout(() => func.apply(context, args), delay)
   }
 }
 ```
@@ -450,6 +451,8 @@ function deepClone(obj) {
 > ```
 
 ## 深拷贝
+
+https://segmentfault.com/a/1190000020255831
 
 ```js
 function deepClone(obj) {
@@ -1033,7 +1036,7 @@ Promise.all = promiseArr => {
       Promise.resolve(p).then(val => {
         index++
         res[i] = val
-        if(index === promiseArr.length) resolve(res)
+        if(res.length === promiseArr.length) resolve(res)
       },
       err => reject(err))
     })

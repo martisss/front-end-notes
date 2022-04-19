@@ -35,59 +35,126 @@ git --set-upstream origin 本地分支
 git branch -d origin 分支名    删除远程分支
 ```
 
-
-
 ## merge
+
 - merge 的含义：从两个 commit「分叉」的位置起，把目标 commit 的内容应用到当前 commit（HEAD 所指向的 commit），并生成一个新的 commit；
 - merge 的适用场景：
-单独开发的 branch 用完了以后，合并回原先的 branch；
-git pull 的内部自动操作。
+  单独开发的 branch 用完了以后，合并回原先的 branch；
+  git pull 的内部自动操作。
 - merge 的三种特殊情况：
-1. 冲突：
-   1. 原因：当前分支和目标分支修改了同一部分内容，Git 无法确定应该怎样合并；
-   2. 应对方法：解决冲突后手动 commit。
+
+1. 冲突：原因：当前分支和目标分支修改了同一部分内容，Git 无法确定应该怎样合并；
+
+   应对方法:
+
+   - 解决冲突后手动 commit。 删掉不想要的提交代码和分隔符(<<<<  ===  >>>>),可以使用 vscode 中的git插件进行处理
+   - 放弃提交： 回到merge前的状态  `git merge --abort`
 2. HEAD 领先于目标 commit：Git 什么也不做，空操作；
 3. HEAD 落后于目标 commit：fast-forward
 
 ## commit log
+
 - 查看历史中的多个 commit： git log
 - 查看详细改动： git log -p
 - 查看大致改动：git log –stat
 - 查看具体某个 commit：show
 - 要看最新 commit ，直接输入 git show ；要看指定 commit ，输入 git show commit的引用或SHA-1
-如果还要指定文件，在 git show 的最后加上文件名
+  如果还要指定文件，在 git show 的最后加上文件名
+
+## git diff
+
 - 查看未提交的内容：diff
 - 查看暂存区和上一条 commit 的区别：git diff – staged（或 –cached）
 - 查看工作目录和暂存区的区别：git diff 不加选项参数
 - 查看工作目录和上一条 commit 的区别：git diff HEAD
 
-## rebase
-
-
 ## 修改最新一条commit
+
 用 commit –amend 可以修复当前提交的错误。使用方式：
 
 ``git commit --amend``
 
-## 交互式rebase
-https://blog.csdn.net/wuhuagu_wuhuaguo/article/details/105006408?utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7Edefault-5.essearch_pc_relevant&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7Edefault-5.essearch_pc_relevant
+## git pull 与 git pull --rebase
+
+`git pull = git fetch + git merge `
+
+`git pull --rebase = git fetch + git rebase`
+
+### git rebase
+
+实现原理是先找到两个分支的最近公共祖先C, 然后对比当前分支相对于该祖先的每一次提交，将修改提取为临时文件暂存，然后将当前分支指向目标分支，然后将之前暂存的修改依次应用到该分支。
+
+例子：将dev
+
+`git checkout experiment`
+
+`git rebase master `
+
+操作之后的结果类似下方：
+
+![](image/git/1650331978250.png)
+
+之后进行一次快进合并
+
+`git checkout master `
+
+`git merge experiment`
+
+![img](image/git/1650332059375.png)
+
+### git rebase --onto
+
+相对于最近公共最先提取的修改不一定要在目标分支应用，可以指定另一个分支进行应用
+
+![](image/git/1650333004083.png)
+
+` git rebase --onto master server client`
+
+提取client分支从server分支分歧后的修改，将其应用在master分支上
+
+然后快进合并,使之包含来自client分支的修改
+
+`git checkout master`
+
+`git merge client`
+
+![](image/git/1650333362337.png)
+
+将server中的修改变基到master分支
+
+`git rebase master client`
+
+![img](image/git/1650333468007.png)再进行快进合并
+
+`git checkout master`
+
+`git merge server`
+
+至此，`client` 和 `server` 分支中的修改都已经整合到主分支里了， 可以删除这两个分支
+
+`git branch -d client`
+
+`git branch -d server`
+
+![img](image/git/1650333649456.png)
+
+### 新分支dev上开发，避免变基合并问题？
+
+每次开发的新分支都是dev，每次到dev时，`git pull --rebase origin dev`，一次迭代开发完，合并完代码mr后跑一下这个命令： `git pull --rebase origin master`
 
 ## 丢弃最新提交
+
 ``git reset --hard HEAD^``
 
 ## 丢弃的不是最新提交
 
 ## 代码已经 push 上去了才发现写错
+
 - 如果出错内容在私有 branch：在本地把内容修正后，强制 push (push -f）一次就可以解决；
-``git push origin branch1 -f``
+  ``git push origin branch1 -f``
 - 如果出错内容在 master：不要强制 push，而要用 revert 把写错的 commit 撤销
-``git revert HEAD^
-``
-这行代码就会增加一条新的 commit，它的内容和倒数第二个 commit 是相反的，从而和倒数第二个 commit 相互抵消，达到撤销的效果
-
-
-
-
+  ``git revert HEAD^ ``
+  这行代码就会增加一条新的 commit，它的内容和倒数第二个 commit 是相反的，从而和倒数第二个 commit 相互抵消，达到撤销的效果
 
 新建一个分支feature, 推送到远程服务器. 然后reset你的main分支和远程服务器保持一致, 否则下次你pull并且他人的提交和你冲突的时候就会有问题.
 
@@ -96,10 +163,6 @@ git reset --hard o/main
 git checkout -b feature c2
 git push origin feature
 ```
-
-
-
-
 
 直接了当地讲，`main` 和 `o/main` 的关联关系就是由分支的“remote tracking”属性决定的。`main` 被设定为跟踪 `o/main` —— 这意味着为 `main` 分支指定了推送的目的地以及拉取后合并的目标。
 
@@ -143,8 +206,6 @@ git branch -u o/main foo
 git branch -u o/main
 ```
 
-
-
 # git log
 
 ### 1.查看 dev 有，而 master 中没有的：
@@ -185,8 +246,6 @@ git log --left-right dev...master
 
 ![img](https://images2017.cnblogs.com/blog/1111758/201709/1111758-20170921105834056-220602777.png)
 
- 
-
  commit 后面的箭头，根据我们在 –left-right dev…master 的顺序，左箭头 < 表示是 dev 的，右箭头 > 表示是 master的。undefined截图中表示这三个提交都是在 master 分支上的。
 
 # git reset
@@ -198,8 +257,6 @@ git log --left-right dev...master
 1. 在当前提交后面，新增一次提交，抵消掉上一次提交导致的所有变化。它不会改变过去的历史，所以是首选方式，没有任何丢失代码的风险
 2. revert可以抵消上一个提交，那么如果想要抵消多个需要执行 `git revert 倒数第一个commit id 倒数第二个commit`
 3. 会把你后面提交的记录都放到工作区
-
-
 
 TODO
 
@@ -230,3 +287,4 @@ git reflog 可以查看所有分支的所有操作记录（包括（包括commit
 git checkout master
 ````
 
+### 分支上多次commit记录合并成一次

@@ -1854,7 +1854,7 @@ console.log(Number(new Error('a'))) // NaN
 > >    // 两者结果一致
 > >    console.log([] + {});
 > >    console.log({} + []); //"[object Object]"
-> >                                                                                     
+> >                                                                                        
 > >    ```
 > >                      
 > >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
@@ -3005,6 +3005,78 @@ var chalk = require('chalk');
 - **不支持重复的命名参数**
 
 ## proxy   TODO
+
+## Object.defineProperty
+
+![image-20220412160039657](../pictures/image-20220412160039657.png)
+
+## Promise
+
+### Promise API及应用场景
+
+#### Promise.all
+
+所有的 promsie 都resolve时， 返回存储结果的数组，如果其中一个promise   reject，那么会忽略剩余promise 的结果，哪怕其他promise都resolved，剩下的最后一个promise  rejected, 其error会变成整个`Promise.all`的结果, 已经resolved 的结果会被忽略。
+
+**应用场景：**
+
+**合并请求结果**
+
+> 具体描述：一个页面，有多个请求，我们需求所有的请求都返回数据后再一起处理渲染
+
+不需要为每个请求都设置loading状态，从请求开始到请求结束，只需要设置一个loading状态
+
+可能的场景：点击按钮，跳出一个对话框，对话框中显示两部分数据，来自两个不同的api接口，当这两部分数据都从接口获取到的时候，才让这个`数据加载中`状态消失。让用户看到这两部分的数据。
+
+**合并请求结果并处理错误**
+
+> **单独处理一个请求的数据渲染和错误处理逻辑**，有多个请求
+
+```js
+function initLoad(){
+    // loading.show()
+    Promise.all([
+        getBannerList().catch(err=>err),
+        getStoreList().catch(err=>err),
+        getCategoryList().catch(err=>err)
+    ]).then(res=>{
+        console.log(res) // ["获取轮播图数据失败啦", "店铺数据", "分类数据"]
+        
+        if(res[0] == '轮播图数据'){
+            //渲染
+        }else{
+            //获取 轮播图数据 失败的逻辑
+        }
+        if(res[1] == '店铺数据'){
+            //渲染
+        }else{
+            //获取 店铺列表数据 失败的逻辑
+        }
+        if(res[2] == '分类数据'){
+            //渲染
+        }else{
+             //获取 分类列表数据 失败的逻辑
+        }
+        
+        // loading.hide()
+    })
+}
+
+```
+
+这里考虑使用Promise.allSettled也可以。
+
+**验证多个请求结果是否都满足条件**
+
+> 具体描述：表单的输入内容安全验证，多个字段调用的是同一个内容安全校验接口，只有所有都检验通过够才能够正常提交。
+
+#### Promise.race
+
+请求超时提示：**点击按钮发请求，当后端的接口超过一定时间，假设超过三秒，没有返回结果，我们就提示用户请求超时**，例如请求一张图片时超时提示
+
+
+
+
 
 # 设计模式
 

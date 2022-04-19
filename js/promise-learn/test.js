@@ -1,36 +1,100 @@
-var sortList = function(head) {
-  if(!head || !head.next) return head
-  let len = 0
-  let cur = head
-  while(cur) {
-      len++
-      cur = cur.next
-  }
-  let dummmyHead = new ListNode(-1, head)
-  for(let sublen=1; sublen<len; sublen<<1) {
-      let pre = dummmyHead, curr=pre.next
-      while(curr) {
-          let head1 = curr
-          for(let i=1; i<sublen && curr && curr.next; i++) {
-              curr = curr.next
-          }
-          let head2 = curr.next
-          curr.next=null
-          curr = head2
-          for(let i=1; i<sublen && curr && curr.next; i++) {
-              curr = curr.next
-          }
-          let next = null
-          if(curr) {
-              next = curr.next
-              curr.next = null
-          }
-          pre.next = merge(head1, head2)
-          while(pre.next) {
-              pre = pre.next
-          }
-          curr = next
-      }
-  }
-  return dummmyHead.next
+const isFunction = obj => typeof obj === 'function'
+const isObject = obj => !!(obj && typeof obj === 'object')
+const isThenable = obj => (isFunction(obj) || isObject(obj)) && 'then' in obj
+const isPromise = promise => promise instanceof Promise
+
+const PENDING = 'pending'
+const FULFILLED = 'fulfilled'
+const REJECTED = 'rejected'
+function Promise(f) {
+    this.result = null
+    this.state = PENDING
+    this.callbacks = []
+
+    onFulfilled = value => transition(this, FULFILLED, value)
+    onRejected = reason => transition(this, REJECTED, reason)
+    
+    let ignore = false
+    let resolve = (value) => {
+        if(ignore) return
+        ignore = true
+        resolvePromise(this, value, onFulfilled, onRejected)
+    }
+    let reject = reason => {
+        if(ignore) return 
+        ignore = true
+        onRejected(reason)
+    }
+    try {
+        f(resolve, reject)
+    } catch (err) {
+        reject(err)
+    }
 }
+
+const transition = (promise, state, result) => {
+    if(promise.state !== PENDING) return
+    promise.state = state
+    promise.result = result
+    setTimeout(() => handleCallbacks(promise.callbacks, state, result), 0)
+}
+
+const handleCallbacks = (callbacks, state, result) => {
+    while(callbacks.length) handleCallback(callbacks.shift(), state, result)
+
+Promise.prototype.then = function(onFulfilled, onRejected) {
+        return new Promise((resolve, reject) => {
+            let callback = {onFulfilled, onRejected, resolve, reject}
+            if(this.state === PENDING) {
+                this.callbacks.push(callback)
+            } else {
+                setTimeout(() => handleCallback(callback, this.state, this.result), 0)
+            }
+        })
+    }
+}
+const handleCallback = (callback, state, result) => {
+    let {resolve, reject, onFulfilled, onRejected} = callback
+    try {
+        if(state === FULFILLED) {
+            isFunction(onFulfilled) ? resolve(onFulfilled(result)) : resolve(result)
+        } else if (state === REJECTED) {
+            isFunction(onRejected) ? resolve(onRejected(result)) : reject(result)
+        }
+    } catch(err) {
+        reject(err)
+    }
+}
+
+const resolvePromise = (promise, result, resolve, reject) => {
+    if(result === promise) {
+        let reason =  new Error('')
+        return reject(reason)
+    }
+    if(isPromise(result)) {
+        return result.then(resolve, reject)
+    }
+    if(isThenable(result)) {
+        try {
+            let then = result.then
+            if(isFunction(then)) {
+                return new Promise(then.bind(result)).then(resolve, reject)
+            }
+        } catch(err) {
+            return reject(err)
+        }
+    }
+    resolve(result)
+}
+
+
+
+Promise.defer = Promise.deferred = function () {
+    let dfd = {}
+    dfd.promise = new Promise((resolve,reject)=>{
+        dfd.resolve = resolve;
+        dfd.reject = reject;
+    });
+    return dfd;
+  }
+  module.exports = Promise;
