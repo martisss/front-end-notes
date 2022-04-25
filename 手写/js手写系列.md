@@ -83,6 +83,8 @@ fn(18)
 
 # 防抖
 
+事件触发后延迟一段时间后再执行回调，如果这段时间内再次触发事件，则重新计时
+
 ```js
 function debounce(func, wait) {
   let timeout

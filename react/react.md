@@ -121,7 +121,7 @@ current代表上次更新时的Fiber节点， 根据fiber节点是否为空，�
 
 当对比同类型的组件元素时，当一个组件更新，其组件实例保持不变，因此可以在不同的渲染时保持 state 一致，React 将更新该组件实例的 props 以保证与最新的元素保持一致
 
-diff算法的优化策略：
+**diff算法的优化策略：**降低diff复杂度
 
 1. 只对同级元素进行diff
 2. 两个不同类型的元素会产生出不同的树,会销毁原来的节点及其子孙节点
@@ -186,9 +186,131 @@ https://github.com/facebook/react/issues/11527
 - setState和useState是同步执行的（立即更新state的结果）
 - 多次执行setState和useState，每一次的执行setState和useState，都会调用一次render
 
-## redux
 
 
+## react为什么需要性能优化API?
+
+react中中某个组件的state发生变化，会重新生成一棵新的fiber树
+
+
+
+性能优化的本质就是**将变的部分与不变的部分分离**
+
+1. state,
+
+2. props 父组件将自己的state传给组件
+
+3. context 将父组件将state作为context的值传给子孙组件
+
+   
+
+说到底还是state
+
+如何将变与不变的部分分离？
+
+**将父组件中的变的部分分离出来，只有父组件本身满足性能优化的条件，也就是输入输出不变，那么子组件才有可能命中性能优化。**
+
+为什么说是可能呢？父组件满足性能优化条件，那么它的state保持不变，也就是说传入子组件的props保持不变，那么这个时候还需要判断子组件本身的state以及context是否发生变化。
+
+**示例**1
+
+state是组件内部的变量且只在同级使用
+
+```jsx
+function App() {
+  return (
+    <div className="App">
+      <NumRfc/>
+      <ExpensiveRfc />
+    </div>
+  )
+}
+
+//抽离成单独的NumRfc组件，这时Expensive组件不会重新渲染
+function NumRfc() {
+  const [num, setNum] = useState(0)
+  return (
+    <>
+      <input value={num} onChange={(e) => setNum(e.target.value)} />
+      <p>num的值为：{num}</p>
+    </>
+  )
+}
+
+function ExpensiveRfc() {
+  let now = performance.now()
+  while (performance.now() - now < 100) {}
+  console.log('耗时组件')
+  return <p>耗时组件</p>
+}
+
+export default App
+```
+
+
+
+**示例**２
+
+state也是组件内部状态，但是state在最外层包裹用的标签中也用到了
+
+```jsx
+  const [num, setNum] = useState(0)
+  return (
+    <div title={num + ''}>
+      <input value={num} onChange={(e) => setNum(e.target.value)} />
+      <p>num的值为：{num}</p>
+      <ExpensiveRfc />
+    </div>
+  )
+```
+
+使用render props
+
+```js
+import { useState, Children } from 'react';
+function Demo1() {
+  const [num, setNum] = useState(0)
+  return (
+    <NumWrapper>
+      <ExpensiveRfc />
+    </NumWrapper>
+  )
+}
+
+function NumWrapper({Children}) {
+  const [num, setNum] = useState(0)
+  return (
+    <div title={num + ''}>
+      <input value={num} onChange={(e) => setNum(e.target.value)} />
+      <p>num的值为：{num}</p>
+      {Children}
+    </div>
+  )
+}
+```
+
+
+
+如何比较props前后变不变？
+
+react中默认是全等比较，也就是比较引用，不容易命中，React.memo等api的作用就是将全等比较变为浅比较，容易命中
+
+
+
+**react中性能优化的步骤**
+
+1. 寻找项目中的性能损耗严重的子树
+
+   devtools
+
+2. 在子树的根节点使用性能优化API
+
+   
+
+3. 子树中运用变与不变分离原则    
+
+
+使用性能优化API  React.memo , useMemo, 让子树的根节点满足性能优化的条件，然后再在子树中运用变与不变分离的规则.
 
 # 面试题
 

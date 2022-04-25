@@ -194,9 +194,9 @@ const mergeSort = (arr) => {
     const temp = arr.slice(l, r + 1)
     let i = l,
       j = mid + 1
-    //思考为什么要减去l?temp与原数组是存在偏差的
+    // 思考为什么要减去l?temp与原数组是存在偏差的
     // 截取的数组第一个位置为0，但在原数组中位置是l
-    // 因此偏差为l，每次要减去l
+    // 因此偏差为l，每次要减去l 
     for (let k = l; k <= r; k++) {
       // 左半部分越界
       if (i > mid) {
@@ -407,7 +407,7 @@ var reversePairs = function(nums) {
 };
 ```
 
-### 快速排序
+## 快速排序
 
 
 

@@ -45,7 +45,7 @@ class Stack {
 }
 ```
 
-> 1. Object.getOwnPropertyNames()方法返回一个由指定对象的所有自身属性的属性名（包括不可枚举属性但不包括Symbol值作为名称的属性）组成的数组。    
+> 1. Object.getOwnPropertyNames()方法返回一个由指定对象的所有自身属性的属性名（包括不可枚举属性但不包括Symbol值作为名称的属性）组成的数组。
 > 2. `Object.getOwnPropertySymbols()`方法返回一个给定对象自身的所有 Symbol 属性的数组。
 
 ```js
@@ -232,13 +232,15 @@ eval和with使引擎在**编译时**无法对作用域查找进行优化，因�
 # others
 
 ## 判断是否是数组
+
 - Array.isArray()
 - Object.prototype.toString.call(arr)
+
 # js
+
 ## 原型、原型链
+
 ![原型、原型链.png](https://i.loli.net/2021/09/12/QauU3fYzjZJ9hdn.png)
-
-
 
 ```js
 class A{}
@@ -256,7 +258,7 @@ b.__proto__.__proto__
 
 ### prototype
 
-每个函数都有`prototype`属性，它并不指向该函数的原型。实际上，该属性指向一个对象，这个对象是**调用该构造函数而创建的实例的原型。**
+每个函数都有 `prototype`属性，它并不指向该函数的原型。实际上，该属性指向一个对象，这个对象是**调用该构造函数而创建的实例的原型。**
 
 ### ` __proto__`
 
@@ -277,18 +279,20 @@ b.__proto__.__proto__
   var person = new Person();
   console.log(person.constructor === Person); // true
   ```
-
 - ``__proto__``
-  并不存在于``prototype``上，可以理解成返回了Object.getPrototypeOf(obj)
+  并不存在于 ``prototype``上，可以理解成返回了Object.getPrototypeOf(obj)
 - 继承？
-   **JavaScript 默认并不会复制对象的属性**，相反，JavaScript 只是在两个对象之间创建一个关联，这样，一个对象就可以通过委托访问另一个对象的属性和函数，
+  **JavaScript 默认并不会复制对象的属性**，相反，JavaScript 只是在两个对象之间创建一个关联，这样，一个对象就可以通过委托访问另一个对象的属性和函数，
 - `Function.__proto__ === Function.prototype //true`
+
 ## 词法作用域与动态作用域
+
 [地址](https://github.com/mqyqingfeng/Blog/issues/3)
 作用域就是定义变量的区域
 JS采用词法作用域，函数的作用域在函数定义时就决定了。
 
 ## 执行上下文栈
+
 [地址](https://github.com/mqyqingfeng/Blog/issues/4)
 
 **当 JavaScript 代码执行一段可执行代码(executable code)时，会创建对应的执行上下文(execution context)**。执行上下文可以看成是一个对象。
@@ -298,6 +302,7 @@ JS采用词法作用域，函数的作用域在函数定义时就决定了。
 - 变量对象(Variable object，VO)
 - 作用域链(Scope chain)
 - this
+
 ## 变量对象
 
 变量对象存储了在上下文中定义的变量和函数声明
@@ -415,8 +420,6 @@ ECStack = [
 ];
 ```
 
-
-
 **从执行上下文、作用域链的角度分析这两段代码的不同**
 [参考 1](https://github.com/kuitos/kuitos.github.io/issues/18)
 [参考 2](https://github.com/mqyqingfeng/Blog/issues/8)
@@ -435,33 +438,25 @@ foo();
 ```
 
 1. 进入全局代码，创建全局执行上下文，压入执行上下文栈
-
 2. 全局执行上下文初始化
-
 3. checkscope函数被创建，保存作用域链到内部属性[scope]
-
 4. 执行函数checkscope，创建checkscope函数的执行上下文，并压入执行上下文栈
-
 5. checkscope函数的执行上下文初始化，创建变量对象、作用域链、this
 
    > 1. 复制[[scope]]属性创建作用域链
    > 2. 用 arguments 创建活动对象，随后初始化活动对象，加入形参、函数声明、变量声明
    > 3. 将活动对象压入作用域链顶端
-
+   >
 6. f函数被创建，保存作用域链到内部属性[[scope]]
-
 7. checkscope函数执行完毕，checkscope执行上下文从执行上下文栈中弹出
-
 8. 执行函数foo,创建foo函数执行上下文，并压入执行上下文栈
-
 9. foo函数执行上下文栈初始化，创建变量对象、作用域链、this
 
 > 1. 复制[[scope]]属性创建作用域链
->
 > 2. 用 arguments 创建活动对象，随后初始化活动对象，加入形参、函数声明、变量声明
->
 > 3. 将活动对象压入作用域链顶端
- 10. foo函数执行完毕，foo函数执行上下文从执行上下文栈中弹出
+
+10. foo函数执行完毕，foo函数执行上下文从执行上下文栈中弹出
 
 ```js
 var scope = "global scope";
@@ -494,8 +489,6 @@ checkscope();
 **从概念上来说，闭包是一个特殊的对象，当函数 A 内部创建函数 B，并且函数 B 访问函数 A 中声明的变量等声明时，闭包就会产生。**
 
 闭包也是会被垃圾回收机制回收的，视情况而定
-
-
 
 > 函数和函数对其词法环境的引用的组合就是闭包，或者说，函数和函数能够访问的自由变量的组合就是闭包
 >
@@ -637,6 +630,7 @@ nAdd();
 a1(); //99
 a2(); //100
 ```
+
 ## call, apply, bind 的模拟实现
 
 <hr/>
@@ -681,6 +675,7 @@ function bar(name, age) {
 
 bar.call2(obj)
 ```
+
 ### apply
 
 > 两者唯一不同的是：apply 的除了一个this指向的参数外，第二个参数是数组[arg1, arg2...]，call的第二参数是列表(arg1, arg2...)
@@ -703,6 +698,7 @@ Function.prototype.apply = function(context, arr) {
   return result
 }
 ```
+
 ### bind
 
 > 创建函数
@@ -737,6 +733,7 @@ Function.prototype.bind = function (context) {
     return fBound;
 }
 ```
+
 ## 模拟new实现
 
 ```js
@@ -752,16 +749,14 @@ function myNew(fn, ...args){
 }
 ```
 
-
-
 ### 使用new时发生了什么
 
 **`new`** 关键字会进行如下的操作：
 
-1. 创建一个空的简单JavaScript对象（即`**{}**`）；
+1. 创建一个空的简单JavaScript对象（即 `**{}**`）；
 2. 为步骤1新创建的对象添加属性**__proto__**，将该属性链接至构造函数的原型对象 ；
-3. 将步骤1新创建的对象作为`**this**`的上下文 ；
-4. 如果该函数没有返回对象，则返回`**this**`。
+3. 将步骤1新创建的对象作为 `**this**`的上下文 ；
+4. 如果该函数没有返回对象，则返回 `**this**`。
 
 **当代码 `new Foo(...)` 执行时，会发生以下事情：**
 
@@ -780,32 +775,30 @@ function myNew(fn, ...args) {
 };
 ```
 
-
-
-**注意：**下面这个例子，要能清楚new时发生了什么，同时要注意成员访问运算符(.)的优先级大于`new`,小括号()的优先级又大于(.)
+**注意：**下面这个例子，要能清楚new时发生了什么，同时要注意成员访问运算符(.)的优先级大于 `new`,小括号()的优先级又大于(.)
 
 ```js
-function test() {           
+function test() {     
     getName = function() { 
         Promise.resolve().then(() => console.log(0)); 
-        console.log(1);               
+        console.log(1);         
     };
     return this; 
 }
 test.getName = function() { 
      setTimeout(() => console.log(2), 0); 
-     console.log(3);               
+     console.log(3);         
 };
-test.prototype.getName = function() {    
+test.prototype.getName = function() {  
      console.log(4); 
-};       
+};   
 var getName = function() { 
-     console.log(5);             
+     console.log(5);       
 };
 function getName() {
      console.log(6); 
-}      
-      
+}  
+  
 test.getName();  // 3   ...2
 getName();   //5
 test().getName();  //1  ...0  // getName赋值给全局变量getName
@@ -820,8 +813,6 @@ new test().getName(); // 4
 new new test().getName(); //  4
 ```
 
-
-
 ## 类数组对象与arguments
 
 ### 类数组
@@ -830,6 +821,7 @@ new new test().getName(); //  4
 
 - 定义：拥有一个 length 属性和若干索引属性的对象
 - 调用数组方法 Function.call
+
 ```js
 var arrayLike = {0: 'name', 1: 'age', 2: 'sex', length: 3 }
 
@@ -843,6 +835,7 @@ Array.prototype.map.call(arrayLike, function(item){
 }); 
 // ["NAME", "AGE", "SEX"]
 ```
+
 #### 类数组转数组方法
 
 ```js
@@ -859,15 +852,18 @@ let s5 = Array.prototype.map.call(arrayLike, item => item)
 let s6 = [...arrayLike]
 
 ```
+
 ### Arguments
 
 #### arguments及其属性
 
 Arguments 对象只定义在函数体中，包括了函数的参数和其他属性。在函数体中，arguments 指代该函数的 Arguments 对象。
-- length属性    
+
+- length属性
   - 实参的长度
-- callee属性    
+- callee属性
   - 可以调用函数自身。
+
 ```js
 var data = [];
 
@@ -887,11 +883,9 @@ data[2]();
 
 ```
 
-
 #### arguments 和对应参数的绑定
 
 - 传入的参数，实参和 arguments 的值会共享，当没有传入时，实参与 arguments 值不会共享
-
 - 除此之外，以上是在非严格模式下，如果是在严格模式下，实参和 arguments 是不会共享的。
 
 ```js
@@ -925,6 +919,7 @@ function foo(name, age, sex, hobbit) {
 foo('name', 'age')
 
 ```
+
 ## 创建对象的多种方式及优缺点
 
 ### 工厂模式
@@ -972,7 +967,7 @@ person2.sayName(); // Greg
 
 **缺点**：构造函数定义的方法在每个实例上都创建一遍
 
-​			要解决这个问题可以把函数放在外部作用域，这解决了函数重复定义的问题，但是这使得外部定义域混乱，如果这个对象需要多个方法，那么就需要在外部作用域定义多个函数。这个问题可以通过原型模式解决
+    要解决这个问题可以把函数放在外部作用域，这解决了函数重复定义的问题，但是这使得外部定义域混乱，如果这个对象需要多个方法，那么就需要在外部作用域定义多个函数。这个问题可以通过原型模式解决
 
 ### 原型模式
 
@@ -1020,7 +1015,7 @@ var person1 = new Person();
 
 #### 优化2
 
-``` js
+```js
 function Person(name) {
 
 }
@@ -1153,8 +1148,6 @@ person2.getName();  // daisy
 
 ```
 
-
-
 ### 注意点
 
 - 原型的动态性
@@ -1168,9 +1161,6 @@ person2.getName();  // daisy
   }; 
   friend.sayHi(); // "hi"，没问题
   ```
-
-  
-
 - 重写整个原型会切断最初原型与构造函数的联系，但实例引用的仍然是最初的原型。
 
   实例的[[Prototype]]指针是在调用构造函数时自动赋值的，这个指针即使把原型修改为不同 的对象也不会变。重写构造函数上的原型之后再创建的实例才会引用新的原型。而在此之前创建的实例仍然会引用最 初的原型。
@@ -1189,30 +1179,21 @@ person2.getName();  // daisy
   }; 
   friend.sayName(); // 错误
   ```
-
-  
-
 - 实例只有指向原型的指针，没有指向构造函数的指针。
 
 ### ps: 相关方法
 
-- 使用` Object.setPrototypeOf()`可能造成的性能下降，可以通过 `Object.create()`来创 建一个新对象，同时为其指定原型
-
+- 使用 ` Object.setPrototypeOf()`可能造成的性能下降，可以通过 `Object.create()`来创 建一个新对象，同时为其指定原型
 - `hasOwnPropertyOf`判断属性是实例属性还是原型属性
-
 - in 操作符会在**可 以通过对象访问指定属性时返回 true**，无论该属性是在实例上还是在原型上
-
 - `hasPrototypeProperty`
 
   ```js
   let person = new Person(); 
   console.log(hasPrototypeProperty(person, "name")); // true
   ```
-
 - 在 for-in 循环中使用 in 操作符时，可以通过对象访问且可以被枚举的属性都会返回，包括实例 属性和原型属性**(枚举顺序不确定)**
-
 - 要获得对象上所有可枚举的实例属性，可以使用 Object.keys()方法**(枚举顺序不确定)**
-
 - ` Object.getOwnPropertyNames()`: 列出所有实例属性，无论是否可以枚举
 
 ## 继承
@@ -1243,17 +1224,18 @@ var child2 = new Child();
 console.log(child2.names); // ["kevin", "daisy", "yayu"]
 
 ```
+
 问题：
 
 1. 父类**引用类型**的属性被所有实例共享
-
 2. 创建子类型实例时不能给父类型构造函数传参
 
    > 可以看到Child其实是 ‘’空’‘ 的，自然无法传参
+   >
 
 ### 借用构造函数
 
-> 在子类构造函数中调用父类构造函数，可以在子类构造函数中使用`call()`和`apply()`方法
+> 在子类构造函数中调用父类构造函数，可以在子类构造函数中使用 `call()`和 `apply()`方法
 
 ```js
 function Parent () {
@@ -1275,15 +1257,15 @@ var child2 = new Child();
 console.log(child2.names); // ["kevin", "daisy"]
 
 ```
+
 优点：
 
 1. 避免了引用类型的属性被所有实例共享
-
 2. 可以在 Child 中向 Parent 传参
 
 缺点：
 
-1. 子类不能访问父类`prototype`（这里即`Parent.prototype`）上的方法
+1. 子类不能访问父类 `prototype`（这里即 `Parent.prototype`）上的方法
 2. 所有方法属性都写在构造函数中，每次创建实例都会初始化
 
 ### 组合继承 *
@@ -1303,7 +1285,7 @@ Parent.prototype.getName = function () {
 function Child (name, age) {
 
     Parent.call(this, name);
-    
+  
     this.age = age;
 
 }
@@ -1326,6 +1308,7 @@ console.log(child2.age); // 20
 console.log(child2.colors); // ["red", "blue", "green"]
 
 ```
+
 组合继承结合了原型链继承和借用构造函数继承的优点，这很棒，但是也存在一个小问题，在上述过程中父类构造函数执行了两次，带来的后果是什么呢？后果是子类实例和其原型上存在同名属性，最后子类属性会屏蔽原型上的属性，这虽然不影响使用，但却不够优雅，后面的寄生式组合继承会解决这个问题。
 
 ### 原型式继承
@@ -1341,10 +1324,12 @@ function createObj(o) {
     return new F();
 }
 ```
+
 缺点: 与原型链继承一样, 引用类型的属性会被所有实例共享
 
 ### 寄生式继承
-创建一个仅用于封装继承过程的函数，该函数在内部以某种形式来做增强对象，最后返回对象。可以看到内部使用了`Object.create()`，因此其本质上是**在原型式继承返回的新对象上增加了新的属性和方法，实现增强效果。**
+
+创建一个仅用于封装继承过程的函数，该函数在内部以某种形式来做增强对象，最后返回对象。可以看到内部使用了 `Object.create()`，因此其本质上是**在原型式继承返回的新对象上增加了新的属性和方法，实现增强效果。**
 
 ```js
 function createObj (o) {
@@ -1355,7 +1340,8 @@ function createObj (o) {
     return clone;
 }
 ```
-缺点： 同借用构造函数继承，每次都会重新创建方法，且`Object.create()`执行浅复制，多个实例的引用类型指向相同，造成污染。
+
+缺点： 同借用构造函数继承，每次都会重新创建方法，且 `Object.create()`执行浅复制，多个实例的引用类型指向相同，造成污染。
 
 ### 寄生组合式继承 *
 
@@ -1366,22 +1352,22 @@ function createObj (o) {
 >     this.name = name;
 >     this.colors = ['red', 'blue', 'green'];
 > }
-> 
+>
 > Parent.prototype.getName = function () {
 >     console.log(this.name)
 > }
-> 
+>
 > function Child (name, age) {
 >     Parent.call(this, name);   
 >     this.age = age;
 > }
-> 
+>
 > Child.prototype = new Parent();
 > Child.prototype.constructor = Child;
-> 
+>
 > ```
 
-组合式继承中父类构造函数`Parent()`调用了两次
+组合式继承中父类构造函数 `Parent()`调用了两次
 
 一次是设置子类实例的原型，
 
@@ -1404,15 +1390,15 @@ function Child (name, age) {
 }
 ```
 
-在用`new`创建`Child`实例的过程中会经历如下阶段：
+在用 `new`创建 `Child`实例的过程中会经历如下阶段：
 
-- 生成一个以`Child.prototype`为原型的对象
-- 使用给定的参数调用构造函数`Child`, 然后将`this`指向新创建的对象
+- 生成一个以 `Child.prototype`为原型的对象
+- 使用给定的参数调用构造函数 `Child`, 然后将 `this`指向新创建的对象
 - 返回新创建的对象（`Child`中并没有return语句指定返回哪个对象，因此默认返回新创建的对象）
 
-因此在第二步调用构造函数的过程中又调用了一次父类构造函数`Parent`
+因此在第二步调用构造函数的过程中又调用了一次父类构造函数 `Parent`
 
-而`寄生组合式继承 `就是为了避免重复调用父类构造函数:
+而 `寄生组合式继承 `就是为了避免重复调用父类构造函数:
 
 ```js
 Child.prototype = Object.create(Parent.prototype);
@@ -1423,7 +1409,7 @@ Child.prototype.constructor = Child;
 
 这样就避免了在设置子类实例的原型时调用父类构造函数。
 
-> Object.create(o)的作用是返回一个新对象，该对象以给定对象`o`为原型
+> Object.create(o)的作用是返回一个新对象，该对象以给定对象 `o`为原型
 >
 > 其实现类似：
 >
@@ -1500,7 +1486,7 @@ ES6的继承有所不同，实质上是先创建父类的实例对象this，然�
 
 ### typeof
 
-不足：对于`Object`下的细分类型不能进行判断（ps: 细分类型下的function是可以判断的）
+不足：对于 `Object`下的细分类型不能进行判断（ps: 细分类型下的function是可以判断的）
 
 ```
 var date = new Date();
@@ -1520,8 +1506,6 @@ typeof Math.sin === 'function';
 typeof null === 'object';
 ```
 
-
-
 在 JavaScript 最初的实现中，JavaScript 中的值是由一个表示类型的标签和实际数据值表示的。对象的类型标签是 0。由于 `null` 代表的是空指针（大多数平台下值为 0x00），因此，null 的类型标签是 0，`typeof null` 也因此返回 `"object"`。
 
 ### instanceof
@@ -1532,8 +1516,6 @@ typeof null === 'object';
 var myNonObj  = Object.create(null);
 myNonObj instanceof Object; // 返回 false, 一种创建非 Object 实例的对象的方法
 ```
-
-
 
 ### Object.prototype.toString
 
@@ -1651,8 +1633,6 @@ Object.is(+0, -0) // false
 [1, 2, NaN].includes(NaN) // true
 ```
 
-
-
 ## [类型转换](https://github.com/mqyqingfeng/Blog/issues/159)
 
 ### 基本类型之间的转换
@@ -1677,7 +1657,7 @@ console.log(Boolean("")) // false
 
 #### 原始值转数字
 
-根据规范，如果 Number 函数不传参数，返回 +0，如果有参数，调用 `ToNumber(value)`。	
+根据规范，如果 Number 函数不传参数，返回 +0，如果有参数，调用 `ToNumber(value)`。
 
 | 参数类型  | 结果                                           |
 | --------- | ---------------------------------------------- |
@@ -1713,7 +1693,7 @@ console.log(Number("100a")) // NaN
 
 ```
 
-**一般使用`parseInt`  `parseFloat`:  跳过任意数量的前导空格**，尽可能解析更多数值字符，并忽略后面的内容。如果第一个非空格字符是非法的数字直接量，将最终 返回 NaN：
+**一般使用 `parseInt`  `parseFloat`:  跳过任意数量的前导空格**，尽可能解析更多数值字符，并忽略后面的内容。如果第一个非空格字符是非法的数字直接量，将最终 返回 NaN：
 
 #### 原始值转字符
 
@@ -1755,14 +1735,14 @@ console.log(Boolean(new Boolean(false))) // true
 
 #### 对象转字符串和数字
 
-| 参数类型 | 结果                                                         |
-| -------- | ------------------------------------------------------------ |
+| 参数类型 | 结果                                                                  |
+| -------- | --------------------------------------------------------------------- |
 | Object   | 1. primValue = ToPrimitive(input, String) 2. 返回ToString(primValue). |
 
 从对象到数字的转换也是一样：
 
-| 参数类型 | 结果                                                         |
-| -------- | ------------------------------------------------------------ |
+| 参数类型 | 结果                                                                   |
+| -------- | ---------------------------------------------------------------------- |
 | Object   | 1. primValue = ToPrimitive(input, Number) 2. 返回ToNumber(primValue)。 |
 
 **除了 null 和 undefined 之外的任何值都具有 `toString` 方法**
@@ -1780,10 +1760,10 @@ Object.prototype.toString.call({a: 1}) // "[object Object]"
 
 JavaScript 下的很多类根据各自的特点，定义了更多版本的 toString 方法。例如:
 
-1.  数组的 toString 方法将每个数组元素转换成一个字符串，并在元素之间添加逗号后合并成结果字符串。
-2.  函数的 toString 方法返回源代码字符串。
-3.  日期的 toString 方法返回一个可读的日期和时间字符串。
-4.  RegExp 的 toString 方法返回一个表示正则表达式直接量的字符串。
+1. 数组的 toString 方法将每个数组元素转换成一个字符串，并在元素之间添加逗号后合并成结果字符串。
+2. 函数的 toString 方法返回源代码字符串。
+3. 日期的 toString 方法返回一个可读的日期和时间字符串。
+4. RegExp 的 toString 方法返回一个表示正则表达式直接量的字符串。
 
 - **另一个转换对象的函数是 valueOf，表示对象的原始值。**
 
@@ -1794,9 +1774,9 @@ var date = new Date(2017, 4, 21);
 console.log(date.valueOf()) // 1495296000000
 ```
 
-:boom:使用String方法转换一个值时，如果该值是基本类型，按照原始值转字符的方法进行，如果不是基本类型，先调用ToPrimitive方法将其转换为基本类型，再进行转换
+💥使用String方法转换一个值时，如果该值是基本类型，按照原始值转字符的方法进行，如果不是基本类型，先调用ToPrimitive方法将其转换为基本类型，再进行转换
 
-:boom:Number转换类似
+💥Number转换类似
 
 **总结：**  要转字符串的话就先调用toString, 要转数字的话就先调用valueOf
 
@@ -1827,62 +1807,63 @@ console.log(Number(new Error('a'))) // NaN
 
 #### 一元操作符 +
 
-​	调用toNumber方法
+    调用toNumber方法
 
-> > 1. 如果 `obj` 为基本类型，直接返回
-> > 2. 否则，调用 `valueOf` 方法，如果返回一个原始值，则 `JavaScript` 将其返回。
-> > 3. 否则，调用 `toString` 方法，如果返回一个原始值，则`JavaScript` 将其返回。
-> > 4. 否则，`JavaScript` 抛出一个类型错误异常。
-
-
+>> 1. 如果 `obj` 为基本类型，直接返回
+>> 2. 否则，调用 `valueOf` 方法，如果返回一个原始值，则 `JavaScript` 将其返回。
+>> 3. 否则，调用 `toString` 方法，如果返回一个原始值，则 `JavaScript` 将其返回。
+>> 4. 否则，`JavaScript` 抛出一个类型错误异常。
+>>
 
 #### 二元操作符 +
 
-> > 按照规范的步骤进行分析：
+>> 按照规范的步骤进行分析：
 >>
-> > 1. lprim = ToPrimitive(value1)
-> >
-> > 2. rprim = ToPrimitive(value2)
-> >
-> > 3. 如果 lprim 是字符串或者 rprim 是字符串，那么返回 ToString(lprim) 和 ToString(rprim)的拼接结果
-> >
-> > 4. 返回 ToNumber(lprim) 和 ToNumber(rprim)的运算结果
-> >
-> >    ```js
-> >     console.log(null + 1); //1
-> >    console.log([] + []); //""
-> >    // 两者结果一致
-> >    console.log([] + {});
-> >    console.log({} + []); //"[object Object]"
-> >                                                                                        
-> >    ```
-> >                      
-> >    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
+>> 1. lprim = ToPrimitive(value1)
+>> 2. rprim = ToPrimitive(value2)
+>> 3. 如果 lprim 是字符串或者 rprim 是字符串，那么返回 ToString(lprim) 和 ToString(rprim)的拼接结果
+>> 4. 返回 ToNumber(lprim) 和 ToNumber(rprim)的运算结果
+>>
+>>    ```js
+>>     console.log(null + 1); //1
+>>    console.log([] + []); //""
+>>    // 两者结果一致
+>>    console.log([] + {});
+>>    console.log({} + []); //"[object Object]"
+>>
+>>    ```
+>>
+>>    ps: {} + []  在开发者工具中直接运行为0，因为 {} 被当作一个代码块
+>>
 
 #### == 相等
 
-> > null 和 undefined
+>> null 和 undefined
+>>
 >
 > ```js
 > console.log(null == undefined); //true
 > ```
-> 
-> > 字符串与数字
+>
+>> 字符串与数字
+>>
 >
 > 均转换为数字进行比较
 >
-> > 布尔值与其他类型
+>> 布尔值与其他类型
+>>
 >
 > 对布尔值进行ToNumber处理
 >
->  ```js
+> ```js
 > console.log(true == '2')
->  ```
-> 
-> > 对象与非对象
+> ```
+>
+>> 对象与非对象
+>>
 >
 > ```js
->console.log( 42 == ['42'])  //true
+> console.log( 42 == ['42'])  //true
 > ```
 
 更多案例：
@@ -2008,7 +1989,7 @@ if(!("isNaN" in Number)) {
 
 #### isNaN和Number.isNaN的区别
 
-Number.isNaN是严格判断, 必须严格等于`NaN`。**`是不是NaN这个值`**
+Number.isNaN是严格判断, 必须严格等于 `NaN`。**`是不是NaN这个值`**
 
 isNaN是通过内部的 toNumber 转换结果来判定的。**`Number转换的返回值是不是NaN`**
 
@@ -2032,12 +2013,9 @@ parseInt('021', 8) //17
 
 **parseInt(string, radix)**  解析一个**字符串**并返回**指定基数**的**十进制整数**， `radix` 是**2-36**之间的整数，表示被解析字符串的基数。
 
-- 解析的目标值是**字符串**，如果不是的话，会先进行`toString`转换(默认转换为十进制)，如果不能转换为数字，返回`NaN`
-
+- 解析的目标值是**字符串**，如果不是的话，会先进行 `toString`转换(默认转换为十进制)，如果不能转换为数字，返回 `NaN`
 - 返回值是一个**十进制整数** 或者 **`NaN`**
-
 - 在任何情况下都最好指定基数，范围是2-36
-
 - 如果 `parseInt `遇到的字符不是指定 `radix `参数中的数字，它将忽略该字符以及所有后续字符，并返回到该点为止已解析的整数值。 `parseInt` 将数字截断为整数值。 允许前导和尾随空格。
 
   ```js
@@ -2055,12 +2033,13 @@ parseInt('021', 8) //17
   > ```js
   > parseInt("0e0");
   > // 0
-  > 
+  >
   > parseInt("08");
   > // 8
   > ```
   >
   > 2. 如果输入的 `string`以 "`0x`"或 "`0x`"（一个0，后面是小写或大写的X）开头，那么radix被假定为16，字符串的其余部分被当做十六进制数去解析
+  >
 
 ```js
 parseInt(021)  //17
@@ -2081,79 +2060,52 @@ void是一元运算符，它出现在操作数之前，操作数可以是任意�
 
 ## 迭代器与生成器
 
+### 可迭代对象与迭代器
+
+> 类数组是有length属性和索引的对象
+>
+> 使用Array.from()将一个类数组转换为真正的数组
+
 可以应用 `for..of` 的对象被称为 **可迭代的**。
 
-- 技术上来说，可迭代对象必须实现`Symbol.iterator`方法。
+- 可迭代对象是实现 了`Symbol.iterator`方法的对象
 
-  - `obj[Symbol.iterator]()` 的结果被称为 **迭代器（iterator）**。由它处理进一步的迭代过程。
+  - `obj[Symbol.iterator]()` 的结果被称为 **迭代器（iterator）**。
   - 一个迭代器必须有 `next()` 方法，它返回一个 `{done: Boolean, value: any}` 对象，这里 `done:true` 表明迭代结束，否则 `value` 就是下一个值。
-  
 - `Symbol.iterator` 方法会被 `for..of` 自动调用，但我们也可以直接调用它。
-
 - 内置的可迭代对象例如字符串和数组，都实现了 `Symbol.iterator`。
 
 ```js
-let range = {
-  from: 1,
-  to: 5
-};
-
-// 1. for..of 调用首先会调用这个：
+let range = {a: 1, b:8}
 range[Symbol.iterator] = function() {
-
-  // ……它返回迭代器对象（iterator object）：
-  // 2. 接下来，for..of 仅与此迭代器一起工作，要求它提供下一个值
-  return {
-    current: this.from,
-    last: this.to,
-
-    // 3. next() 在 for..of 的每一轮循环迭代中被调用
-    next() {
-      // 4. 它将会返回 {done:.., value :...} 格式的对象
-      if (this.current <= this.last) {
-        return { done: false, value: this.current++ };
-      } else {
-        return { done: true };
-      }
+    return {
+        current: this.a,
+        to: this.b,
+        next() {
+            if(this.current<=this.to) {
+                return {done: false, value:this.current++}
+            } else {
+                return {done: true}
+            }
+        }
     }
-  };
-};
+}
 
-// 现在它可以运行了！
-for (let num of range) {
-  alert(num); // 1, 然后是 2, 3, 4, 5
+for(let item of range) {
+    console.log(item)
 }
 ```
 
-```js
-let range = {
-  from: 1,
-  to: 5,
+### 生成器
 
-  [Symbol.iterator]() {
-    this.current = this.from;
-    return this;
-  },
+使用 function* 语法创建, 最初调用时，生成器函数返回一种称为Generator的迭代器，调用生成器函数消耗值时，Generator函数将执行，直到遇到yield关键字。
 
-  next() {
-    if (this.current <= this.to) {
-      return { done: false, value: this.current++ };
-    } else {
-      return { done: true };
-    }
-  }
-};
-
-for (let num of range) {
-  alert(num); // 1, 然后是 2, 3, 4, 5
-}
-```
-
-- Generator 是通过 generator 函数 `function* f(…) {…}` 创建的。
 - 在 generator（仅在）内部，存在 `yield` 操作。
 - 外部代码和 generator 可能会通过 `next/yield` 调用交换结果
 
 > 不适用于 `for in` 循环，并且不能直接用数字下标来访问属性：`generator[0] = undefined`
+
+#### next方法可以接收一个参数用于修改生成器内部状态
 
 ```js
 
@@ -2172,7 +2124,7 @@ function* fibonacci() {
   }
 }
 
-var sequence = fibonacci();
+var sequence = fibonacci(); //首次调用，返回一个Generator迭代器
 // for(let num of sequence) {
 //   console.log(num)
 // }
@@ -2197,6 +2149,35 @@ function* makeRangeIterator(start = 0, end = Infinity, step = 1) {
   }
 }
 ```
+
+#### 通过return 结束函数执行
+
+```js
+function* generateSequence() {
+  yield 1;
+  yield 2;
+  return 3;
+}
+```
+
+但是使用for...of执行上述代码，会忽略最后一个value
+
+#### 提供一个 generator 函数作为 `Symbol.iterator`
+
+```js
+let range = {
+    from: 0,
+    to:12,
+    *[Symbol.iterator]() {
+        for(let i=this.from; i<this.to; i++) {
+            yield i
+        }
+    }
+}
+console.log([...range])
+```
+
+
 
 ### yield 委托迭代
 
@@ -2339,8 +2320,6 @@ let result2 = it.next()
 let result3 = it.next()
 ```
 
-
-
 1. 创建一个无限循环
 
 ```js
@@ -2398,8 +2377,6 @@ btn.addEventListener('click', (el) => {
 
 ```
 
-
-
 ## 事件循环
 
  [这一次，彻底弄懂 JavaScript 执行机制](https://juejin.cn/post/6844903512845860872)
@@ -2435,7 +2412,7 @@ const timeOut2 = setTimeout(() => { //宏任务
      console.log(res); 
  })
 }, 0)
-    
+  
 p1().then((arg) => { //微任务
    console.log(arg,'66666');
 })
@@ -2493,8 +2470,6 @@ new Promise(resolve => {
 > promise5
 > setTimeout
 > ```
->
-> 
 
 **示例3**
 
@@ -2549,8 +2524,6 @@ new Promise(resolve => {
 > promise5
 > setTimeout
 > ```
->
-> 
 
 **示例4**
 
@@ -2606,27 +2579,6 @@ new Promise(resolve => {
 > promise5
 > setTimeout
 > ```
->
-> 
-
-## 柯里化
-
-柯里化是一种函数的转换，它是指将一个函数从可调用的 `f(a, b, c)` 转换为可调用的 `f(a)(b)(c)`
-
-[柯里化（Currying](https://zh.javascript.info/currying-partials)
-
-[JavaScript专题之函数柯里化](https://github.com/mqyqingfeng/Blog/issues/42#)
-
-[【译】理解JavaScript中的柯里化](https://www.cnblogs.com/GeniusLyzh/p/9937829.html)
-
-[一文搞懂Javascript中的函数柯里化（currying）](https://zhuanlan.zhihu.com/p/120735088)
-
-```js
-let curry = (fn, ...args) =>
-  fn.length <= args.length
-    ? fn(...args)
-    : curry.bind(null, fn, ...args)
-```
 
 ```js
 const p1 = () => (new Promise((resolve, reject) => {
@@ -2661,6 +2613,27 @@ p1().then((arg) => { //微任务
 })
 
 console.log(10);//同步
+```
+
+
+
+## 柯里化
+
+柯里化是一种函数的转换，它是指将一个函数从可调用的 `f(a, b, c)` 转换为可调用的 `f(a)(b)(c)`
+
+[柯里化（Currying](https://zh.javascript.info/currying-partials)
+
+[JavaScript专题之函数柯里化](https://github.com/mqyqingfeng/Blog/issues/42#)
+
+[【译】理解JavaScript中的柯里化](https://www.cnblogs.com/GeniusLyzh/p/9937829.html)
+
+[一文搞懂Javascript中的函数柯里化（currying）](https://zhuanlan.zhihu.com/p/120735088)
+
+```js
+let curry = (fn, ...args) =>
+  fn.length <= args.length
+    ? fn(...args)
+    : curry.bind(null, fn, ...args)
 ```
 
 ## 数组去重
@@ -2699,11 +2672,9 @@ function unique(arr) {
 }
 ```
 
-
-
 **对象不能去重**，忽略NaN
 
-### 先排序再去重 :bug:
+### 先排序再去重 🐛
 
 ```js
 let arr = [1, 2, 3, 3,'234','23','23']
@@ -2722,7 +2693,7 @@ function unique(array) {
 console.log(unique(arr))
 ```
 
-对象、NaN不能去重，:bug:``let arr =  [2, '2', 2]``， 这样的情况其实用这种方法是不行的
+对象、NaN不能去重，🐛``let arr =  [2, '2', 2]``， 这样的情况其实用这种方法是不行的
 
 使用filter简化
 
@@ -2732,7 +2703,7 @@ function unique(arr) {
 }
 ```
 
-对象、NaN不能去重，:bug:``let arr =  [2, '2', 2]``， 这样的情况其实用这种方法是不行的
+对象、NaN不能去重，🐛``let arr =  [2, '2', 2]``， 这样的情况其实用这种方法是不行的
 
 ### Objext键值对(用ES6 map 方法更简单)
 
@@ -2745,7 +2716,7 @@ function unique(arr) {
 }
 ```
 
-完美！！！！！:performing_arts:
+完美！！！！！🎭
 
 ### ES6
 
@@ -2785,7 +2756,7 @@ JSON.stringify(value[, replacer [, space]])
 
 - 转换值如果有 toJSON() 方法，该方法定义什么值将被序列化。
 
->  如果一个被序列化的对象拥有 `toJSON` 方法，那么该 `toJSON` 方法就会覆盖该对象默认的序列化行为：不是该对象被序列化，而是调用 `toJSON` 方法后的返回值会被序列化，
+> 如果一个被序列化的对象拥有 `toJSON` 方法，那么该 `toJSON` 方法就会覆盖该对象默认的序列化行为：不是该对象被序列化，而是调用 `toJSON` 方法后的返回值会被序列化，
 
 - 非数组对象的属性不能保证以特定的顺序出现在序列化后的字符串中。
 - 布尔值、数字、字符串的包装对象在序列化过程中会自动转换成对应的原始值。
@@ -2795,7 +2766,7 @@ console.log(JSON.stringify([new Number(3), new String('false'), new Boolean(fals
 // expected output: "[3,"false",false]"
 ```
 
-- `undefined`、任意的函数以及 symbol 值，在序列化过程中会被忽略（出现在非数组对象的属性值中时）或者被转换成 `null`（出现在数组中时）。函数、undefined 被单独转换时，会返回 undefined，如`JSON.stringify(function(){})` or `JSON.stringify(undefined)`.
+- `undefined`、任意的函数以及 symbol 值，在序列化过程中会被忽略（出现在非数组对象的属性值中时）或者被转换成 `null`（出现在数组中时）。函数、undefined 被单独转换时，会返回 undefined，如 `JSON.stringify(function(){})` or `JSON.stringify(undefined)`.
 
 ```js
 console.log(JSON.stringify({ x: [10, undefined, function(){}, Symbol('')] }));
@@ -2845,8 +2816,6 @@ JSON.stringify(
 );
 ```
 
-
-
 # 模块化
 
 CommonJS 服务器端的模块规范
@@ -2859,15 +2828,15 @@ AMD 是异步模块定义规范，RequireJS 是 AMD 规范的实现。，SeaJS�
 
 ## CommonJS
 
-Node.js是commonJS规范的主要实践者，它有四个重要的环境变量为模块化的实现提供支持：`module`、`exports`、`require`、`global`。实际使用时，用`module.exports`定义当前模块对外输出的接口（不推荐直接用`exports`），用`require`加载模块。
+Node.js是commonJS规范的主要实践者，它有四个重要的环境变量为模块化的实现提供支持：`module`、`exports`、`require`、`global`。实际使用时，用 `module.exports`定义当前模块对外输出的接口（不推荐直接用 `exports`），用 `require`加载模块。
 
 > commonJS用同步的方式加载模块。在服务端，模块文件都存在本地磁盘，读取非常快
 
 ## AMD和require.js
 
-AMD规范采用异步方式加载模块，模块的加载不影响它后面语句的运行。所有依赖这个模块的语句，都定义在一个回调函数中，等到加载完成之后，这个回调函数才会运行。这里介绍用require.js实现AMD规范的模块化：用`require.config()`指定引用路径等，用`define()`定义模块，用`require()`加载模块。
+AMD规范采用异步方式加载模块，模块的加载不影响它后面语句的运行。所有依赖这个模块的语句，都定义在一个回调函数中，等到加载完成之后，这个回调函数才会运行。这里介绍用require.js实现AMD规范的模块化：用 `require.config()`指定引用路径等，用 `define()`定义模块，用 `require()`加载模块。
 
-> 引用模块的时候，我们将模块名放在`[]`中作为`reqiure()`的第一参数；如果我们定义的模块本身也依赖其他模块,那就需要将它们放在`[]`中作为`define()`的第一参数。
+> 引用模块的时候，我们将模块名放在 `[]`中作为 `reqiure()`的第一参数；如果我们定义的模块本身也依赖其他模块,那就需要将它们放在 `[]`中作为 `define()`的第一参数。
 
 ## CMD和sea.js
 
@@ -2879,8 +2848,8 @@ CMD是另一种js模块化方案，它与AMD很类似，不同点在于：AMD �
 
 最明显的区别就是在模块定义时对依赖的处理不同
 
-**1、AMD推崇依赖前置、提前执行，在定义模块的时候就要声明其依赖的模块** 
-**2、CMD推崇就近依赖、延迟执行，只有在用到某个模块的时候再去require** 
+**1、AMD推崇依赖前置、提前执行，在定义模块的时候就要声明其依赖的模块**
+**2、CMD推崇就近依赖、延迟执行，只有在用到某个模块的时候再去require**
 这种区别各有优劣，只是语法上的差距，而且requireJS和SeaJS都支持对方的写法
 
 AMD和CMD最大的区别是**对依赖模块的执行时机处理不同**，注意不是加载的时机或者方式不同
@@ -2899,15 +2868,13 @@ CMD加载完某个依赖模块后并不执行，只是下载而已，在所有�
 > function foo() {
 >   import('./config.js')
 >     .then(({ api }) => {
-> 
+>
 >     });
 > }
-> 
+>
 > const modulePath = './utils' + '/api.js';
 > import(modulePath);
 > ```
-
-
 
 import命令具有提升效果，且是静态执行，因此不能使用表达式和变量，这些只有在运行时才能得到结果的语法结构。
 
@@ -2928,52 +2895,91 @@ import(f())
 .then(...);
 ```
 
-
-
 ## ES6 模块与 CommonJS 模块的差异
 
-1.  **CommonJS 模块输出的是一个值的拷贝，不存在动态更新，ES6 模块输出的是值的引用，可以取到模块内部实时的值。**
+1. **CommonJS 模块输出的是一个值的拷贝，不存在动态更新，ES6 模块输出的是值的引用，可以取到模块内部实时的值。**
 
 - CommonJS 模块输出的是值的拷贝，也就是说，一旦输出一个值，模块内部的变化就影响不到这个值。
-- ES6 模块的运行机制与 CommonJS 不一样。JS 引擎对脚本静态分析的时候，遇到模块加载命令`import`，就会生成一个**只读引用**。等到脚本真正执行时，再根据这个只读引用，到被加载的那个模块里面去取值。换句话说，ES6 的`import`有点像 Unix 系统的“符号连接”，原始值变了，`import`加载的值也会跟着变。因此，**ES6 模块是动态引用，并且不会缓存值，模块里面的变量绑定其所在的模块。**ES6 输入的模块变量，只是一个“符号连接”，所以**这个变量是只读的**，对它进行重新赋值会报错。
+- ES6 模块的运行机制与 CommonJS 不一样。JS 引擎对脚本静态分析的时候，遇到模块加载命令 `import`，就会生成一个**只读引用**。等到脚本真正执行时，再根据这个只读引用，到被加载的那个模块里面去取值。换句话说，ES6 的 `import`有点像 Unix 系统的“符号连接”，原始值变了，`import`加载的值也会跟着变。因此，**ES6 模块是动态引用，并且不会缓存值，模块里面的变量绑定其所在的模块。**ES6 输入的模块变量，只是一个“符号连接”，所以**这个变量是只读的**，对它进行重新赋值会报错。
 
-2.  **CommonJS 模块是运行时加载，ES6 模块是编译时输出接口。**
+2. **CommonJS 模块是运行时加载，ES6 模块是编译时输出接口。**
 
-- CommonJS 加载的是一个对象（即`module.exports`属性），该对象只有在脚本运行完才会生成。而 ES6 模块不是对象，它的对外接口只是一种静态定义，在代码静态解析阶段就会生成。
+- CommonJS 加载的是一个对象（即 `module.exports`属性），该对象只有在脚本运行完才会生成。而 ES6 模块不是对象，它的对外接口只是一种静态定义，在代码静态解析阶段就会生成。
 
-3. **CommonJS 模块的`require()`是同步加载模块，ES6 模块的`import`命令是异步加载，有一个独立的模块依赖的解析阶段。**
+3. **CommonJS 模块的 `require()`是同步加载模块，ES6 模块的 `import`命令是异步加载，有一个独立的模块依赖的解析阶段。**
 
 ## CommonJS与AMD
 
 1. CommonJS 是服务器端模块规范，AMD 是浏览器端模块规范。
-2. CommonJS 加载模块是同步的，即执行`var a = require('./a.js');`时，在 a.js 文件加载完成后，才执行后面的代码。AMD 加载模块是异步的，所有依赖加载完成后以回调函数的形式执行代码。
-3. [如下代码]`fs`和`chalk`都是模块，不同的是，`fs`是 node 内置模块，`chalk`是一个 npm 包。这两种情况在 CommonJS 中才有，AMD 不支持。
+2. CommonJS 加载模块是同步的，即执行 `var a = require('./a.js');`时，在 a.js 文件加载完成后，才执行后面的代码。AMD 加载模块是异步的，所有依赖加载完成后以回调函数的形式执行代码。
+3. [如下代码]`fs`和 `chalk`都是模块，不同的是，`fs`是 node 内置模块，`chalk`是一个 npm 包。这两种情况在 CommonJS 中才有，AMD 不支持。
 
 ```javascript
 var fs = require('fs');
 var chalk = require('chalk');
 ```
 
+# 正则
+
+https://juejin.cn/post/6844903648309297166
+
+## 正则的创建
+
+正则表达式字面量 `/reg/`和字符串字面量 `"str"`
+
+## 正则的方法
+
+|        | reg.test        | reg.exec()                                                                                                                      |
+| ------ | --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| 使用   | reg.test（str） | reg.exec(str)                                                                                                                   |
+| 返回值 | 布尔量          | - reg.exec()每次调用，返回一个匹配的结果<br />- 匹配结果和分组以数组的形式返回，不断的调用即可返回下一个结果，直到返回 `null` |
+
+> reg.exec()的一次调用结果
+>
+> ![img](image/js/1650349927482.png)![img](image/js/1650349927482.png)
+
+## 字符串方法
+
+## str.match()
+
+- 返回一个数组
+- 使用 `g`时，不返回分组，返回**全部匹配结果**
+- 不使用 `g`时，将匹配到的结果（第一个匹配的序列）和分组
+
+## str.split()
+
+分割字符串，参数可以为正则，如果想要保存分隔符，记得将匹配内容分组(用小括号包起来)
+
+```js
+var result = s.split(/([.,!?]+)/)
+//["Hello", ",", "My name is Vincent", ".", " Nice to Meet you", "!", "What's your name", "?", " Haha", ".", ""]
+
+```
+
+## str.replace()
+
+`str.replace(reg,replace|function)`，第一个参数是正则表达式，代表匹配的内容，第二个参数是替换的字符串或者一个回调函数。
+
+**replace不会修改原字符串，只是返回一个修改后的字符串;除此外，正则表达式如果没有使用 `g`标志，也和 `match`一样，只匹配/替换第一个**
+
 # ES6
 
 ## var、let 及 const 区别？
 
 - 全局申明的 var 变量会挂载在 window 上，而 let 和 const 不会
-
 - var 声明变量存在变量提升，let 和 const 不会
 
   > 在函数作用域或者全局作用域通过var声明的变量会被当作当前作用域顶部声明的变量
-
+  >
 - let、const 的作用范围是块级作用域，而 var 的作用范围是函数作用域
 
   > 块级作用域存在于函数内部和字符{}之间
-
+  >
 - 同一作用域下 let 和 const 不能声明同名变量，而 var 可以
-
 - 同一作用域下在 let 和 const 声明前使用会存在暂时性死区
 
   > 暂时性死区 其实指的就是let和const 相对于 var 声明的变量不具提升效果
-
+  >
 - const
 
   - 一旦声明必须赋值,不能使用 null 占位
@@ -2992,8 +2998,6 @@ var chalk = require('chalk');
 8. Block-Scoped Constructs Let and Const（块作用域构造 Let and Const）
 9. Classes（类） in ES6
 10. Modules（模块） in ES6
-
-
 
 ## ES6箭头函数与普通函数的区别
 
@@ -3016,7 +3020,7 @@ var chalk = require('chalk');
 
 #### Promise.all
 
-所有的 promsie 都resolve时， 返回存储结果的数组，如果其中一个promise   reject，那么会忽略剩余promise 的结果，哪怕其他promise都resolved，剩下的最后一个promise  rejected, 其error会变成整个`Promise.all`的结果, 已经resolved 的结果会被忽略。
+所有的 promsie 都resolve时， 返回存储结果的数组，如果其中一个promise   reject，那么会忽略剩余promise 的结果，哪怕其他promise都resolved，剩下的最后一个promise  rejected, 其error会变成整个 `Promise.all`的结果, 已经resolved 的结果会被忽略。
 
 **应用场景：**
 
@@ -3026,7 +3030,7 @@ var chalk = require('chalk');
 
 不需要为每个请求都设置loading状态，从请求开始到请求结束，只需要设置一个loading状态
 
-可能的场景：点击按钮，跳出一个对话框，对话框中显示两部分数据，来自两个不同的api接口，当这两部分数据都从接口获取到的时候，才让这个`数据加载中`状态消失。让用户看到这两部分的数据。
+可能的场景：点击按钮，跳出一个对话框，对话框中显示两部分数据，来自两个不同的api接口，当这两部分数据都从接口获取到的时候，才让这个 `数据加载中`状态消失。让用户看到这两部分的数据。
 
 **合并请求结果并处理错误**
 
@@ -3041,7 +3045,7 @@ function initLoad(){
         getCategoryList().catch(err=>err)
     ]).then(res=>{
         console.log(res) // ["获取轮播图数据失败啦", "店铺数据", "分类数据"]
-        
+  
         if(res[0] == '轮播图数据'){
             //渲染
         }else{
@@ -3057,7 +3061,7 @@ function initLoad(){
         }else{
              //获取 分类列表数据 失败的逻辑
         }
-        
+  
         // loading.hide()
     })
 }
@@ -3073,10 +3077,6 @@ function initLoad(){
 #### Promise.race
 
 请求超时提示：**点击按钮发请求，当后端的接口超过一定时间，假设超过三秒，没有返回结果，我们就提示用户请求超时**，例如请求一张图片时超时提示
-
-
-
-
 
 # 设计模式
 
@@ -3117,8 +3117,6 @@ let person2 = Person.getInstance()
 console.log(person1 === person2)
 ```
 
-
-
 # 浏览器
 
 ## 事件
@@ -3133,14 +3131,14 @@ console.log(person1 === person2)
 
 **对于一个点击事件发生在具有父元素的元素上，现代浏览器运行两个阶段：捕获和冒泡。**
 
-**捕获阶段：浏览器检查元素的最外层祖先<html>是否注册了一个捕获阶段的onClick事件,如果是，运行它。接着来到html中单击元素的下一个祖先元素，执行相同的操作，直到到达目标元素。**
+**捕获阶段：浏览器检查元素的最外层祖先 `<html>`是否注册了一个捕获阶段的onClick事件,如果是，运行它。接着来到html中单击元素的下一个祖先元素，执行相同的操作，直到到达目标元素。**
 
 **在冒泡阶段，恰恰相反:**
 
-- **浏览器检查实际点击的元素是否在冒泡阶段中注册了一个`onclick`事件处理程序，如果是，则运行它**
-- **然后它移动到下一个直接的祖先元素，并做同样的事情，然后是下一个，等等，直到它到达`<html>`元素。**
+- **浏览器检查实际点击的元素是否在冒泡阶段中注册了一个 `onclick`事件处理程序，如果是，则运行它**
+- **然后它移动到下一个直接的祖先元素，并做同样的事情，然后是下一个，等等，直到它到达 `<html>`元素。**
 
->  当一个事件发生时 —— 发生该事件的嵌套最深的元素被标记为“目标元素”（`event.target`）。
+> 当一个事件发生时 —— 发生该事件的嵌套最深的元素被标记为“目标元素”（`event.target`）。
 >
 > - 然后，事件从文档根节点向下移动到 `event.target`，并在途中调用分配了 `addEventListener(..., true)` 的处理程序（`true` 是 `{capture: true}` 的一个简写形式）。
 > - 然后，在目标元素自身上调用处理程序。
@@ -3239,9 +3237,7 @@ javaScript是在创建变量（对象，字符串等）时自动进行了内存�
 
 ## 为什么需要垃圾回收？  todo
 
-在Chrome中，v8被限制了内存的使用（64位约1.4G/1464MB ， 32位约0.7G/732MB），针对栈内的内存，操作系统会自动进行内存分配和内存释放，而堆中的内存，由JS引擎（如Chrome的V8）手动进行释放，当我们的代码没有按照正确的写法时，会使得JS引擎的垃圾回收机制无法正确的对内存进行释放（内存泄露），从而使得浏览器占用的内存不断增加，进而导致JavaScript和应用、操作系统性能下降。  
-
-
+在Chrome中，v8被限制了内存的使用（64位约1.4G/1464MB ， 32位约0.7G/732MB），针对栈内的内存，操作系统会自动进行内存分配和内存释放，而堆中的内存，由JS引擎（如Chrome的V8）手动进行释放，当我们的代码没有按照正确的写法时，会使得JS引擎的垃圾回收机制无法正确的对内存进行释放（内存泄露），从而使得浏览器占用的内存不断增加，进而导致JavaScript和应用、操作系统性能下降。
 
 ## 垃圾回收算法
 
@@ -3261,9 +3257,9 @@ javaScript是在创建变量（对象，字符串等）时自动进行了内存�
 
 **因为“有零引用的对象”总是不可获得的，但是相反却不一定，参考“循环引用”**
 
-##  Chrome垃圾回收
+## Chrome垃圾回收
 
-在 V8 中会把堆分为`新生代`和`老生代`两个区域，新生代中存放的是生存时间短的对象，老生代中存放的生存时间久的对象。
+在 V8 中会把堆分为 `新生代`和 `老生代`两个区域，新生代中存放的是生存时间短的对象，老生代中存放的生存时间久的对象。
 
 新生区通常只支持 1～8M 的容量，而老生区支持的容量就大很多了。对于这两块区域，V8 分别使用两个不同的垃圾回收器，以便更高效地实施垃圾回收。
 
@@ -3274,38 +3270,36 @@ javaScript是在创建变量（对象，字符串等）时自动进行了内存�
 >
 > 1. 第一步是标记空间中活动对象和非活动对象。所谓活动对象就是还在使用的对象，非活动对象就是可以进行垃圾回收的对象。
 > 2. 第二步是回收非活动对象所占据的内存。其实就是在所有的标记完成之后，统一清理内存中所有被标记为可回收的对象。
-> 3. 第三步是做内存整理。一般来说，频繁回收对象后，内存中就会存在大量不连续空间，我们把这些不连续的内存空间称为`内存碎片`，。当内存中出现了大量的内存碎片之后，如果需要分配较大连续内存的时候，就有可能出现内存不足的情况。所以最后一步需要整理这些内存碎片。(这步其实是可选的，因为有的垃圾回收器不会产生内存碎片).
-
-
+> 3. 第三步是做内存整理。一般来说，频繁回收对象后，内存中就会存在大量不连续空间，我们把这些不连续的内存空间称为 `内存碎片`，。当内存中出现了大量的内存碎片之后，如果需要分配较大连续内存的时候，就有可能出现内存不足的情况。所以最后一步需要整理这些内存碎片。(这步其实是可选的，因为有的垃圾回收器不会产生内存碎片).
 
 ### 新生代中的垃圾回收 - Scavenge
 
-在JavaScript中，任何对象的声明分配到的内存，将会先被放置在新生代中，而因为大部分对象在内存中存活的周期很短，所以需要一个效率非常高的算法。在新生代中，主要使用`Scavenge`算法进行垃圾回收，`Scavenge`算法是一个**典型的牺牲空间换取时间的复制算法**，在占用空间不大的场景上非常适用。
+在JavaScript中，任何对象的声明分配到的内存，将会先被放置在新生代中，而因为大部分对象在内存中存活的周期很短，所以需要一个效率非常高的算法。在新生代中，主要使用 `Scavenge`算法进行垃圾回收，`Scavenge`算法是一个**典型的牺牲空间换取时间的复制算法**，在占用空间不大的场景上非常适用。
 
-Scavange算法将新生代堆分为两部分，分别叫`from-space`和`to-space`，工作方式也很简单，就是将`from-space`中存活的活动对象复制到`to-space`中，并将这些对象的内存有序的排列起来，然后将`from-space`中的非活动对象的内存进行释放，完成之后，将`from space` 和`to space`进行互换，这样可以使得新生代中的这两块区域可以重复利用。
+Scavange算法将新生代堆分为两部分，分别叫 `from-space`和 `to-space`，工作方式也很简单，就是将 `from-space`中存活的活动对象复制到 `to-space`中，并将这些对象的内存有序的排列起来，然后将 `from-space`中的非活动对象的内存进行释放，完成之后，将 `from space` 和 `to space`进行互换，这样可以使得新生代中的这两块区域可以重复利用。
 
 ![image-20200925123816388](https://raw.githubusercontent.com/yacan8/blog/master/images/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Chrome%20V8%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/image-20200925123816388.png)
 
 简单的描述就是：
 
- - 标记活动对象和非活动对象  (如何判断？)
- - 复制 from space 的活动对象到 to space 并对其进行排序
- - 释放 from space 中的非活动对象的内存
- - 将 from space 和 to space 角色互换
+- 标记活动对象和非活动对象  (如何判断？)
+- 复制 from space 的活动对象到 to space 并对其进行排序
+- 释放 from space 中的非活动对象的内存
+- 将 from space 和 to space 角色互换
 
 > 有一个概念叫对象的可达性，表示从初始的根对象（window，global）的指针开始，这个根指针对象被称为根集（root set），从这个根集向下搜索其子节点，被搜索到的子节点说明该节点的引用对象可达，并为其留下标记，然后递归这个搜索的过程，直到所有子节点都被遍历结束，那么没有被标记的对象节点，说明该对象没有被任何地方引用，可以证明这是一个需要被释放内存的对象，可以被垃圾回收器回收。
 
 新生代中的对象什么时候变成老生代的对象呢？
 
-> 在新生代中，还进一步进行了细分，分为`nursery`子代和`intermediate`子代两个区域，一个对象第一次分配内存时会被分配到新生代中的`nursery`子代，如果经过下一次垃圾回收这个对象还存在新生代中，这时候我们移动到 `intermediate` 子代，再经过下一次垃圾回收，如果这个对象还在新生代中，副垃圾回收器会将该对象移动到老生代中，这个移动的过程被称为晋升。
+> 在新生代中，还进一步进行了细分，分为 `nursery`子代和 `intermediate`子代两个区域，一个对象第一次分配内存时会被分配到新生代中的 `nursery`子代，如果经过下一次垃圾回收这个对象还存在新生代中，这时候我们移动到 `intermediate` 子代，再经过下一次垃圾回收，如果这个对象还在新生代中，副垃圾回收器会将该对象移动到老生代中，这个移动的过程被称为晋升。
 
-为了执行效率，一般新生区的空间会被设置得比较小,也正是因为新生区的空间不大，所以很容易被存活的对象装满整个区域。为了解决这个问题，JavaScript 引擎采用了`对象晋升策略`,也就是经过两次垃圾回收依然还存活的对象，会被移动到老生区中。
+为了执行效率，一般新生区的空间会被设置得比较小,也正是因为新生区的空间不大，所以很容易被存活的对象装满整个区域。为了解决这个问题，JavaScript 引擎采用了 `对象晋升策略`,也就是经过两次垃圾回收依然还存活的对象，会被移动到老生区中。
 
 ### 老生代中的垃圾回收 -  Mark-Sweep & Mark-Compact
 
 新生代空间中的对象满足一定条件后，晋升到老生代空间中，在老生代空间中的对象都已经至少经历过一次或者多次的回收所以它们的存活概率会更大
 
-**如果这个时候再使用`scavenge`算法的话，会出现两个问题：**
+**如果这个时候再使用 `scavenge`算法的话，会出现两个问题：**
 
 - scavenge为复制算法，重复复制活动对象会使得效率低下
 - scavenge是牺牲空间来换取时间效率的算法，而老生代支持的容量较大，会出现空间资源浪费问题
@@ -3329,7 +3323,7 @@ Mark-Sweep之后会出现内存碎片问题
 
 ### 全停顿 - Stop-The-World
 
-由于 JavaScript 是运行在主线程之上的，一旦执行垃圾回收算法，都需要将正在执行的 JavaScript 脚本暂停下来(:question: **避免JavaScript应用逻辑和垃圾回收器的内存资源竞争导致的不一致性问题**)，待垃圾回收完毕后再恢复脚本执行。我们把这种行为叫做`全停顿`。
+由于 JavaScript 是运行在主线程之上的，一旦执行垃圾回收算法，都需要将正在执行的 JavaScript 脚本暂停下来(❓ **避免JavaScript应用逻辑和垃圾回收器的内存资源竞争导致的不一致性问题**)，待垃圾回收完毕后再恢复脚本执行。我们把这种行为叫做 `全停顿`。
 
 > 在 V8 新生代的垃圾回收中，因其空间较小，且存活对象较少，所以全停顿的影响不大，但老生代就不一样了。如果执行垃圾回收的过程中，占用主线程时间过久，主线程是不能做其他事情的。比如页面正在执行一个 JavaScript 动画，因为垃圾回收器在工作，就会导致这个动画在垃圾回收过程中无法执行，这将会造成页面的卡顿现象。
 
@@ -3345,7 +3339,7 @@ orinoco为V8的垃圾回收器的项目代号，为了提升用户体验，解�
 
 > 为了降低全堆垃圾回收的停顿时间，增量标记将原本的标记全堆对象拆分为一个一个任务，让其穿插在JavaScript应用逻辑之间执行，它允许堆的标记时的5~10ms的停顿。增量标记在堆的大小达到一定的阈值时启用，启用之后每当一定量的内存分配后，脚本的执行就会停顿并进行一次增量标记。
 
-从实现机制上，由于每个小的增量标记之间执行了JavaScript代码，堆中的对象指针可能发生了变化，需要使用`写屏障`（Write-barrier）技术来记录这些引用关系的变化
+从实现机制上，由于每个小的增量标记之间执行了JavaScript代码，堆中的对象指针可能发生了变化，需要使用 `写屏障`（Write-barrier）技术来记录这些引用关系的变化
 
 缺点：
 
@@ -3363,7 +3357,7 @@ orinoco为V8的垃圾回收器的项目代号，为了提升用户体验，解�
 
 主线程和垃圾回收线程同时进行
 
-> 并发式GC允许在在垃圾回收的同时不需要将主线程挂起，两者可以同时进行，只有在个别时候需要短暂停下来让垃圾回收器做一些特殊的操作。但是这种方式也要面对增量回收的问题，就是在垃圾回收过程中，由于JavaScript代码在执行，堆中的对象的引用关系随时可能会变化，所以也要进行`写屏障`操作。
+> 并发式GC允许在在垃圾回收的同时不需要将主线程挂起，两者可以同时进行，只有在个别时候需要短暂停下来让垃圾回收器做一些特殊的操作。但是这种方式也要面对增量回收的问题，就是在垃圾回收过程中，由于JavaScript代码在执行，堆中的对象的引用关系随时可能会变化，所以也要进行 `写屏障`操作。
 
 ![image-20200926003554103](https://raw.githubusercontent.com/yacan8/blog/master/images/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Chrome%20V8%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/image-20200926003554103.png)
 
@@ -3379,7 +3373,7 @@ orinoco为V8的垃圾回收器的项目代号，为了提升用户体验，解�
 
 ### 副垃圾回收器
 
-V8在新生代垃圾回收中，使用并行（parallel）机制，在整理排序阶段，也就是将活动对象从`from-to`复制到`space-to`的时候，启用多个辅助线程，并行的进行整理。由于多个线程竞争一个新生代的堆的内存资源，可能出现有某个活动对象被多个线程进行复制操作的问题**，为了解决这个问题，V8在第一个线程对活动对象进行复制并且复制完成后，都必须去维护复制这个活动对象后的指针转发地址，以便于其他协助线程可以找到该活动对象后可以判断该活动对象是否已被复制。**
+V8在新生代垃圾回收中，使用并行（parallel）机制，在整理排序阶段，也就是将活动对象从 `from-to`复制到 `space-to`的时候，启用多个辅助线程，并行的进行整理。由于多个线程竞争一个新生代的堆的内存资源，可能出现有某个活动对象被多个线程进行复制操作的问题**，为了解决这个问题，V8在第一个线程对活动对象进行复制并且复制完成后，都必须去维护复制这个活动对象后的指针转发地址，以便于其他协助线程可以找到该活动对象后可以判断该活动对象是否已被复制。**
 
 **副垃圾回收器在清理时，实际上执行三个步骤：标记，移动活动对象，和更新对象的指针；这些都是交错进行，而不是在不同阶段。**
 
@@ -3395,7 +3389,7 @@ V8在老生代垃圾回收中，如果堆中的内存大小超过某个阈值之
 
 ## JavaScript 常见的四种内存泄漏
 
-1.  **全局变量**
+1. **全局变量**
 
 - 引用未声明的变量
 - 由this创建
@@ -3434,7 +3428,6 @@ foo();
 > 需要特别注意用于**临时存储和处理大量信息的全局变量**。如果你必须使用全局变量来存储数据，当你这样做的时候，要保证一旦完成使用就把他们**赋值为 null 或重新赋值** 。
 
 2. 被忘记的定时器或者回调函数
-
 3. 闭包
 
 ```js
@@ -3473,15 +3466,11 @@ https://www.cnblogs.com/LuckyWinty/p/11739573.html
 3. 计时器里的回调没用的时候要记得销毁。
 4. 为了避免疏忽导致的遗忘，我们可以使用 `WeakSet` 和 `WeakMap`结构，它们对于值的引用都是不计入垃圾回收机制的，表示这是弱引用。
 
-
-
 # 前端安全
 
 ## 跨域
 
 定义：违反了同源策略（协议，域名，端口），三者缺一不可，即使两个不同域名指向同一个ip，也不可以，同一域名下的两个不同子域名，也不可以。协议、端口造成的跨域，前端无能为力
-
-
 
 限制内容：
 
@@ -3496,8 +3485,6 @@ https://www.cnblogs.com/LuckyWinty/p/11739573.html
 <link href=XXX>
 <script src=XXX>
 ```
-
-
 
 ### jsonp
 
@@ -3555,15 +3542,15 @@ app.listen(3000)
 **简单请求**:
 
 - 请求方法为 GET、POST 或者 HEAD
-- 请求头的取值范围: Accept、Accept-Language、Content-Language、Content-Type(只限于三个值`application/x-www-form-urlencoded`、`multipart/form-data`、`text/plain`)
+- 请求头的取值范围: Accept、Accept-Language、Content-Language、Content-Type(只限于三个值 `application/x-www-form-urlencoded`、`multipart/form-data`、`text/plain`)
 
 浏览器画了这样一个圈，在这个圈里面的就是**简单请求**, 圈外面的就是**非简单请求**，然后针对这两种不同的请求进行不同的处理。
 
 #### 简单请求
 
-请求发出去之前，浏览器会自动在请求头当中，添加一个`Origin`字段，用来说明请求来自哪个`源`。服务器拿到请求之后，在回应时对应地添加`Access-Control-Allow-Origin`字段，如果`Origin`不在这个字段的范围中，那么浏览器就会将响应拦截。
+请求发出去之前，浏览器会自动在请求头当中，添加一个 `Origin`字段，用来说明请求来自哪个 `源`。服务器拿到请求之后，在回应时对应地添加 `Access-Control-Allow-Origin`字段，如果 `Origin`不在这个字段的范围中，那么浏览器就会将响应拦截。
 
-**Access-Control-Allow-Credentials**。这个字段是一个布尔值，表示是否允许发送 Cookie，对于跨域请求，浏览器对这个字段默认值设为 false，而如果需要拿到浏览器的 Cookie，需要添加这个响应头并设为`true`, 并且在前端也需要设置`withCredentials`属性:
+**Access-Control-Allow-Credentials**。这个字段是一个布尔值，表示是否允许发送 Cookie，对于跨域请求，浏览器对这个字段默认值设为 false，而如果需要拿到浏览器的 Cookie，需要添加这个响应头并设为 `true`, 并且在前端也需要设置 `withCredentials`属性:
 
 ```
 let xhr = new XMLHttpRequest();
@@ -3571,7 +3558,7 @@ xhr.withCredentials = true;
 复制代码
 ```
 
-**Access-Control-Expose-Headers**。这个字段是给 XMLHttpRequest 对象赋能，让它不仅可以拿到基本的 6 个响应头字段（包括`Cache-Control`、`Content-Language`、`Content-Type`、`Expires`、`Last-Modified`和`Pragma`）, 还能拿到这个字段声明的**响应头字段**。比如这样设置:
+**Access-Control-Expose-Headers**。这个字段是给 XMLHttpRequest 对象赋能，让它不仅可以拿到基本的 6 个响应头字段（包括 `Cache-Control`、`Content-Language`、`Content-Type`、`Expires`、`Last-Modified`和 `Pragma`）, 还能拿到这个字段声明的**响应头字段**。比如这样设置:
 
 ```
 Access-Control-Expose-Headers: aaa
@@ -3604,12 +3591,12 @@ Access-Control-Request-Headers: X-Custom-Header
 复制代码
 ```
 
-预检请求的方法是`OPTIONS`，同时会加上`Origin`源地址和`Host`目标地址，这很简单。同时也会加上两个关键的字段:
+预检请求的方法是 `OPTIONS`，同时会加上 `Origin`源地址和 `Host`目标地址，这很简单。同时也会加上两个关键的字段:
 
 - Access-Control-Request-Method, 列出 CORS 请求用到哪个HTTP方法
 - Access-Control-Request-Headers，指定 CORS 请求将要加上什么请求头
 
-这是`预检请求`。接下来是**响应字段**，响应字段也分为两部分，一部分是对于**预检请求**的响应，一部分是对于 **CORS 请求**的响应。
+这是 `预检请求`。接下来是**响应字段**，响应字段也分为两部分，一部分是对于**预检请求**的响应，一部分是对于 **CORS 请求**的响应。
 
 **预检请求的响应**。如下面的格式:
 
@@ -3627,17 +3614,15 @@ Content-Length: 0
 
 其中有这样几个关键的**响应头字段**:
 
-- Access-Control-Allow-Origin: 表示可以允许请求的源，可以填具体的源名，也可以填`*`表示允许任意源请求。
+- Access-Control-Allow-Origin: 表示可以允许请求的源，可以填具体的源名，也可以填 `*`表示允许任意源请求。
 - Access-Control-Allow-Methods: 表示允许的请求方法列表。
 - Access-Control-Allow-Credentials: 简单请求中已经介绍。
 - Access-Control-Allow-Headers: 表示允许发送的请求头字段
 - Access-Control-Max-Age: 预检请求的有效期，在此期间，不用发出另外一条预检请求。
 
-在预检请求的响应返回后，如果请求不满足响应头的条件，则触发`XMLHttpRequest`的`onerror`方法，当然后面真正的**CORS请求**也不会发出去了。
+在预检请求的响应返回后，如果请求不满足响应头的条件，则触发 `XMLHttpRequest`的 `onerror`方法，当然后面真正的**CORS请求**也不会发出去了。
 
-**CORS 请求的响应**。绕了这么一大转，到了真正的 CORS 请求就容易多了，现在它和**简单请求**的情况是一样的。浏览器自动加上`Origin`字段，服务端响应头返回**Access-Control-Allow-Origin**。可以参考以上简单请求部分的内容
-
-
+**CORS 请求的响应**。绕了这么一大转，到了真正的 CORS 请求就容易多了，现在它和**简单请求**的情况是一样的。浏览器自动加上 `Origin`字段，服务端响应头返回**Access-Control-Allow-Origin**。可以参考以上简单请求部分的内容
 
 ## XSS 跨站脚本攻击
 
@@ -3706,10 +3691,11 @@ POST 的内容也可以触发反射型 XSS，只不过其触发条件比较苛�
 - 改成纯前端渲染，把代码和数据分隔开。
 
   > 但纯前端渲染还需注意避免 DOM 型 XSS 漏洞（例如 `onload` 事件和 `href` 中的 `javascript:xxx` 等
-
+  >
 - 对 HTML 做充分转义。
 
   > 在不同的上下文里要使用相应的转义规则。
+  >
 
 #### 预防 DOM 型 XSS 攻击
 
@@ -3739,11 +3725,8 @@ eval("UNTRUSTED")
 #### 其他
 
 - 对于不受信任的输入，都应该限定一个合理的长度
-
 - HTTP-only Cookie: 禁止 JavaScript 读取某些敏感 Cookie，攻击者完成 XSS 注入后也无法窃取此 Cookie。
-
 - 验证码：防止脚本冒充用户提交危险操作。
-
 - ### Content Security Policy
 
 ## CSRF 跨站攻击伪造
@@ -3757,8 +3740,6 @@ eval("UNTRUSTED")
 ### 定义
 
 跨站请求伪造：攻击者诱导受害者进入第三方网站，在第三方网站中，向被攻击网站发送跨站请求。利用受害者在被攻击网站已经获取的注册凭证，绕过后台的用户验证，达到冒充用户对被攻击的网站执行某项操作的目的。
-
-
 
 关键是用户保存了被攻击网站的登录凭证， 即cookie
 
@@ -3800,12 +3781,12 @@ eval("UNTRUSTED")
 - 一般发起在第三方，被攻击的网站无法防止攻击
 
   > 本域下有容易被利用的功能，比如可以发图和链接的论坛和评论区，攻击可以直接在本域下进行，而且这种攻击更加危险。
-
+  >
 - 攻击方无法窃取用户的登录凭证只是冒用
-
 - 方式多样
 
   > 图片URL、超链接、CORS、Form提交等等。部分请求方式可以直接嵌入在第三方论坛、文章中，难以进行追踪。
+  >
 
 ### 防范策略
 
@@ -3831,9 +3812,9 @@ eval("UNTRUSTED")
 
 利用CSRF攻击不能获取到用户Cookie的特点，我们可以要求Ajax和表单请求携带一个Cookie中的值。
 
-> 在用户访问网站页面时，向请求域名注入一个Cookie，内容为随机字符串（例如`csrfcookie=v8g9e4ksfhw`）。
+> 在用户访问网站页面时，向请求域名注入一个Cookie，内容为随机字符串（例如 `csrfcookie=v8g9e4ksfhw`）。
 >
-> 在前端向后端发起请求时，取出Cookie，并添加到URL的参数中（接上例`POST https://www.a.com/comment?csrfcookie=v8g9e4ksfhw`）。
+> 在前端向后端发起请求时，取出Cookie，并添加到URL的参数中（接上例 `POST https://www.a.com/comment?csrfcookie=v8g9e4ksfhw`）。
 >
 > 后端接口验证Cookie中的字段与URL参数中的字段是否一致，不一致则拒绝。
 
@@ -3876,13 +3857,9 @@ eval("UNTRUSTED")
 </script>
 ```
 
-
-
 #### 首屏时间
 
-白屏时间：指的是从输入网址， 到页面开始显示内容的时间。
-
-在`window.onload`事件中执行以下代码，可以获取首屏时间：
+在 `window.onload`事件中执行以下代码，可以获取首屏时间：
 
 ```js
 new Date().getTime() - performance.timing.navigationStart
@@ -3918,7 +3895,7 @@ new Date().getTime() - performance.timing.navigationStart
 
 #### preload 与 prefetch
 
-`preload`: 提前加载本页面需要用到的资源，需要用as属性表明类型（style,font, img, ....style优先级最高）`preload as =“style”`将获得最高优先级，而`as =“script”`将获得低优先级或中优先级，可查看performance面板
+`preload`: 提前加载本页面需要用到的资源，需要用as属性表明类型（style,font, img, ....style优先级最高）`preload as =“style”`将获得最高优先级，而 `as =“script”`将获得低优先级或中优先级，可查看performance面板
 
 ```html
 <link rel="preload"></link>
@@ -3932,9 +3909,8 @@ new Date().getTime() - performance.timing.navigationStart
   > 需要加crossorigin属性，否则会导致重复加载
   >
   > 如果不指定crossorigin属性(即使同源)，浏览器会采用匿名模式的CORS去preload，导致两次请求无法共用缓存
-
+  >
 - 提前加载图片，减少首屏绘制时间
-
 - 提前加载脚本文件
 
 `prefetch`：提前加载其他页面可能会用到的资源，需要用到时直接从缓存中读取
@@ -3944,10 +3920,10 @@ new Date().getTime() - performance.timing.navigationStart
 ##### 导致两次获取的情况
 
 - preload未设定有效as
-
-- preload加载字体时未添加`crossorigin`
+- preload加载字体时未添加 `crossorigin`
 
   > 请求使用匿名的跨域模式。 即使字体与页面位于同个域 下，也建议使用。也适用于其他域名的获取(比如说默认的异步获取)。
+  >
 
 ##### 何时使用？
 
@@ -3982,10 +3958,10 @@ new Date().getTime() - performance.timing.navigationStart
 雪碧图的核心原理在于设置不同的背景偏移量，大致包含两点：
 
 - 不同的图标元素都会将 `background-url` 设置为合并后的雪碧图的 uri；
-
 - 不同的图标通过设置对应的 `background-position` 来展示大图中对应的图标部分。
 
   > 将雪碧图的生成集成到前端自动化构建工具中，例如在 `webpack` 中使用 `webpack-spritesmith`，或者在 `gulp` 中使用 `gulp.spritesmith`。它们两者都是基于 `spritesmith` 这个库。
+  >
 
 > 延迟发送请求 / 按需加载
 
@@ -4003,7 +3979,7 @@ img.src = img.getAttribute("original-src")
 
 **css中图片懒加载**
 
-r最常见的场景就是 `background-url`。
+最常见的场景就是 `background-url`。
 
 ```css
 .login {
@@ -4038,7 +4014,7 @@ r最常见的场景就是 `background-url`。
 
 减少冗余代码
 
-> 一方面避免不必要的转义：`babel-loader`用 `include` 或 `exclude` 来帮我们避免不必要的转译，不转译`node_moudules`中的js文件,其次在缓存当前转译的js文件，设置`loader: 'babel-loader?cacheDirectory=true'`
+> 一方面避免不必要的转义：`babel-loader`用 `include` 或 `exclude` 来帮我们避免不必要的转译，不转译 `node_moudules`中的js文件,其次在缓存当前转译的js文件，设置 `loader: 'babel-loader?cacheDirectory=true'`
 >
 > 其次减少ES6 转为 ES5 的冗余代码：Babel 转化后的代码想要实现和原来代码一样的功能需要借助一些帮助函数，比如：
 >
@@ -4050,13 +4026,13 @@ r最常见的场景就是 `background-url`。
 >
 > ```
 > "use strict";
-> 
+>
 > function _classCallCheck(instance, Constructor) {
 >   if (!(instance instanceof Constructor)) {
 >     throw new TypeError("Cannot call a class as a function");
 >   }
 > }
-> 
+>
 > var Person = function Person() {
 >   _classCallCheck(this, Person);
 > };
@@ -4070,17 +4046,17 @@ r最常见的场景就是 `background-url`。
 > "use strict";
 > var _classCallCheck2 = require("@babel/runtime/helpers/classCallCheck");
 > var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-> 
+>
 > function _interopRequireDefault(obj) {
 >   return obj && obj.__esModule ? obj : { default: obj };
 > }
-> 
+>
 > var Person = function Person() {
 >   (0, _classCallCheck3.default)(this, Person);
 > };
 > ```
 >
-> 这里就没有再编译出 `helper` 函数 `classCallCheck` 了，而是直接引用了`@babel/runtime` 中的 `helpers/classCallCheck`。
+> 这里就没有再编译出 `helper` 函数 `classCallCheck` 了，而是直接引用了 `@babel/runtime` 中的 `helpers/classCallCheck`。
 >
 > - 安装
 >
@@ -4109,13 +4085,12 @@ r最常见的场景就是 `background-url`。
 
 head标签中引入的css和js文件都会阻塞渲染，因此一般将js文件放在body尾部，但是为了防止用户首先看到的是没有样式的页面，将css文件放在head头部。
 
-> css的加载和解析一般不会阻塞html解析，GUI线程可以一边解析HTML，一边解析CSS，这两个是不冲突的；js文件的加载和执行都会阻塞html解析，如果js修改了样式，会先等css解析完成，再去执行js，最后再去解析html，从这个角度来说，css有可能阻塞html解析。
+> - css的加载和解析一般不会阻塞html解析，GUI线程可以一边解析HTML，一边解析CSS，这两个是不冲突的，如果遇到了js脚本，此时CSSOM还没有构建完成，需要等待CSSOM构建完，再去执行JS脚本，然后再执行DOM解析
+> - js文件的**加载**和**执行**都会阻塞html解析，如果js修改了样式，会先等css解析完成；如果代码里引用了外部的css文件，会先去执行css的加载和解析，生成cssom对象，然后才能再去执行js，最后再去解析html。从这个角度来说，css有可能阻塞html解析。  换句话说，**js文件里面进行了css相关的操作，会阻塞js执行，而js执行又会阻塞html解析。**
 >
 > async  异步执行js文件，加载阶段不阻塞解析，加载好直接执行
 >
-> defer 延迟到dom解析完成，再执行js文件
-
-**preload 与 prefetch**
+> defer 延迟到dom解析完成，再执行js文件, 执行时间在DOMContentLoaded事件之后
 
 
 
@@ -4126,6 +4101,8 @@ head标签中引入的css和js文件都会阻塞渲染，因此一般将js文件
 ### 8. 图片优化
 
 ### 9. css
+
+
 
 1. 使用（critical css/ critical）等工具提取关键css, 延迟加载非关键css
 
@@ -4150,7 +4127,6 @@ head标签中引入的css和js文件都会阻塞渲染，因此一般将js文件
    > }
    > ```
    >
-   > 
 
 ## 运行时性能优化
 
@@ -4169,28 +4145,13 @@ https://juejin.cn/post/6844903779700047885#heading-9
 重排发生后的根本原理就是元素的几何属性发生改变， 所以从能够改变几何属性的角度入手：
 
 - 添加|删除可见的DOM元素
-
 - 元素位置发生改变
-
 - 元素本身的尺寸发生改变
-
 - 内容变化
-
 - 页面渲染器初始化
-
 - 浏览器窗口大小发生改变
-
 - 激活CSS伪类（例如：:hover）
-
 - 查询某些属性或调用某些方法
-
-  > - `clientWidth、clientHeight、clientTop、clientLeft`
-  > - `offsetWidth、offsetHeight、offsetTop、offsetLeft`
-  > - `scrollWidth、scrollHeight、scrollTop、scrollLeft`
-  > - `scrollIntoView()、scrollIntoViewIfNeeded()`
-  > - `getComputedStyle()`
-  > - `getBoundingClientRect()`
-  > - `scrollTo()`
 
 **优化**
 
@@ -4198,7 +4159,7 @@ https://juejin.cn/post/6844903779700047885#heading-9
 
 - 避免使用table布局。
 - 尽可能在DOM树的最末端改变class。
-- 避免设置多层内联样式。
+- 避免设置多层内联样。
 - 对具有复杂动画的元素使用绝对定位（position属性为absolute或fixed的元素上。），使它脱离文档流，否则会引起父元素及后续元素频繁回流。
 - **千万不要使用table布局**。因为可能很小的一个小改动会造成整个table的重新布局。
 - 避免使用CSS表达式（例如：calc()）。
@@ -4222,9 +4183,9 @@ https://juejin.cn/post/6844903779700047885#heading-9
 
 - 首先确定长列表所在父元素的大小，父元素的大小决定了可视区的宽和高
 - 确定长列表每一个列表元素的宽和高，同时初始的条件下计算好长列表每一个元素相对于父元素的位置，并用一个数组来保存所有列表元素的位置信息
-- 首次渲染时，只展示相对于父元素可视区内的子列表元素，在滚动时，根据父元素的滚动的`offset`重新计算应该在可视区内的子列表元素。这样保证了无论如何滚动，真实渲染出的dom节点只有可视区内的列表元素。
+- 首次渲染时，只展示相对于父元素可视区内的子列表元素，在滚动时，根据父元素的滚动的 `offset`重新计算应该在可视区内的子列表元素。这样保证了无论如何滚动，真实渲染出的dom节点只有可视区内的列表元素。
 - 假设可视区内能展示5个子列表元素，及时长列表总共有1000个元素，但是每时每刻，真实渲染出来的dom节点只有5个。
-- 补充说明，这种情况下，父元素一般使用`position：relative`，子元素的定位一般使用：`position：absolute`或`sticky`
+- 补充说明，这种情况下，父元素一般使用 `position：relative`，子元素的定位一般使用：`position：absolute`或 `sticky`
 
 除了自己实现外， 常用的框架也有不错的开源实现， 例如：
 
@@ -4234,7 +4195,7 @@ https://juejin.cn/post/6844903779700047885#heading-9
 
 ## 4. 滚动事件性能优化
 
-对应滚动这个场景，可以采用`防抖`和`节流`来处理。
+对应滚动这个场景，可以采用 `防抖`和 `节流`来处理。
 
 当一个事件频繁触发，而我们希望间隔一定的时间再触发相应的函数时， 就可以使用节流（throttle）来处理。比如判断页面是否滚动到底部，然后展示相应的内容；就可以使用节流，在滚动时每300ms进行一次计算判断是否滚动到底部的逻辑，而不用无时无刻地计算。
 
@@ -4280,7 +4241,6 @@ document.querySelectorAll('li').forEach((e) => {
 
 #### 6.2 if-else | switch
 
-当判定条件越来越多时， 越倾向于使用switch,而不是if-else,但是有的情况下`switch`也做不到`if-else`的事情, 例如有多个判断条件的情况下，无法使用`switch`
+当判定条件越来越多时， 越倾向于使用switch,而不是if-else,但是有的情况下 `switch`也做不到 `if-else`的事情, 例如有多个判断条件的情况下，无法使用 `switch`
 
 #### 6.3 采用flex布局
-
