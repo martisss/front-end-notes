@@ -62,12 +62,16 @@ logPoint(newVPoint); // logs "13, 56"
 
 # interface 与 type的区别
 
+## 官方描述
+
 > Type aliases and interfaces are very similar, and in many cases you can choose between them freely. Almost all features of an `interface` are available in `type`, the key distinction is that a type cannot be re-opened to add new properties vs an interface which is always extendable.
 
 从上面这段话中我们可以得知：
 
 - 几乎`interface`的所有特性都可以用`type`实现
--  `interface`可以添加新的属性
+-  `interface`可以添加新的属性，是可扩展的
+
+##　区别一
 
 针对第一点，参考官方对`interface`与`type`的描述：
 
@@ -78,11 +82,46 @@ logPoint(newVPoint); // logs "13, 56"
 
 > 至于什么是数据的形状呢？ 例如二叉树中数据以分层的形式排布，每个元素最多由两个子元素；在链表中，数据以链式存储，顺序布局，这便是`data shapes`，结合数据本身，以及保留`data shapes`的相关操作（对于链表来说就是对链表节点的添加、删除等，不破坏原有结构），这三者就组成了数据结构。
 
-`type`是数据类型的定义，如联合类型、基本类型、交叉类型等，此外type 语句中还可以使用 `typeof `获取实例的类型进行赋值
+`type`是数据类型的定义，如**联合类型（A |Ｂ）**、**基本类型**、**交叉类型（Ａ＆B**）、**元组**等，此外type 语句中还可以使用 **`typeof `**获取实例的类型进行赋值。
 
-简而言之，`interface`右边必须是 `data shapes`, 而`type`右边可以是任何类型。
+简而言之，**`interface`右边必须是 `data shapes`, 而`type`右边可以是任何类型。**
+
+> 开头提到`interface`是可扩展的的，也是得益于声明合并，而`type`虽然通过`extends`可以达到类似的效果，但谈不上可扩展。官方描述中也提到:
+>
+> **`the key distinction is that a type cannot be re-opened to add new properties vs an interface which is always extendable.`**
+
+## 区别二
 
 针对第二点，`interface`支持声明合并（`declaration merging`），`type alias`不支持。
+
+```js
+interface Person {
+  name: string;
+}
+interface Person {
+  age: number;
+}
+// 合并为:interface Person { name: string age: number}
+
+type User = {
+  name: string;
+};
+type User = {
+  age: number;
+};
+// error: Duplicate identifier 'User'.
+```
+
+## 总结
+
+主要有两点区别：
+
+1. `interface`右边只能是`data shapes`,而`type`右边涵盖的范围更大，还可以是**联合类型（A |Ｂ）**、**基本类型**、**交叉类型（Ａ＆B**）、**元组**等，也可以使用`typeof`
+2. `interface`支持声明合并，`type`不支持声明合并。
+
+## 参考
+
+[TS Handbook](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#interfaces)
 
 # any和unknown有什么区别？
 
@@ -143,17 +182,23 @@ console.log(a.toLocaleLowerCase())
 
 ![image-20220430125622956](../pictures/image-20220430125622956.png)
 
+注： <p style="color: green">√</p>表示**strictNullChecks**为`false`时的情况
+
+✔
+
 `never`和`unknown`朝着两个相反的方向行进，所有的类型都可以赋值给`unknown`, `never`可以赋值给任何类型；`unknown`不能赋值给除any和自身之外的任何类型，除`Never`本身外，任何类型都不能赋值给`Never`
 
 ## 应用场景
 
-1. 用于从来不会返回值的函数
+1. **用于从来不会返回值的函数**
 
    这可能有两种情况，一是函数中可能死循环
 
    ```js
    function loop():never {
-       while(true) {}
+       while(true) {
+           console.log('I always does something and never ends.')
+       }
    }
    ```
 
@@ -165,7 +210,9 @@ console.log(a.toLocaleLowerCase())
    }
    ```
 
-2. 对于一个联合类型，将其类型收窄为`never`
+2. **穷尽检查（Exhaustiveness checking）**
+
+   对于一个联合类型，将其类型收窄为`never`
 
    ```ts
    interface Foo {
@@ -194,8 +241,150 @@ console.log(a.toLocaleLowerCase())
    }
    ```
 
-   通过case 对可能的类型进行了相应处理，因此`default`处`val`的类型是`Never`，这也体现了`Never`是一个底层类型：`Never`只能赋值给`Never`。如果之后联合类型`All`中添加了新的类型，但是在代码中忘记进行相应处理，那么就能提前暴露处错误，提醒开发者进行处理。
+   通过case 对可能的类型进行了相应处理，因此`default`处`val`的类型是`never`，这也体现了`never`是一个底层类型：`never`只能赋值给`never`。如果之后联合类型`All`中添加了新的类型，但是在代码中忘记进行相应处理，那么就能提前暴露处错误，提醒开发者进行处理。
 
-   ## 
+   ##　Never和void的区别
+
+   1. 从赋值的角度来看，`undefined`可以赋值给`void`类型的变量，除了`never`本身，任何值都不能赋值给`never`类型，也就是说`never`意味着没有任何值。
+
+      > **strictNullChecks**为`false`时，`null`类型也是可以赋值给`void`的
+
+   2. `void` 表示一个函数并不会返回任何值，当函数并没有任何返回值，或者返回不了明确的值的时候，就应该用这种类型。
+
+      `never`表示一个函数从来不返回值，可能这个函数处于死循环，一直在运行，也可能这个函数运行过程中报错；`never`只能赋值给`never`，可以利用这个特性进行**穷尽检查（Exhaustiveness checking）**。
 
    
+
+# note
+
+ts执行静态类型检查，在代码运行之前暴露出错误，逻辑错误，拼写错误，。。
+
+开启这个命令之后报错就不会生成新的文件
+
+```
+tsc --noEmitOnError hello.ts
+```
+
+设置目标编译版本
+
+```
+tsc test.ts --target es2015
+```
+
+# Strictness
+
+tsconfig.json
+
+```
+noImplicitAny: true  //隐式推断为any都会报错
+
+```
+
+strictNullChecks为false时， null和undefined可以赋值给很多其他类型（除了never）,另外访问值可能为null或者undefind的变量时也不会报错，为true主要是提醒开发人员不要忘记处理null和undefined，这时可以使用后缀`!`,即非空断言，但不会改变运行时的行为，因此前提是开发者确定此处不为空。
+
+typescript 是结构类型系统，只关心结构是否保持一致
+
+
+
+# 类型断言
+
+断言只能把一个类型断言的更具体，或者更不具体，即把对应类型的范围放大或者缩小，而不能将一种具体的类型断言成另一种具体的类型。
+
+可以使用两次断言
+
+```
+const a = (expr as any) as T
+```
+
+# 字面量类型
+
+通常将其运用于联合类型中
+
+字面量类型的推导可能导致的问题：
+
+```ts
+const req = { url: "https://example.com", method: "GET" };
+handleRequest(req.url, req.method); //error Argument of type 'string' is not assignable to parameter of type '"GET" | "POST"'.
+```
+
+第二个参数需要的是字面量类型，`"GET" | "POST"`, 而req.method此时的类型是`string`
+
+解决办法：
+
+```js
+1.
+const req = { url: "https://example.com", method: "GET" as "GET"};
+2. 
+handleRequest(req.url, req.method as 'GET')
+3.
+const req = { url: "https://example.com", method: "GET" } as const
+//将整个对象转换为字面量类型
+
+```
+
+
+
+# 结合工具类型学习ts中的关键字
+
+## keyof   & in
+
+```js
+type Partial<T> = {
+    [P in keyof T]?: T[P];
+};
+
+type Required<T> = {
+    [P in keyof T]-?: T[P];
+};
+```
+
+
+
+## readonly
+
+```js
+type Readonly<T> = {
+    readonly [P in keyof T]: T[P];
+};
+```
+
+
+
+## extends
+
+```js
+type Pick<T, K extends keyof T> = {
+    [P in K]: T[P];
+};
+
+type Record<K extends keyof any, T> = {
+    [P in K]: T;
+};
+```
+
+```js
+ * Exclude from T those types that are assignable to U
+ */
+type Exclude<T, U> = T extends U ? never : T;
+
+/**
+ * Extract from T those types that are assignable to U
+ */
+type Extract<T, U> = T extends U ? T : never;
+
+type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
+
+/**
+ * Exclude null and undefined from T
+ */
+type NonNullable<T> = T extends null | undefined ? never : T;
+```
+
+
+
+## *abstract*
+
+##　intrinsic
+
+## infer
+
