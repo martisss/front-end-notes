@@ -254,6 +254,47 @@ console.log(a.toLocaleLowerCase())
       `never`表示一个函数从来不返回值，可能这个函数处于死循环，一直在运行，也可能这个函数运行过程中报错；`never`只能赋值给`never`，可以利用这个特性进行**穷尽检查（Exhaustiveness checking）**。
 
    
+   
+   
+   
+   > **注：**  
+   >
+   >   当基于上下文的推导，返回类型为`void`时，不会强制返回函数一定不能返回内容，也就是说当这样一个类型`(type vf = () => void)`被应用时，也是可以返回值的，只不过返回的值会被忽略。
+   >
+   > ```js
+   > type voidFunc = () => void;
+   >  
+   > const f1: voidFunc = () => {
+   >   return true;
+   > };
+   > 
+   > let a = f1() //let a: void
+   >  
+   > const f2: voidFunc = () => true;
+   >  
+   >  let b = f2()  //let b: void
+   > const f3: voidFunc = function () {
+   >   return true;
+   > };
+   > 
+   > let c = f3() //let c: void
+   > ```
+   >
+   > 可以看到`a` `b` `c`的类型都是`void`
+   >
+   > 但当一个函数字面量定义返回一个 `void` 类型，函数是一定不能返回任何东西的
+   >
+   > ```js
+   > function f2(): void {
+   >   return true;  //Type 'true' is not assignable to type 'void'.
+   > }
+   >  
+   > const f3 = function (): void {
+   >   return true;  //Type 'true' is not assignable to type 'void'.
+   > };
+   > ```
+   
+   
 
 # note
 
@@ -322,7 +363,84 @@ const req = { url: "https://example.com", method: "GET" } as const
 
 ```
 
+# 函数
 
+写约束的时候保持克制，如无必要，勿增实体。
+
+## 泛型函数
+
+```js
+function first<T>(arr: T[]): T | undefined {
+    return arr[0]
+}
+```
+
+## 推断
+
+```js
+function map<Input, Output>(arr: Input[], func: (arg: Input) => Output): Output[] {
+  return arr.map(func);
+}
+ 
+// Parameter 'n' is of type 'string'
+// 'parsed' is of type 'number[]'
+const parsed = map(["1", "2", "3"], (n) => parseInt(n));
+```
+
+## 泛型约束
+
+```js
+function longest<Type extends { length: number }>(a: Type, b: Type) {
+  if (a.length >= b.length) {
+    return a;
+  } else {
+    return b;
+  }
+}
+ 
+// longerArray is of type 'number[]'
+const longerArray = longest([1, 2], [1, 2, 3]);
+// longerString is of type 'alice' | 'bob'
+const longerString = longest("alice", "bob");
+// Error! Numbers don't have a 'length' property
+const notOK = longest(10, 100);
+```
+
+使用`extends`语法来约束参数类型，在这里要注意返回类型要和输入类型一致，不仅仅是满足泛型约束的要求
+
+## 指定类型参数
+
+```js
+function combine<T>(arr1: T[], arr2: T[]): T[] {
+    return arr1.concat(arr2)
+}
+
+const res = combine<string | number>([1,2,3], ['abc'])
+```
+
+## 函数重载
+
+函数重载或⽅法重载是使⽤相同名称和不同参数数量或类型创建多个⽅法的⼀种能⼒
+
+重载签名至少两个，后面跟实现签名，实现签名对外界来说是不可见的
+
+实现签名必须和重载签名兼容
+
+```ts
+function fn(x: string): string;
+// Return type isn't right
+function fn(x: number): boolean;
+This overload signature is not compatible with its implementation signature.
+function fn(x: string | number) {
+  return "oops";
+}
+```
+
+## 在函数中声明this
+
+[函数中声明this](https://github.com/mqyqingfeng/Blog/issues/220/#)
+
+## 调用签名、构造签名
 
 # 结合工具类型学习ts中的关键字
 
@@ -360,24 +478,6 @@ type Pick<T, K extends keyof T> = {
 type Record<K extends keyof any, T> = {
     [P in K]: T;
 };
-```
-
-```js
- * Exclude from T those types that are assignable to U
- */
-type Exclude<T, U> = T extends U ? never : T;
-
-/**
- * Extract from T those types that are assignable to U
- */
-type Extract<T, U> = T extends U ? T : never;
-
-type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
-
-/**
- * Exclude null and undefined from T
- */
-type NonNullable<T> = T extends null | undefined ? never : T;
 ```
 
 

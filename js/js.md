@@ -2383,6 +2383,8 @@ btn.addEventListener('click', (el) => {
 
  [一次弄懂 Event Loop](https://juejin.cn/post/6844903764202094606)、
 
+https://juejin.cn/post/6868849475008331783#heading-35
+
 ### 例子
 
 ```js
@@ -2818,45 +2820,7 @@ JSON.stringify(
 
 # 模块化
 
-CommonJS 服务器端的模块规范
-
- CommonJS2 使用module.exports, CommonJS使用exports
-
-AMD、CMD 主要用于浏览器端, AMD 推崇依赖前置、提前执行，CMD推崇依赖就近、延迟执行。
-
-AMD 是异步模块定义规范，RequireJS 是 AMD 规范的实现。，SeaJS是CMD的实现
-
-## CommonJS
-
-Node.js是commonJS规范的主要实践者，它有四个重要的环境变量为模块化的实现提供支持：`module`、`exports`、`require`、`global`。实际使用时，用 `module.exports`定义当前模块对外输出的接口（不推荐直接用 `exports`），用 `require`加载模块。
-
-> commonJS用同步的方式加载模块。在服务端，模块文件都存在本地磁盘，读取非常快
-
-## AMD和require.js
-
-AMD规范采用异步方式加载模块，模块的加载不影响它后面语句的运行。所有依赖这个模块的语句，都定义在一个回调函数中，等到加载完成之后，这个回调函数才会运行。这里介绍用require.js实现AMD规范的模块化：用 `require.config()`指定引用路径等，用 `define()`定义模块，用 `require()`加载模块。
-
-> 引用模块的时候，我们将模块名放在 `[]`中作为 `reqiure()`的第一参数；如果我们定义的模块本身也依赖其他模块,那就需要将它们放在 `[]`中作为 `define()`的第一参数。
-
-## CMD和sea.js
-
-CMD是另一种js模块化方案，它与AMD很类似，不同点在于：AMD 推崇依赖前置、提前执行，CMD推崇依赖就近、延迟执行。此规范其实是在sea.js推广过程中产生的。
-
-## AMD 和 CMD的区别
-
-链接：https://juejin.cn/post/6844903541853650951
-
-最明显的区别就是在模块定义时对依赖的处理不同
-
-**1、AMD推崇依赖前置、提前执行，在定义模块的时候就要声明其依赖的模块**
-**2、CMD推崇就近依赖、延迟执行，只有在用到某个模块的时候再去require**
-这种区别各有优劣，只是语法上的差距，而且requireJS和SeaJS都支持对方的写法
-
-AMD和CMD最大的区别是**对依赖模块的执行时机处理不同**，注意不是加载的时机或者方式不同
-
-同样都是异步加载模块，AMD在加载模块完成后就会执行该 模块，所有模块都加载执行完后会进入require的回调函数，执行主逻辑，这样的效果就是依赖模块的执行顺序和书写顺序不一定一致，看网络速度，哪个先下载下来，哪个先执行，但是主逻辑一定在所有依赖加载完成后才执行
-
-CMD加载完某个依赖模块后并不执行，只是下载而已，在所有依赖模块加载完成后进入主逻辑，遇到require语句的时候才执行对应的模块，这样模块的执行顺序和书写顺序是完全一致的
+[模块化](../前端工程化/frontendEngineering.md/#模块化)
 
 ## ES6 Module
 
@@ -2908,16 +2872,7 @@ import(f())
 
 3. **CommonJS 模块的 `require()`是同步加载模块，ES6 模块的 `import`命令是异步加载，有一个独立的模块依赖的解析阶段。**
 
-## CommonJS与AMD
 
-1. CommonJS 是服务器端模块规范，AMD 是浏览器端模块规范。
-2. CommonJS 加载模块是同步的，即执行 `var a = require('./a.js');`时，在 a.js 文件加载完成后，才执行后面的代码。AMD 加载模块是异步的，所有依赖加载完成后以回调函数的形式执行代码。
-3. [如下代码]`fs`和 `chalk`都是模块，不同的是，`fs`是 node 内置模块，`chalk`是一个 npm 包。这两种情况在 CommonJS 中才有，AMD 不支持。
-
-```javascript
-var fs = require('fs');
-var chalk = require('chalk');
-```
 
 # 正则
 
@@ -3842,6 +3797,8 @@ eval("UNTRUSTED")
 而且，SamesiteCookie目前有一个致命的缺陷：不支持子域。例如，种在topic.a.com下的Cookie，并不能使用a.com下种植的SamesiteCookie。这就导致了当我们网站有多个子域名时，不能使用SamesiteCookie在主域名存储用户登录信息。每个子域名都需要用户重新登录一次。
 
 # 前端性能优化
+
+https://juejin.cn/post/6947841638118998029
 
 ## 加载时性能优化
 
