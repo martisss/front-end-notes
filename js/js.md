@@ -238,6 +238,12 @@ eval和with使引擎在**编译时**无法对作用域查找进行优化，因�
 
 # js
 
+## 数据类型
+
+基础数据类型：值不可变，按值访问，js中基础数据类型也可以访问数据，是通过 `包装对象`实现的。
+
+引用数据类型：值可变，按引用fang'wen
+
 ## 原型、原型链
 
 ![原型、原型链.png](https://i.loli.net/2021/09/12/QauU3fYzjZJ9hdn.png)
@@ -1972,6 +1978,7 @@ typeof + NaN  (ES5)
 
 ```js
 function isNaNVal(val){
+  
     return typeof val === 'number' && isNaN(val)
 }
 复制代码

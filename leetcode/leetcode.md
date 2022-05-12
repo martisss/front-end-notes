@@ -3631,9 +3631,45 @@ var recoverTree = function(root) {
 
 # 二分
 
+## [704. 二分查找](https://leetcode-cn.com/problems/binary-search/)
+
+前提： 有序，无重复元素
+
+```js
+// 左闭右区
+var search = function(nums, target) {
+    let l = 0, r = nums.length-1
+    while(l<=r) {
+        const mid = l + ((r-l)>>>1)
+        if(nums[mid]<target) {
+            l = mid+1
+        } else if(nums[mid]>target) {
+            r=mid-1
+        } else return mid
+    }
+    return -1
+}
+
+// 左闭右开
+var search = function(nums, target) {
+    let l = 0, r = nums.length
+    while(l<r) {
+        const mid = l + ((r-l)>>>1)
+        if(nums[mid]<target) {
+            l = mid+1
+        } else if(nums[mid]>target) {
+            r=mid
+        } else return mid
+    }
+    return -1
+}
+```
+
+
+
 “排序数组中的搜索问题，首先想到 二分法 解决
 
-### [剑指 Offer 53 - II. 0～n-1中缺失的数字](https://leetcode-cn.com/problems/que-shi-de-shu-zi-lcof/)
+## [剑指 Offer 53 - II. 0～n-1中缺失的数字](https://leetcode-cn.com/problems/que-shi-de-shu-zi-lcof/)
 
 # TODO
 
