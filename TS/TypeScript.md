@@ -444,7 +444,7 @@ function fn(x: string | number) {
 
 # 结合工具类型学习ts中的关键字
 
-## keyof   & in
+## keyof  & in
 
 ```js
 type Partial<T> = {
@@ -456,17 +456,90 @@ type Required<T> = {
 };
 ```
 
+`keyof`操作符返回对象属性名组成的**字面量联合类型**
 
+```ts
+type Dog = { name: string; age: number;  };
+type D = keyof Dog; //type D = "name" | "age"
+```
+
+但要注意遇到索引签名时，`typeof`会直接返回其类型
+
+```ts
+type Dog = {  [y:number]: number  };
+type dog = keyof Dog;  //type dog = number
+
+type Doggy = {  [y:string]: boolean };
+type doggy = keyof Doggy; //type doggy = string | number
+
+type Doggy = {  [y:string]: unknown, [x:number]: boolean};
+type doggy = keyof Doggy; //type doggy = string | number
+```
+
+因为`JavaScript`的对象属性会默认转换为字符串
+
+主要用来遍历枚举类型
+
+```ts
+type Animals = 'pig' | 'cat' | 'dog'
+
+type animals = {
+    [key in Animals]: string
+}
+// type animals = {
+//     pig: string;
+//     cat: string;
+//     dog: string;
+// }
+```
+
+## Partial & Required
+
+`Partial`：将某个类型里的属性全部变为可选项
+
+思路是先用`keyof`取到该类型所有属性组成的字面量联合类型，然后结合`in` `?`操作符，将每个属性变成可选的
+
+```ts
+type Partial<T> = {
+    [P in keyof T]?: T[P]
+}
+```
+
+`Required`：和`Partial`的作用相反，是为了将某个类型里的属性全部变为必选的
+
+```ts
+interface Props {
+  a?: number;
+  b?: string;
+}
+ 
+const obj: Props = { a: 5 };
+ 
+const obj2: Required<Props> = { a: 5 };
+//Property 'b' is missing in type '{ a: number; }' but required in type 'Required<Props>'.
+```
+
+实现思路和前面相似
+
+```ts
+type Partial<T> = {
+    [P in keyof T]-?: T[P]
+}
+```
+
+上文对应的`-？`代表着去掉可选，与之对应的还有`+？`，两者正好相反
 
 ## readonly
+
+字面意思，只读属性，创建之后不能修改值，TS提供了`Readonly`工具类型将每一个属性变为只读。
+
+`Readonly`的实现思路同`Partial`，先用`keyof`取到该类型所有属性组成的字面量联合类型，然后结合`in` `readonly`操作符，将每个属性变成只读的
 
 ```js
 type Readonly<T> = {
     readonly [P in keyof T]: T[P];
 };
 ```
-
-
 
 ## extends
 
@@ -480,11 +553,216 @@ type Record<K extends keyof any, T> = {
 };
 ```
 
+`extends`关键字的出现频率也很高，主要有以下几个作用：
+
+1. 接口继承
+
+   ```ts
+   interface Person {
+       name: string;
+       age: number;
+   }
+   
+   interface Player extends Person {
+       item: 'ball' | 'swing';
+   }
+   ```
+
+2. 类型约束
+
+   通常和泛型一起使用
+
+   ```ts
+   P extends keyof T
+   ```
+
+   表示`P`的类型是`keyof T`返回的字面量联合类型
+
+   与之相关的工具类型有`Pick`和`Record`
+
+   `Pick`表示从一个类型中选取指定的几个字段组合成一个新的类型，用法如下：
+
+   ```ts
+   type Person = {
+     name: string;
+     age: number;
+     address: string;
+     sex: number;
+   }
+   
+   type PickResult = Pick<Person, 'name' | 'address'>
+   // { name: string; address: string; }
+   ```
+
+   实现方式:
+
+   ```ts
+   type Pick<T, K extends keyof T> = {
+       [P in K]: T[P];
+   };
+   ```
+
+   首先进行了类型限定，`K`一定是`T`的子集，然后用`in`遍历`K`中的每个属性
+
+   `Record<K, T>`用来将`K`的每一个键(`k`)指定为`T`类型，这样由多个`k/T`组合成了一个新的类型，用法如下：
+
+   ```ts
+   type keys = 'Cat'|'Dot'
+   type Animal = {
+     name: string;
+     age: number;
+   }
+   
+   type RecordResult = Record<keys, Animal>
+   // result: 
+   // type RecordResult = {
+   //     Cat: Animal;
+   //     Dot: Animal;
+   // }
+   ```
+
+   实现方式：
+
+   ```ts
+   type Record<K extends keyof any, T> = {
+       [P in K]: T
+   }
+   ```
+
+   `keyof any`是什么鬼？鼠标放上去看看就知道了
+
+   ![image-20220515205738135](../pictures/image-20220515205738135.png)
+
+   因此，`keyof any`即`string | number | symbol`，先对键的取值范围进行了限定，只能是三者中的一个。
+
+3. 条件类型
+
+   常见表现形式为：
+
+   ```js
+   T extends U ? 'Y' : 'N'
+   ```
+
+   类似`JS`中的三元表达式，可以这样理解：`T`是`U`的子集，那么`T`的结果是`'Y'`, 否则是`'N'`. 
+
+   ```ts
+     type A1 = 'x' extends 'x' ? string : number; // string
+   
+     type A2 = 'x' | 'y' extends 'x' ? string : number; // number
+   ```
+
+   上述两个例子都符合刚提到的 “三元表达式” 操作
+
+   要注意的一点就是当`T`泛型时，且传入该泛型的是一个联合类型中，那么该联合类型中的每一个类型都要进行上述操作，最终返回上述操作结果组成的新联合类型，这叫做分配条件类型（[`Distributive Conditional Types`](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#distributive-conditional-types=)）
+
+   ```ts
+    type P<T> = T extends 'x' ? string : number;
+    type A3 = P<'x' | 'y'> // ?   type A3 = string | number
+   ```
+
+   同样传入`'x' | 'y'`, 结果却不同。
+
+   实际进行的操作类似如下：
+
+   ```ts
+    type A3 = P<'x' | 'y'> 
+    type A3 = P<'x'>  | P<'y'>
+    type A3 = ('x' extends 'x' ? string : number) | ('y' extends 'x' ? string : number)
+   // type A3 = string | number
+   ```
+
+   以下情况也不属于分配条件类型生效的情况:
+
+   ```ts
+   type A<T> = string extends T ? "yes" : "no"
+   
+   type A<T> = string extends T ? "yes" : "no"
+   ```
+
+   相关的工具类型又有哪些呢？
+
+   先看着两个：`Exclude`和`Extract`
+
+   `Exclude<T, U>`: 排除`T`中属于`U`的部分
+
+   ![image-20220515211128808](../pictures/image-20220515211128808.png)
+
+   `Extract<T, U>`： 提取`T`中属于`U`的部分，即二者交集
+
+   ![image-20220515211136815](../pictures/image-20220515211136815.png)
+
+使用方法：
+
+```ts
+type ExcludeResult = Exclude<'name'|'age'|'sex', 'sex'|'address'>
+//type ExcludeResult = "name" | "age"
+```
+
+```ts
+type ExcludeResult = Extract<'name'|'age'|'sex', 'sex'|'address'>
+//type ExcludeResult = "sex"
+```
+
+实现方式：
+
+```ts
+type Exclude<T, U> = T extends U ? never : T
+
+type extract<T, U> = T extends U ? T : never
+```
+
+实现思路不再赘述，和`extends`分配条件类型处一样
+
+`NonNullable`工具类型可以从目标类型中排除1`null`和`undefined`，和`Exclude`相比，它将`U`限定的更具体
+
+实现也很简单：
+
+```ts
+type A = null | undefined | 'dog' | Function
+
+// type nonNullable<T> = Exclude<T , undefined | null>
+type nonNullable<T> = T extends null | undefined ? never : T
+
+type res = nonNullable<A>   // type res = Function | "dog"
+```
 
 
-## *abstract*
 
-##　intrinsic
+根据已经实现的`Exclude`类型，可以实现`Omit`类型，`Omit<T, K>`:删除`T`中指定的字段，用法如下：
+
+```ts
+type Person = {
+  name?: string;
+  age: number;
+  address: string;
+}
+
+// 结果：{ name？: string; age: number; }
+type OmitResult = Omit<Person, 'address'>
+```
+
+实现方式：
+
+```
+type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
+```
+
+实现思路：
+
+首先，删除指定字段，字段类型限定在 `string | symbol number`中，然后用`Exclude`从`T`的属性所组成的字面量联合类型中移除指定字段，形成新的联合类型；最后利用`Pick`选取指定字段生成新的类型
+
+
 
 ## infer
 
+ Parameters
+
+*type* ReturnType<T *extends* (...*args*: *any*) => *any*> = T *extends* (...*args*: *any*) => infer R ? R : *any*;
+
+## *abstract*
+
+ ConstructorParameters
+
+*type* InstanceType<T *extends* *abstract* new (...*args*: *any*) => *any*> = T *extends* *abstract* new (...*args*: *any*) => infer R ? R : *any*;
+
+*type* InstanceType<T *extends* *abstract* new (...*args*: *any*) => *any*> = T *extends* *abstract* new (...*args*: *any*) => infer R ? R : *any*;
