@@ -2208,23 +2208,21 @@ var lengthOfLongestSubstring = function(s) {
 }
 ```
 
-##[209. 长度最小的子数组](https://leetcode-cn.com/problems/minimum-size-subarray-sum/)
+#### [209. 长度最小的子数组](https://leetcode.cn/problems/minimum-size-subarray-sum/)
 
 ```js
 var minSubArrayLen = function(target, nums) {
-    let minLen = Number.MAX_SAFE_INTEGER
-    let left = 0, right = 0
+    let l = 0, r = 0
     let sum = 0
-    while(right<nums.length) {
-        sum += nums[right]
+    let len = Number.MAX_SAFE_INTEGER
+    while(r<nums.length) {
+        sum += nums[r++]
         while(sum>=target) {
-            minLen = Math.min(right-left+1, minLen)
-            sum-=nums[left]
-            left++
+            len = len < r-l ? len : r-l
+            sum -= nums[l++]
         }
-        right++
     }
-    return minLen === Number.MAX_SAFE_INTEGER ? 0 : minLen
+    return len === Number.MAX_SAFE_INTEGER ? 0 : len
 };
 ```
 
