@@ -78,6 +78,89 @@ var nextPermutation = function(nums) {
 };
 ```
 
+## [844. 比较含退格的字符串](https://leetcode.cn/problems/backspace-string-compare/)
+
+```js
+//  栈
+var backspaceCompare = function(s, t) {
+    function getStr(str) {
+        let stack = []
+        for(let c of str) {
+            if(c==='#') {
+                stack.pop()
+            } else {
+                stack.push(c)
+            }
+        }
+        return stack.join('')
+    }
+
+    return getStr(s) === getStr(t)
+};
+
+// 双指针
+var backspaceCompare = function(s, t) {
+    // 一个字符是否被删除只取决于它右侧的字符是否是`#`，因此逆序遍历
+    let i=s.length-1, j = t.length-1
+    // 记录需要删除的字符个数
+    let skipS = 0, skipT = 0
+    while(i>=0 || j>=0) {
+        while(i>=0) {
+            if(s[i] === '#') {
+                i--
+                skipS++
+            } else if(skipS>0) {
+                i--
+                skipS--
+            } else {
+                break
+            }
+        }
+        while(j>=0) {
+            if(t[j] === '#') {
+                j--
+                skipT++
+            } else if (skipT>0) {
+                j--
+                skipT--
+            } else {
+                break
+            }
+        }
+        if(i>=0 && j>=0) {
+            if(s[i] !== t[j]) {
+                return false
+            }
+        } else {
+            if(i>=0 || j>=0) {
+                return false
+            }
+        }
+        i--
+        j--
+    }
+    return true
+}
+```
+
+## [209. 长度最小的子数组](https://leetcode.cn/problems/minimum-size-subarray-sum/)
+
+```js
+var minSubArrayLen = function(target, nums) {
+    let l = 0, r = 0
+    let sum = 0
+    let len = Number.MAX_SAFE_INTEGER
+    while(r<nums.length) {
+        sum += nums[r++]
+        while(sum>=target) {
+            len = len < r-l ? len : r-l
+            sum -= nums[l++]
+        }
+    }
+    return len === Number.MAX_SAFE_INTEGER ? 0 : len
+};
+```
+
 
 
 # 排序

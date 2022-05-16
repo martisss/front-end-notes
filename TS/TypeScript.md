@@ -446,6 +446,8 @@ function fn(x: string | number) {
 
 ## keyof  & in
 
+### 使用
+
 ```js
 type Partial<T> = {
     [P in keyof T]?: T[P];
@@ -493,7 +495,7 @@ type animals = {
 // }
 ```
 
-## Partial & Required
+### Partial & Required
 
 `Partial`：将某个类型里的属性全部变为可选项
 
@@ -531,7 +533,11 @@ type Partial<T> = {
 
 ## readonly
 
+### 使用
+
 字面意思，只读属性，创建之后不能修改值，TS提供了`Readonly`工具类型将每一个属性变为只读。
+
+### Readonly
 
 `Readonly`的实现思路同`Partial`，先用`keyof`取到该类型所有属性组成的字面量联合类型，然后结合`in` `readonly`操作符，将每个属性变成只读的
 
@@ -543,15 +549,7 @@ type Readonly<T> = {
 
 ## extends
 
-```js
-type Pick<T, K extends keyof T> = {
-    [P in K]: T[P];
-};
-
-type Record<K extends keyof any, T> = {
-    [P in K]: T;
-};
-```
+### 使用
 
 `extends`关键字的出现频率也很高，主要有以下几个作用：
 
@@ -578,62 +576,7 @@ type Record<K extends keyof any, T> = {
 
    表示`P`的类型是`keyof T`返回的字面量联合类型
 
-   与之相关的工具类型有`Pick`和`Record`
-
-   `Pick`表示从一个类型中选取指定的几个字段组合成一个新的类型，用法如下：
-
-   ```ts
-   type Person = {
-     name: string;
-     age: number;
-     address: string;
-     sex: number;
-   }
    
-   type PickResult = Pick<Person, 'name' | 'address'>
-   // { name: string; address: string; }
-   ```
-
-   实现方式:
-
-   ```ts
-   type Pick<T, K extends keyof T> = {
-       [P in K]: T[P];
-   };
-   ```
-
-   首先进行了类型限定，`K`一定是`T`的子集，然后用`in`遍历`K`中的每个属性
-
-   `Record<K, T>`用来将`K`的每一个键(`k`)指定为`T`类型，这样由多个`k/T`组合成了一个新的类型，用法如下：
-
-   ```ts
-   type keys = 'Cat'|'Dot'
-   type Animal = {
-     name: string;
-     age: number;
-   }
-   
-   type RecordResult = Record<keys, Animal>
-   // result: 
-   // type RecordResult = {
-   //     Cat: Animal;
-   //     Dot: Animal;
-   // }
-   ```
-
-   实现方式：
-
-   ```ts
-   type Record<K extends keyof any, T> = {
-       [P in K]: T
-   }
-   ```
-
-   `keyof any`是什么鬼？鼠标放上去看看就知道了
-
-   ![image-20220515205738135](../pictures/image-20220515205738135.png)
-
-   因此，`keyof any`即`string | number | symbol`，先对键的取值范围进行了限定，只能是三者中的一个。
 
 3. 条件类型
 
@@ -679,17 +622,83 @@ type Record<K extends keyof any, T> = {
    type A<T> = string extends T ? "yes" : "no"
    ```
 
-   相关的工具类型又有哪些呢？
 
-   先看着两个：`Exclude`和`Extract`
+### Pick & Record
 
-   `Exclude<T, U>`: 排除`T`中属于`U`的部分
+与`extends`类型约束特性相关的工具类型有`Pick`和`Record`
 
-   ![image-20220515211128808](../pictures/image-20220515211128808.png)
+**`Pick`**
 
-   `Extract<T, U>`： 提取`T`中属于`U`的部分，即二者交集
+`Pick`表示从一个类型中选取指定的几个字段组合成一个新的类型，用法如下：
 
-   ![image-20220515211136815](../pictures/image-20220515211136815.png)
+```ts
+type Person = {
+  name: string;
+  age: number;
+  address: string;
+  sex: number;
+}
+
+type PickResult = Pick<Person, 'name' | 'address'>
+// { name: string; address: string; }
+```
+
+实现方式:
+
+```ts
+type Pick<T, K extends keyof T> = {
+    [P in K]: T[P];
+};
+```
+
+首先进行了类型限定，`K`一定是`T`的子集，然后用`in`遍历`K`中的每个属性
+
+**Record**
+
+`Record<K, T>`用来将`K`的每一个键(`k`)指定为`T`类型，这样由多个`k/T`组合成了一个新的类型，用法如下：
+
+```ts
+type keys = 'Cat'|'Dot'
+type Animal = {
+  name: string;
+  age: number;
+}
+
+type RecordResult = Record<keys, Animal>
+// result: 
+// type RecordResult = {
+//     Cat: Animal;
+//     Dot: Animal;
+// }
+```
+
+实现方式：
+
+```ts
+type Record<K extends keyof any, T> = {
+    [P in K]: T
+}
+```
+
+`keyof any`是什么鬼？鼠标放上去看看就知道了
+
+![image-20220515205738135](../pictures/image-20220515205738135.png)
+
+因此，`keyof any`即`string | number | symbol`，先对键的取值范围进行了限定，只能是三者中的一个。
+
+### Exclude & Extract & Omit
+
+与`extends`条件类型特性相关的工具类型又有哪些呢？
+
+先看着两个：`Exclude`和`Extract`
+
+`Exclude<T, U>`: 排除`T`中属于`U`的部分
+
+![image-20220515211128808](../pictures/image-20220515211128808.png)
+
+`Extract<T, U>`： 提取`T`中属于`U`的部分，即二者交集
+
+![image-20220515211136815](../pictures/image-20220515211136815.png)
 
 使用方法：
 
@@ -750,8 +759,6 @@ type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 实现思路：
 
 首先，删除指定字段，字段类型限定在 `string | symbol number`中，然后用`Exclude`从`T`的属性所组成的字面量联合类型中移除指定字段，形成新的联合类型；最后利用`Pick`选取指定字段生成新的类型
-
-
 
 ## infer
 
