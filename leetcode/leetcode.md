@@ -1947,7 +1947,7 @@ right 指针每次向右移动一步，开始探索新的区间。
 
 ### [594. 最长和谐子序列](https://leetcode-cn.com/problems/longest-harmonious-subsequence/)
 
-### [76. 最小覆盖子串](https://leetcode-cn.com/problems/minimum-window-substring/)
+### :star:[76. 最小覆盖子串](https://leetcode-cn.com/problems/minimum-window-substring/)
 
 > 给你一个字符串 `s` 、一个字符串 `t` 。返回 `s` 中涵盖 `t` 所有字符的最小子串。如果 `s` 中不存在涵盖 `t` 所有字符的子串，则返回空字符串 `""` 。
 >
@@ -1976,95 +1976,51 @@ right 指针每次向右移动一步，开始探索新的区间。
 
 ```js
 var minWindow = function(s, t) {
-
   // 最小覆盖字串的起始位置及长度
-
   let start = 0, len = Number.MAX_VALUE
-
   // 滑动窗口的左右指针
-
   let left = 0, right = 0
-
   // 表示当前窗口已验证的字符数（种类）
-
   let valid = 0
-
   // need为需要验证的字符的字符数的集合，格式为{'char': number}
-
   // window为当前窗口中 所需要的目标字符的集合，格式为{'char': number}
-
   let need = {}, window = {}
-
   // 生成need集合
-
   for(let c of t) {
-
-​    need[c] = (need[c] || 0) + 1
-
+    need[c] = (need[c] || 0) + 1
   }
-
   while(right < s.length) {
-
-​    let c = s[right]
-
-​    right++
-
-​    // 当前字符属于需验证字符，更新当前窗口统计
-
-​    if(need[c]) {
-
-​      window[c] = (window[c] || 0) + 1
-
-​      // 相应字符数量与验证字符数量匹配，
-
-​      if(window[c] === need[c]) {
-
-​        valid++
-
-​      }
-
-​    }
-
-​    // 当窗口中目标字符数量与所需要的字符个数相同时，开始收缩窗口
-
-​    // 更新最小覆盖字串
-
-​    while(valid === Object.keys(need).length) {
-
-​      // 注意此处 right已经右移过了，因此字串长度为right-left, 而不是right-left+1
-
-​      if(right-left< len) {
-
-​        start = left
-
-​        len = right-left
-
-​      }
-
-​      // 左移窗口，移动过程中注意更新valid 与 window
-
-​      let d = s[left]
-
-​      left++
-
-​      if(need[d]) {
-
-​        if(window[d] === need[d]) {
-
-​          valid--
-
-​        }
-
-​        window[d]--
-
-​      }
-
-​    }
-
+    let c = s[right]
+    right++
+    // 当前字符属于需验证字符，更新当前窗口统计
+    if(need[c]) {
+      window[c] = (window[c] || 0) + 1
+      // 相应字符数量与验证字符数量匹配，
+      if(window[c] === need[c]) {
+        valid++
+      }
+    }
+    // 当窗口中目标字符数量与所需要的字符个数相同时，开始收缩窗口
+    // 更新最小覆盖字串
+    while(valid === Object.keys(need).length) {
+      // 注意此处 right已经右移过了，因此字串长度为right-left, 而不是right-left+1
+      if(right-left< len) {
+        start = left
+        len = right-left
+      }
+     // 左移窗口，移动过程中注意更新valid 与 window
+      let d = s[left]
+      left++
+      if(need[d]) {
+        if(window[d] === need[d]) {
+          valid--
+        }
+        window[d]--
+      }
+    }
   }
 
   return len == Number.MAX_VALUE ? '' : s.substr(start, len)
-
 };
 ```
 
@@ -2208,7 +2164,7 @@ var lengthOfLongestSubstring = function(s) {
 }
 ```
 
-#### [209. 长度最小的子数组](https://leetcode.cn/problems/minimum-size-subarray-sum/)
+### [209. 长度最小的子数组](https://leetcode.cn/problems/minimum-size-subarray-sum/)
 
 ```js
 var minSubArrayLen = function(target, nums) {
@@ -2226,7 +2182,9 @@ var minSubArrayLen = function(target, nums) {
 };
 ```
 
+TODO: [904. 水果成篮](https://leetcode.cn/problems/fruit-into-baskets/)
 
+难度中等209
 
 # 二叉树
 
