@@ -411,24 +411,6 @@ console.log(flatten([1,2,3,[1,[3,5]]]))}
 
 # 深浅拷贝
 
-对于数组来说
-
-```js
-arr.slice()
-arr.concat()
-//es6
-newArr = [...arr]
-Array.from(arr)
-
-let arr  = [1, null, 2, undefined, function(){}]
-
-JSON.parse(JSON.stringify(arr))
-```
-
-> JSON.stringify(..) 在对象中遇到 undefined 、 function 和 symbol 时会自动将其忽略， 在 数组中则会返回 null （以保证单元位置不变）
->
-> 对包含循环引用的对象执行 JSON.stringify(..) 会出错。
-
 ## 浅拷贝
 
 ```js
@@ -454,11 +436,31 @@ function deepClone(obj) {
 
 ## 深拷贝
 
+对于数组来说
+
+```js
+arr.slice()
+arr.concat()
+//es6
+newArr = [...arr]
+Array.from(arr)
+
+let arr  = [1, null, 2, undefined, function(){}]
+
+JSON.parse(JSON.stringify(arr))
+```
+
+> JSON.stringify(..) 在对象中遇到 undefined 、 function 和 symbol 时会自动将其忽略， 在 数组中则会返回 null （以保证单元位置不变）
+>
+> 对包含循环引用的对象执行 JSON.stringify(..) 会出错。
+
 https://segmentfault.com/a/1190000020255831
 
 ```js
 function deepClone(obj) {
+    //判断是否是对象
   if(obj === null || typeof obj !== 'object') return obj
+    //判断是数组还是普通对象
   let newObj = obj instanceof Array ? [] : {}
   for(let key in obj) {
     if(obj.hasOwnProperty(key)) {

@@ -547,6 +547,10 @@ type Readonly<T> = {
 
 ## extends
 
+[Merge](https://github.com/type-challenges/type-challenges/blob/main/questions/00599-medium-merge/README.md)
+
+条件判断无法作用于： 后面
+
 ### 使用
 
 `extends`关键字的出现频率也很高，主要有以下几个作用：
@@ -820,6 +824,10 @@ type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
  Parameters
 
 *type* ReturnType<T *extends* (...*args*: *any*) => *any*> = T *extends* (...*args*: *any*) => infer R ? R : *any*;
+
+
+
+[type-challenges/README.md at main · type-challenges/type-challenges (github.com)](https://github.com/type-challenges/type-challenges/blob/main/questions/00106-medium-trimleft/README.md)
 
 ## *abstract*
 
