@@ -1,4 +1,4 @@
-# call
+# call :bulb:
 
 ```js
 Function.prototype.myCall = function(context) {
@@ -28,7 +28,7 @@ bar.myCall(foo, 'kevin', 18);
 // 1
 ```
 
-# apply
+# apply :bulb:
 
 ```js
 Function.prototype.myCall = function(context, args=[]) {
@@ -40,7 +40,7 @@ Function.prototype.myCall = function(context, args=[]) {
 }
 ```
 
-# bind
+# bind :tada:
 
 > bind() 方法会创建一个新函数。当这个新函数被调用时，bind() 的第一个参数将作为它运行时的 this，之后的一序列参数将会在传递的实参前传入作为它的参数。(来自于 MDN )
 
@@ -58,7 +58,7 @@ Function.prototype.myBind = function(context) {
   // 实例可以继承绑定函数原型中的值
   //fBind.prototype = this.prototype
   //改为以下实现，避免修改绑定函数的原型
-  temp.prototype = Object.create(this.prototype)
+  fBind.prototype = Object.create(this.prototype)
   return fBind
 }
 let Person = {
@@ -81,7 +81,7 @@ fn()
 fn(18)
 ```
 
-# 防抖
+# 防抖 :bulb:
 
 事件触发后延迟一段时间后再执行回调，如果这段时间内再次触发事件，则重新计时
 
@@ -110,7 +110,7 @@ const debounce = (func, delay) => {
 }
 ```
 
-# 节流
+# 节流 :bulb:
 
 持续触发事件，每隔一段时间，只执行一次事件。
 
@@ -131,7 +131,7 @@ function throttle(func, wait) {
 
 ## TODO
 
-# 继承
+# 继承 :bulb:
 
 ## 原型链继承
 
@@ -299,7 +299,7 @@ class Dog extends Animal {
 
 
 
-# 类型判断
+# 类型判断 :bulb:
 
 ```js
 function typeOf(target) {
@@ -318,7 +318,7 @@ console.log(typeOf(num1))
 console.log(typeOf(null))
 ```
 
-# 数组去重
+# 数组去重 :bulb:
 
 > es6
 
@@ -339,7 +339,7 @@ function unique(arr) {
 }
 ```
 
-# 数组扁平化
+# 数组扁平化 :bulb:
 
 > 1
 
@@ -403,15 +403,35 @@ function* flatten(arr) {
 }
 
 console.log([...flatten([1,2,3,[1,[3,5]]])])
-console.log(flatten([1,2,3,[1,[3,5]]]))}
+console.log(flatten([1,2,3,[1,[3,5]]]))
 
 ```
 
 
 
-# 深浅拷贝
+# 深浅拷贝 :bulb:
 
 ## 浅拷贝
+
+针对数组
+
+```js
+arr.slice()
+arr.concat()
+//es6
+newArr = [...arr]
+Array.from(arr)
+```
+
+针对对象
+
+```js
+Object.assign({}, target)
+
+let clone = {...user}
+```
+
+
 
 ```js
 function deepClone(obj) {
@@ -439,11 +459,6 @@ function deepClone(obj) {
 对于数组来说
 
 ```js
-arr.slice()
-arr.concat()
-//es6
-newArr = [...arr]
-Array.from(arr)
 
 let arr  = [1, null, 2, undefined, function(){}]
 
@@ -481,9 +496,11 @@ console.log(deepClone(arr))
 ```js
   function isObject(obj) {return !!(obj && typeof obj === 'object')}
   function isEqual(obj1, obj2) {
+     //1. 不是对象，直接判断是否相等
     if(!isObject(obj1) || !isObject(obj2)) return obj1 === obj2
+      //2. 是对象，引用相同，是同一对象，返回true
     if(obj1 === obj2) return true
-    // 都是对象或者数组，且不相等
+    // 3. 都是对象或者数组，且不相等
     let keys1 = Object.keys(obj1)
     let keys2 = Object.keys(obj2)
     if(keys1.length !== keys2.length) return false
@@ -495,7 +512,7 @@ console.log(deepClone(arr))
   }
 ```
 
-## 将URL参数解析成JS对象
+# 将URL参数解析成JS对象
 
 ```js
   function queryToObj() {
@@ -510,7 +527,6 @@ console.log(deepClone(arr))
     return res
   }
 
-
   function queryToObj() {
     const res = {}
     const pList = new URLSearchParams(location.search)
@@ -523,7 +539,7 @@ console.log(deepClone(arr))
 
 
 
-# new 
+# new :bulb:
 
 ```js
 function myNew(fn, ...args){
@@ -539,11 +555,9 @@ function person(name, age) {
 
 let p = myNew(person, 'MM', 12)
 console.log(p) 
-
-
 ```
 
-# instanceof
+# instanceof :bulb:
 
 > 判断构造函数的prototype是否出现在实例的原型链上
 
@@ -559,7 +573,7 @@ function instanceOf(left, right) {
 }
 ```
 
-# Object.create()
+# Object.create() :bulb:
 
 ```js
 Object.newCreate = function(obj) {
@@ -591,22 +605,79 @@ Object.assign = (obj, ...source) => {
 }
 ```
 
-# 图片懒加载
+# 图片懒加载 :bulb:
+
+## 监听scroll + 节流
 
 ```js
-    const lazyLoad = function (loadingUrl, targetUrl) {
-      let imgNode = document.createElement('img')
-      document.body.appendChild(imgNode)
-      imgNode.src = loadingUrl
-      let image = new Image()
-      // 图片加载完成之前放一张占位图
-      // 模拟图片加载延时
-      // setTimeout(() => {
-      //   image.src = targetUrl
-      // }, 3000)
-      image.src = targetUrl
-      image.onload = image.onerror = () => imgNode.src= image.src
+// img节点列表，图片请求地址在data-src属性中，可通过img.dataset.src取得
+let imgList = [...document.querySelectorAll('img')]
+let length = imgList.length
+
+const imgLazyLoad = (function(){
+  let count = 0
+  return function() {
+    let deletedIndex = []
+    imgList.forEach((img, index) => {
+      let rect = img.getBoundingClientRect()
+      if(rect.top<window.innerHeight) {
+        img.src = img.dataset.src
+        deletedIndex.push(index)
+        count++
+      }
+    })
+    if(count === length) { document.removeEventListener('scroll', imgLazyLoad)}
+    imgList = imgList.filter((img, index)=> !deletedIndex.includes(index))
+  }
+})()
+
+const throttle = function(fn, delay) {
+  let cxt, pre = 0
+  return () => {
+    cxt = this
+    let args = arguments
+    let now = +new Date()
+    if(now-pre>delay) {
+      fn.apply(cxt, args)
     }
+    pre = now
+  }
+}
+
+document.addEventListener('scroll', throttle(fn, 500))
+```
+
+## intersectionObserver
+
+```js
+let imgList = [...document.querySelectorAll('img')]
+
+const imgLazyLoad = function() {
+  const io = new IntersectionObserver(inters => {
+    inters.forEach((item, index) => {
+      if(item.isIntersecting) {
+        item.target.src = img.target.dataset.src
+        io.unobserve(item.target)
+      }
+    })
+  })
+  imgList.forEach(el => io.observe(el))
+}
+
+const throttle = function(fn, delay) {
+  let cxt, pre=0, args
+  return function() {
+    args = arguments
+    cxt = this
+    let now = +new Date()
+    if(now-pre) {
+      fn.apply(cxt, args)
+      pre = now
+    }
+  }
+}
+
+document.addEventListener('scroll', throttle(imgLazyLoad))
 ```
 
 
