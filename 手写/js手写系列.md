@@ -512,7 +512,7 @@ console.log(deepClone(arr))
   }
 ```
 
-# 将URL参数解析成JS对象
+# 将URL参数解析成JS对象 :bulb:
 
 ```js
   function queryToObj() {
@@ -682,7 +682,7 @@ document.addEventListener('scroll', throttle(imgLazyLoad))
 
 
 
-# 数组
+# 数组 :bulb:
 
 ```js
 Array.prototype._forEach = function(callback, thisArgs) {
@@ -960,7 +960,7 @@ if (!Array.prototype.every) {
 }
 ```
 
-# Promise
+# Promise :bulb:
 
 ```js
 
@@ -1174,9 +1174,9 @@ Promise.any = function(promiseArr) {
     return new Promise((resolve, reject) => {
         if (promiseArr.length === 0) return 
         promiseArr.forEach((p, i) => {
-            Promise.resolve(p).then(val => {
+            Promise.resolve(p).then(
+                val => {
                 resolve(val)
-                
             }, err => {
                 index++
                 if (index === promiseArr.length) {
@@ -1495,6 +1495,7 @@ let tree = [
         ],
     },
 ]
+
 function toArr(tree, arr=[]) {
     for(let item of tree) {
         const {children, ...newItem} = item
@@ -1508,29 +1509,28 @@ function toArr(tree, arr=[]) {
 console.log(toArr(tree))
 ```
 
+# 柯里化 :bulb:
+
+```js
+
+function Curry(fn) {
+  let curryF = (...args) => {
+    if(fn.length === args.length) return fn(...args)
+    return (...arg) => curryF(...args, ...arg)
+  }
+  return curryF
+}
+```
+
 
 
 手写快排
 
 手写深拷贝
 
-手写节流和防抖
-
-手写call / apply
-
-手写Promise.all / Promise.race / Promise.allSettled
-
-手写限制并发数量
-
-手写括号匹配
-
 手写红包算法（注意均衡分配和浮点数计算精度问题）
 
-数组去重
-
 将奇数排在前面，偶数排在后面。要求时间复杂度O(n)。空间复杂度O(1)（不能用splice）
-
-数组转树结构
 
 解析出URL中所有的部分
 

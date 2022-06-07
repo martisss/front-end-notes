@@ -2668,10 +2668,13 @@ console.log(10);//同步
 [一文搞懂Javascript中的函数柯里化（currying）](https://zhuanlan.zhihu.com/p/120735088)
 
 ```js
-let curry = (fn, ...args) =>
-  fn.length <= args.length
-    ? fn(...args)
-    : curry.bind(null, fn, ...args)
+function Curry(fn) {
+  let curryF = (...args) => {
+    if(fn.length === args.length) return fn(...args)
+    return (...arg) => curryF(...args, ...arg)
+  }
+  return curryF
+}
 ```
 
 ## 数组去重
