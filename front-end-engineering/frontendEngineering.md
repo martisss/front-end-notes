@@ -47,13 +47,13 @@ imooc-build工程化脚手架开发  升级
 
 2. 全局namespace,通过对象封装模块，再把这个对象挂载在全局对象上，将函数作为该对象的一个属性，
 
-   问题：外部可以更改该对象中的值，没有达到私有化的要求
+   问题：外部可以更改该对象中的值，不安全，没有达到私有化的要求
 
 3. IIFE模式，通过自执行函数创建闭包
 
    > 函数作用域+闭包
    >
-   > 函数作用域下的变量天生去油私有化性质，直接将这个函数打印出来是看不到函数内部的变量的，然后再通过闭包的方式将相应变量暴露出来
+   > 函数作用域下的变量天生具有私有化性质，直接将这个函数打印出来是看不到函数内部的变量的，然后再通过闭包的方式将相应变量暴露出来
    >
    > **注意：函数作用域和对象属性的区别**
 
@@ -134,16 +134,48 @@ imooc-build工程化脚手架开发  升级
    })(window)
    ```
 
-## CommonJS
+经过前面的发展，解决了模块封装性的问题，匿名函数模式也是现代模块的基石，但还有一个问题需要解决，也就是模块加载的问题，
 
-**TODO: exports 和 module.exports**
+**引入多个 script后带来的问题**
+
+- 请求过多 
+
+- 依赖模糊
+
+- 难以维护
+
+因此出现了模块加载器进行模块的依赖管理
+
+> ```js
+> YUI3 Loader 
+> 
+> // hello.js  编写模块，需要依赖的模块通过回调函数的入参传入
+> YUI.add('hello', function(Y){
+>     Y.sayHello = function(msg){
+>         Y.DOM.set(el, 'innerHTML', 'Hello!');
+>     }
+> },'3.0.0',{
+>     requires:['dom']
+> })
+> 
+> // main.js  使用模块，依赖通过回调函数入参传入
+> YUI().use('hello', function(Y){
+>     Y.sayHello("hey yui loader");
+> })
+> ```
+
+针对请求过多的问题，将多个请求合并成一个，后端也要提供支持，比如[alibaba/nginx-http-concat](https://github.com/alibaba/nginx-http-concat)
+
+在这之后出现了CommonJS， 后来又有了AMD、CMD规范，RequireJS和SeaJS是其主要实践者。CommonJS模块想要在浏览器端运行，因此发展出了Browserify, 浏览器端没有require, 对应的发展出了npm，再后来发展到Module Bundler, 例如webpack，发展到了所有的静态资源的依赖管理，再后来发展出了ES Module，在语言层面实现了模块规范。
+
+## CommonJS
 
    - Node.js是commonJS规范的主要实践者，每个文件就是一个模块
 
-   - 四个重要的环境变量为模块化的实现提供支持：`module`、`exports`、`require`、`global`。实际使用时，用 `module.exports`定义当前模块对外输出的接口（不推荐直接用 `exports`），用 `require`加载模
+   - 四个重要的环境变量为模块化的实现提供支持：`module`、`exports`、`require`、`global`。实际使用时，用 `module.exports`定义当前模块对外输出的接口（不推荐直接用 `exports`），用 `require`加载模块
    - commonJS用同步的方式加载模块。在服务端，模块文件都存在本地磁盘，读取非常快
 
-**特点：**
+### **特点：**
 
 - 代码运行在模块作用域，不会污染全局作用域
 
@@ -161,11 +193,32 @@ imooc-build工程化脚手架开发  升级
   console.log(m.getX()) //1  此处并不是同一个x, 函数作用域和对象属性的区别
   ```
 
-## 实现原理
+### 实现原理
 
 ![image-20220504113841195](D:\NOTES\pictures\image-20220504113841195.png)
 
 在主模块（例如entry.js）使用require加载其他模块，require会将原模块转化为一个module对象，该对象上有一个load方法，使用该方法加载模块时会在原模块外层包裹一个立即执行函数，并传入require,module, exports, `__filename`, `__dirname`, module.exports放入Module catch map里面， 键是模块路径，值是module.exports的值。
+
+> 对于一个模块来说，需要有加载其他模块的能力:  `module(模块的引用)`, `require`
+>
+> 也需要有暴露自己方法和变量的能力: `exports`
+>
+> 需要告诉别的模块我在哪：`__filename`,`__dirname`
+
+require 相当于把被引用的 module 拷贝了一份到当前 module 中
+
+- `exports` 和 `module.exports` 的区别和联系:
+
+- `exports` 是 `module.exports` 的引用。作为一个引用，如果我们修改它的值，实际上修改的是它对应的引用对象的值
+
+- 弊端：Node.js 中的实现依赖了 Node.js 的环境变量：`module`，`exports`，`require`，`global`，浏览器没法用, 需要通过browserify这样的工具
+
+### 基本语法
+
+- 暴露模块：`module.exports = value`或`exports.xxx = value`
+- 引入模块：`require(xxx)`,如果是第三方模块，xxx为模块名；如果是自定义模块，xxx为模块文件路径
+
+**加载某个模块，其实就是在加载module.exports的值**
 
 > module.exports 会覆盖掉export的结果
 >
@@ -175,7 +228,7 @@ imooc-build工程化脚手架开发  升级
 > module.exports = {c}
 > ```
 
-## browserify打包
+### browserify打包
 
 在浏览器中使用commonjs模块要使用`browserify`
 
@@ -186,7 +239,7 @@ browserify 需要打包的文件的路径 -o 打包完成文件的路径
 
 存在多个模块时要打包多次
 
-### 打包原理
+#### 打包原理
 
 - 本质还是通过自执行函数实现模块化
 
@@ -219,9 +272,66 @@ browserify 需要打包的文件的路径 -o 打包完成文件的路径
 
 - cmd的相应实现是sea.js
 
-链接：https://juejin.cn/post/6844903541853650951
+#### 引入语法
 
-**二者的区别：**
+**AMD**
+
+**定义暴露模块**:
+
+```js
+//定义没有依赖的模块
+define(function(){
+   return 模块
+})
+//定义有依赖的模块
+define(['module1', 'module2'], function(m1, m2){
+   return 模块
+})
+```
+
+**引入使用模块**:
+
+```js
+require(['module1', 'module2'], function(m1, m2){
+   使用m1/m2
+})
+```
+
+**CMD**
+
+**定义暴露模块：**
+
+```js
+//定义没有依赖的模块
+define(function(require, exports, module){
+  exports.xxx = value
+  module.exports = value
+})
+//定义有依赖的模块
+define(function(require, exports, module){
+  //引入依赖模块(同步)
+  var module2 = require('./module2')
+  //引入依赖模块(异步)
+    require.async('./module3', function (m3) {
+    })
+  //暴露模块
+  exports.xxx = value
+})
+
+```
+
+**引入使用模块：**
+
+```js
+define(function (require) {
+  var m1 = require('./module1')
+  var m4 = require('./module4')
+  m1.show()
+  m4.show()
+})
+```
+
+#### **二者的区别：**
 
 **1、AMD推崇依赖前置、提前执行，在定义模块的时候就要声明其依赖的模块**
 **2、CMD推崇就近依赖、延迟执行，只有在用到某个模块的时候再去require**
@@ -235,7 +345,7 @@ CMD加载完某个依赖模块后并不执行，只是下载而已，在所有�
 
 ## ESModule
 
-- ESModule设计理 念是希望在编译时就确定模块依赖关系及输入输
+- ESModule设计理念是希望在**编译时**就确定模块依赖关系及输入输出
 - CommonJS和AMD必 须在运行时才能确定依赖和输入、输出
 - ESM通过import加载模块，通过export输出模块
 
@@ -317,6 +427,14 @@ import命令具有**提升效果，且是静态执行，因此不能使用表达
 5. commonjs 中this指代当前模块， ESM中this是undefined
 
 6. 引入，导出模块的语法不同
+
+
+
+# 参考
+
+1. [前端模块化详解(完整版)](https://juejin.im/post/5c17ad756fb9a049ff4e0a62)
+2. [从 IIFE 聊到 Babel 带你深入了解前端模块化发展体系](https://juejin.im/post/5cb9e563f265da03712999e8)
+3. [hux 模块七日谈](https://link.juejin.cn/?target=http%3A%2F%2Fhuangxuan.me%2Fjs-module-7day%2F%23%2F)
 
 ## 浏览器模块化的局限
 
