@@ -175,7 +175,7 @@ imooc-build工程化脚手架开发  升级
    - 四个重要的环境变量为模块化的实现提供支持：`module`、`exports`、`require`、`global`。实际使用时，用 `module.exports`定义当前模块对外输出的接口（不推荐直接用 `exports`），用 `require`加载模块
    - commonJS用同步的方式加载模块。在服务端，模块文件都存在本地磁盘，读取非常快
 
-### **特点：**
+### *特点：*
 
 - 代码运行在模块作用域，不会污染全局作用域
 
@@ -193,26 +193,6 @@ imooc-build工程化脚手架开发  升级
   console.log(m.getX()) //1  此处并不是同一个x, 函数作用域和对象属性的区别
   ```
 
-### 实现原理
-
-![image-20220504113841195](D:\NOTES\pictures\image-20220504113841195.png)
-
-在主模块（例如entry.js）使用require加载其他模块，require会将原模块转化为一个module对象，该对象上有一个load方法，使用该方法加载模块时会在原模块外层包裹一个立即执行函数，并传入require,module, exports, `__filename`, `__dirname`, module.exports放入Module catch map里面， 键是模块路径，值是module.exports的值。
-
-> 对于一个模块来说，需要有加载其他模块的能力:  `module(模块的引用)`, `require`
->
-> 也需要有暴露自己方法和变量的能力: `exports`
->
-> 需要告诉别的模块我在哪：`__filename`,`__dirname`
-
-require 相当于把被引用的 module 拷贝了一份到当前 module 中
-
-- `exports` 和 `module.exports` 的区别和联系:
-
-- `exports` 是 `module.exports` 的引用。作为一个引用，如果我们修改它的值，实际上修改的是它对应的引用对象的值
-
-- 弊端：Node.js 中的实现依赖了 Node.js 的环境变量：`module`，`exports`，`require`，`global`，浏览器没法用, 需要通过browserify这样的工具
-
 ### 基本语法
 
 - 暴露模块：`module.exports = value`或`exports.xxx = value`
@@ -227,6 +207,68 @@ require 相当于把被引用的 module 拷贝了一份到当前 module 中
 > exports.b = b
 > module.exports = {c}
 > ```
+
+### require加载原理
+
+![image-20220504113841195](D:\NOTES\pictures\image-20220504113841195.png)
+
+在主模块（例如entry.js）使用require加载其他模块，require**接受文件标识符作为参数，然后分析定位文件的位置**，如果有缓存的话，直接返回缓存的内容，如果没有缓存的话，require会将原模块转化为一个module对象，该对象上有一个load方法，使用该方法加载模块时会在原模块外层包裹一个立即执行函数，并传入require,module, exports, `__filename`, `__dirname`,最后的结果 module.exports放入Module catch map里面， **键是模块路径，值是module.exports的值。**
+
+> 对于一个模块来说，需要有加载其他模块的能力:  `module(模块的引用)`, `require`
+>
+> 也需要有暴露自己方法和变量的能力: `exports`
+>
+> 需要告诉别的模块我在哪：`__filename`,`__dirname`、
+
+### **require查找文件流程**
+
+![image-20220610110328928](../pictures/image-20220610110328928.png)
+
+require 相当于把被引用的 module 拷贝了一份到当前 module 中
+
+- `exports` 和 `module.exports` 的区别和联系:
+
+- `exports` 是 `module.exports` 的引用。作为一个引用，如果我们修改它的值，实际上修改的是它对应的引用对象的值
+
+- 弊端：Node.js 中的实现依赖了 Node.js 的环境变量：`module`，`exports`，`require`，`global`，浏览器没法用, 需要通过browserify这样的工具
+
+### <a name="commonjs">如何避免重复加载模块？</a>
+
+require 加载模块时首先会去查看是否缓存了对应模块的结果（键是模块的地址，值是模块输出的结果，即module.exports），如果没有就先加入缓存，然后执行模块内容
+
+![image-20220610151758251](../pictures/image-20220610151758251.png)
+
+由于 **CommonJS 模块遇到循环加载时，返回的是当前已经执行的部分的值，而不是代码全部执行后的值**，两者可能会有差异。
+
+```javascript
+var a = require('a'); // 安全的写法
+var foo = require('a').foo; // 危险的写法
+
+exports.good = function (arg) {
+  return a.foo('good', arg); // 使用的是 a.foo 的最新值
+};
+
+exports.bad = function (arg) {
+  return foo('bad', arg); // 使用的是一个部分加载时的值
+};
+```
+
+上面代码中，如果发生循环加载，`require('a').foo`的值很可能后面会被改写，改用`require('a')`会更保险一点。	
+
+### exports 与 module.exports
+
+二者持有相同的引用，exports会被初始化为一个对象，直接将exports赋值为其他对象，就改变了其引用，并不能达到输出相应对象的效果，可以通过 `module.exports` 自定义导出出对象外的其他类型元素。
+
+```js
+let a = 1
+module.exports = a // 导出函数
+
+module.exports = [1,2,3] // 导出数组
+
+module.exports = function(){} //导出方法
+```
+
+但当导出非对象属性时，遇到循环引用的情况可能会出现属性丢失的情况。因为对于导出的对象属性来说，对象会保存相同的内存地址，即使有些属性是后来添加的，也可以通过异步的方式访问到。
 
 ### browserify打包
 
@@ -351,6 +393,21 @@ CMD加载完某个依赖模块后并不执行，只是下载而已，在所有�
 
 > node14之后默认支持ESM
 
+`.mjs`文件总是以 ES6 模块加载，`.cjs`文件总是以 CommonJS 模块加载，`.js`文件的加载取决于`package.json`里面`type`字段的设置。
+
+### 优势
+
+- 借助 `Es Module` 的静态导入导出的优势，实现了 `tree shaking`。
+- `Es Module` 还可以 `import()` 懒加载方式实现代码分割。
+
+### 特性
+
+- ES6 module 的引入和导出是静态的，`import` 会自动提升到代码的顶层 ，`import` , `export` 不能放在块级作用域或条件语句中。
+
+- import 的导入名不能为字符串或在判断语句
+- 对于相同的 js 文件，会保存静态属性，也就是说一个模块只会执行一次，ES6 模块在预处理阶段分析模块依赖，在执行阶段执行模块，两个阶段都采用深度优先遍历，执行顺序是子 -> 父。
+- import导入的变量是只读的，无法赋值
+
 ### import()
 
 - 运行时执行
@@ -381,7 +438,9 @@ CMD加载完某个依赖模块后并不执行，只是下载而已，在所有�
 
 import命令具有**提升效果，且是静态执行，因此不能使用表达式和变量**，这些只有在运行时才能得到结果的语法结构。
 
-## ESModule 和 Common.js的区别
+可以应用于React中动态加载，结合React.lazy和Suspense, 动态加载组件
+
+### ESModule 和 Common.js的区别
 
 1. **CommonJS 模块输出的是一个值的拷贝，不存在动态更新，ES6 模块输出的是值的引用，可以取到模块内部实时的值。**
 
@@ -393,28 +452,7 @@ import命令具有**提升效果，且是静态执行，因此不能使用表达
 
    > CommonJS 加载的是一个对象（即 `module.exports`属性），该对象只有在脚本运行完才会生成。而 ES6 模块不是对象，它的对外接口只是一种静态定义，在代码静态解析阶段就会生成。
 
-3. CommonJs是单个值导出，即module.exports指向的对象， ES6 模块一个导出多个
-
-   ```js
-   //a.js
-   let a = 1;
-   let b = 2;
-   let c = 3;
-   export {b, c}
-   export default a
-   
-   //b.js
-   import a, {b, c} from 'a.js'
-   //or
-   import * as m from 'a.js'
-   m.default.a
-   m.b
-   m.c
-   ```
-
-   
-
-4. **CommonJS 模块的 `require()`是同步加载模块，ES6 模块的 `import`命令是异步加载，有一个独立的模块依赖的解析阶段。**
+3. **CommonJS 模块的 `require()`是同步加载模块，ES6 模块的 `import`命令是异步加载，有一个独立的模块依赖的解析阶段。**
 
    ```js
    import('./a.js').then(() => {
@@ -422,19 +460,28 @@ import命令具有**提升效果，且是静态执行，因此不能使用表达
    })
    ```
 
-   
 
-5. commonjs 中this指代当前模块， ESM中this是undefined
+**其他**
 
-6. 引入，导出模块的语法不同
+1. commonjs 中顶层this指代当前模块， ESM中顶层this指向undefined
 
+2. 引入，导出模块的语法不同
 
+3. 对于循环加载的处理不同
+
+   > es6 对于循环加载的处理：
+   >
+   > ES6 模块是动态引用，如果使用`import`从一个模块加载变量（即`import foo from 'foo'`），那些**变量不会被缓存，而是成为一个指向被加载模块的引用**，需要开发者自己保证，真正取值的时候能够取到值，否则就会报错
+   >
+   > <a href="#commonjs">commonjs对于循环加载的处理</a>
 
 # 参考
 
 1. [前端模块化详解(完整版)](https://juejin.im/post/5c17ad756fb9a049ff4e0a62)
 2. [从 IIFE 聊到 Babel 带你深入了解前端模块化发展体系](https://juejin.im/post/5cb9e563f265da03712999e8)
 3. [hux 模块七日谈](https://link.juejin.cn/?target=http%3A%2F%2Fhuangxuan.me%2Fjs-module-7day%2F%23%2F)
+4. [「万字进阶」深入浅出 Commonjs 和 Es Module](https://juejin.cn/post/6994224541312483336) - 非常深入的介绍 Commonjs 和 ES Module 的实现原理
+5. [module 的加载实现](https://es6.ruanyifeng.com/#docs/module-loader) - 阮一峰老师的模块的加载实现，内容详实。
 
 ## 浏览器模块化的局限
 
