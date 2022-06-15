@@ -165,13 +165,17 @@ var minSubArrayLen = function(target, nums) {
 
 # 排序
 
-## 选择排序
+[912. 排序数组](https://leetcode-cn.com/problems/sort-an-array/)
+
+
+
+[cheetsheet](https://liam.page/2016/06/20/big-O-cheat-sheet/)
+
+![image-20220614231331015](../pictures/image-20220614231331015.png)
+
+## 选择排序 :heavy_check_mark:
 
 升序排列：在未排序的那一部分中选出最小的那个数的索引，与开头的数进行交换，不断地重复这一过程。
-
-时间复杂度：O(n^2)
-
-空间复杂度：O(n)
 
 ```js
 //前半部分排好序
@@ -205,13 +209,13 @@ const arr = [6, 4, 2, 3, 1, 5]
 console.log(selectSort(arr))
 ```
 
-## 插入排序
+## 插入排序:heavy_check_mark:
 
 插入排序的插入是指从未排序的序列中选择一个（一般是第一个）插入到前方已经排好的序列中
 
 时间复杂度：O(n^2)
 
-空间复杂度：O(n)
+空间复杂度：O(1)
 
 ```js
 function insertionSort(arr) {
@@ -263,13 +267,15 @@ console.log(insertionSort(arr))
 
 对于选择排序来说， 它的时间时间复杂度稳定在O(n^2)，其内部 循环每次都是从头循环到尾，即使内部循环的的第一个数就是最小的那个数，而对于插入排序来说，其内部排序是可以中途退出的，即内部循环找到了待插入值的位置后就结束了，那么对于一个有序数组来说，插入排序的时间复杂度可以到O(n)，但其总体复杂度还是不变的，如果一个数组总体有序的话可以考虑插入排序。
 
-## 归并排序
+## 归并排序 :heavy_check_mark:
 
 时间复杂度：O(nlogn)
 
 空间复杂度：O(n)
 
-### 自顶向下的归并排序
+### 自顶向下的归并排序 :heavy_check_mark:
+
+运用递归的思想，先分成左、右部分，对左右部分递归地进行merge排序，这样左右部分是有序的，然后再将有序的两部分进行合并
 
 ```js
 const mergeSort = (arr) => {
@@ -397,7 +403,7 @@ console.log(arr)
 
 ```
 
-### 自底向上的归并排序
+### 自底向上的归并排序 :question:
 
 ```js
 // 自底向上的归并排序
@@ -445,7 +451,7 @@ console.log(arr)
 
 ```
 
-#### [剑指 Offer 51. 数组中的逆序对](https://leetcode-cn.com/problems/shu-zu-zhong-de-ni-xu-dui-lcof/)
+[剑指 Offer 51. 数组中的逆序对](https://leetcode-cn.com/problems/shu-zu-zhong-de-ni-xu-dui-lcof/)
 
 ```js
 /**
@@ -490,9 +496,7 @@ var reversePairs = function(nums) {
 };
 ```
 
-## 快速排序
-
-
+## 快速排序 :heavy_check_mark:
 
 partition: 将目标数移动到指定位置，将原数组分为三个部分，小于等于目标数的部分，目标数，大于目标数的部分
 
@@ -548,14 +552,89 @@ const quickSort = (arr, l, r) => {
     [arr[l], arr[j]] = [arr[j], arr[l]]
     return j
   }
-  if(l>=r) return
+  if(l>=r) return // 递归推出条件
   let mid = partition(arr, l, r)
   quickSort(arr,l,mid-1)
   quickSort(arr,mid+1,r)
 }
 ```
 
-### [912. 排序数组](https://leetcode-cn.com/problems/sort-an-array/)
+## 冒泡排序:heavy_check_mark:
+
+第i轮开始，arr[n-i, n)已排好序
+第i轮:通过冒泡在arr[n-i- 1]位置放上合适的元素
+第i轮结束: arr[n-i- 1, n)已排好序
+
+
+
+冒泡排序并不是仅仅简单的将最大（小）的数字移到最后，而是在这过程中不断将逆序对减少，每冒泡一次，逆序对的数量就会减少，直到减为0，排序完成
+
+```js
+// 冒泡排序
+var sortArray = function(nums) {
+    for(let i=0; i<nums.length; i++) {
+        for(let j=0; j<nums.length-i; j++) {
+            if(nums[j]>nums[j+1]) {
+                [nums[j], nums[j+1]] = [nums[j+1], nums[j]]
+            }
+        }
+    }
+    return nums
+}
+```
+
+## 希尔排序:heavy_check_mark:
+
+基本思想：让数组越来越有序，同时不止处理相邻的逆序对，
+
+对元素间距为n/2的所有数组做插入排序
+对元素间距为n/4的所有数组做插入排序
+对元素间距为n/8的所有数组做插入排序
+. ..
+对元素间距为1的所有数组做插入排序
+
+```js
+// 希尔排序
+var sortArray = function(nums) {
+  let space = Math.floor(nums.length/2)
+  while(space >= 1) {
+    // 对间隔为space的数组进行插入排序
+      for(let start = 0; start < space; start++) {
+        // 进行插入排序的逻辑
+        for(let i=start+space; i<nums.length; i+=space) {
+            let temp = nums[i]
+            let j
+            for(j=i; j-space>=0 && temp < nums[j-space]; j-=space) {
+                nums[j] = nums[j-space]
+            }
+            nums[j] = temp
+        }
+      }
+      space = Math.floor(space/2)
+  }
+  return nums
+}
+
+// 改进  si'chong
+var sortArray = function(nums) {
+    let space = Math.floor(nums.length/2)
+    while(space >= 1) {
+        //   现在第space个元素就是第一个子序列对应的第二个元素
+        for(let i=space; i<nums.length; i++) {
+            let temp = nums[i]
+            let j
+            for(j=i; j-space>=0 && temp < nums[j-space]; j-=space) {
+                nums[j] = nums[j-space]
+            }
+            nums[j] = temp
+        }
+        space = Math.floor(space/2)
+    }
+    return nums
+}
+```
+
+
 
 ## 综合
 
@@ -1578,74 +1657,78 @@ var copyRandomList = function(head) {
 
 ```js
 class Heap {
-  constructor(compare) {
-    this.arr = [0]
-    this.compare = (typeof compare === 'function') ? compare : this._defaultCompare
-    }
-    static heapify(data, compare=undefined) {
-      let heap = new Heap(compare)
-      for(let item of data) {
+  constructor() {
+      this.arr = []
+      this.compare = (a, b) => a < b
+  }
+
+  static heapify = function(data) {
+      let heap = new Heap()
+    for(let item of data) {
         heap.push(item)
+    }
+    return heap
+  }
+  get size() {
+      return this.arr.length
+  }
+  push(val) {
+      this.arr.push(val)
+      this.shiftUp(this.size-1)
+  }
+  pop(){
+      if(this.size<=0) return null
+      let {arr, _swap,size} = this
+      _swap(arr, 0, size-1)
+      let temp = arr.pop()
+      this.shiftDown(0)
+      return temp
+  }
+  shiftUp(k) {
+    let {_parent, _swap, arr, compare} = this
+    // while(k>0) {
+    //     let parent = _parent(k)
+    //     if(compare(arr[k],arr[parent])) {
+    //         _swap(arr, k, parent)
+    //         k = parent
+    //     } else break
+    //     // 不加break,这里会卡死
+    // }
+    while(k>0 && compare(arr[k], arr[_parent(k)])) {
+      _swap(arr, k, _parent(k))
+      k = _parent(k)
+    }
+  }
+  shiftDown(k) {
+      let {_leftChild, _swap, arr, size, compare} = this
+      while(_leftChild(k)<size) {
+          let Child = _leftChild(k)
+          if(Child+1<size && compare(arr[Child+1], arr[Child])) {
+              Child++
+          }
+          if(compare(arr[Child], arr[k])) {
+              _swap(arr, Child, k)
+              k = Child
+          } else return
+          // 注意
       }
-      return heap
-    }
+  }
+  _parent(k) {
+      return (k-1) >>> 1
+  }
+  _leftChild(k) {
+      return 2*k + 1
+  }
+  _swap(arr, l, r) {
+      ;[arr[l], arr[r]] = [arr[r], arr[l]]
+  }
+}
 
-    push(item) {
-      let {arr} = this
-      arr.push(item)
-      this._up(arr.length - 1)
-    }
-
-    pop() {
-      if(this.size === 0) return null
-      let {arr} = this
-      this._swap(1, arr.length - 1)
-      let res = arr.pop()
-      this._down(1)
-      return res
-    }
-
-    get size() {
-      return this.arr.length - 1
-    }
-
-    peek() {
-      return this.arr[1]
-    }
-
-    _up(k) {
-      let {arr, compare, _parent} = this
-      while(k>1 && compare(arr[k], arr[_parent(k)])) {
-        this._swap(_parent(k), k)
-        k = _parent(k)
-      }
-    }
-
-    _down(k) {
-      let {arr, compare, _left, _right} = this
-      let size = this.size
-      while(_left(k) <= size) {
-        let child = _left(k)
-        if(_right(k) <= size && compare(arr[_right(k)], arr[child])) {
-          child = _right(k)
-        }
-        if(compare(arr[k], arr[child])) return
-        this._swap(k, child)
-        k = child
-      }
-    }
-
-    _left(k) { return k*2 }
-    _right(k) { return k*2 + 1}
-    _parent(k) { return Math.floor(k/2)}
-    _swap(i, j) {
-      let arr = this.arr;
-      [ arr[i], arr[j] ] = [ arr[j], arr[i] ]
-    }
-    // 默认小顶堆
-    _defaultCompare(a, b) {
-      return a < b
-    }
+const arr = [1, 3, 53, 9, 8, 5, 4]
+let a = Heap.heapify(arr)
+console.log(a)
+while(a.size) {
+  console.log(a.pop())
 }
 ```
 
