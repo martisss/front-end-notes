@@ -1,3 +1,123 @@
+## 为什么要有Hooks？
+
+React组件的模型就是从 Model 到 View 的映射，这里的 Model 对应到 React 中就是 state 和 props。在过去需要处理dom变化的细节问题，现在react会帮助处理dom变化的细节问题，即model中的状态发生变化，UI会自动发生变化。
+
+我们可以把 UI 的展现看成一个函数的执行过程。其中，Model 是输入参数，函数的执行结果是 DOM 树，也就是 View。而 React 要保证的，就是每当 Model 发生变化时，函数会重新执行，并且生成新的 DOM 树，然后 React 再把新的 DOM 树以最优的方式更新到浏览器。
+
+**对于使用class作为react组件的载体时，**
+
+一方面，React 组件比较少会互相继承的。比如说，你不会创建一个 Button 组件，然后再创建一个 DropdownButton 来继承 Button。所以说，**React 中其实是没有利用到 Class 的继承特性的。**另一方面，**因为所有 UI 都是由状态驱动的，因此很少会在外部去调用一个类实例（即组件）的方法。**要知道，组件的所有方法都是在内部调用，或者作为生命周期方法被自动调用的。
+
+这两个 Class 最重要的特性其实都没有用到。很早之前react就提供了函数组件的机制，**只是当时有一个局限是，函数组件无法存在内部状态，必须是纯函数，而且也无法提供完整的生命周期机制。这就极大限制了函数组件的大规模使用。**
+
+比起 Class 组件，函数组件是更适合去表达 React 组件的执行的，因为它更符合 State => View 这样的一个逻辑关系。
+
+![image-20220617105846270](../pictures/image-20220617105846270.png)
+
+## hooks带来了什么好处？
+
+### 简化了逻辑服用
+
+在class组件中实现代码逻辑复用必须依赖于高阶组件，其缺点在于会提高代码理解的难度，也会增加额外的组件节点，每一个高阶组件都会多一层节点，这给调试带来了困难。
+
+> 以下是复用监听窗口大小的逻辑
+>
+> class组件
+>
+> ```jsx
+> 
+> const withWindowSize = Component => {
+>   // 产生一个高阶组件 WrappedComponent，只包含监听窗口大小的逻辑
+>   class WrappedComponent extends React.PureComponent {
+>     constructor(props) {
+>       super(props);
+>       this.state = {
+>         size: this.getSize()
+>       };
+>     }
+>     componentDidMount() {
+>       window.addEventListener("resize", this.handleResize); 
+>     }
+>     componentWillUnmount() {
+>       window.removeEventListener("resize", this.handleResize);
+>     }
+>     getSize() {
+>       return window.innerWidth > 1000 ? "large" ："small";
+>     }
+>     handleResize = ()=> {
+>       const currentSize = this.getSize();
+>       this.setState({
+>         size: this.getSize()
+>       });
+>     }
+>     render() {
+>       // 将窗口大小传递给真正的业务逻辑组件
+>       return <Component size={this.state.size} />;
+>     }
+>   }
+>   return WrappedComponent;
+> };
+> ```
+>
+> 使用：
+>
+> ```jsx
+> 
+> class MyComponent extends React.Component{
+>   render() {
+>     const { size } = this.props;
+>     if (size === "small") return <SmallComponent />;
+>     else return <LargeComponent />;
+>   }
+> }
+> // 使用 withWindowSize 产生高阶组件，用于产生 size 属性传递给真正的业务组件
+> export default withWindowSize(MyComponent); 
+> ```
+>
+> 使用hooks进行复用
+>
+> ```jsx
+> 
+> const getSize = () => {
+>   return window.innerWidth > 1000 ? "large" : "small";
+> }
+> const useWindowSize = () => {
+>   const [size, setSize] = useState(getSize());
+>   useEffect(() => {
+>   const handler = () => {
+>       setSize(getSize())
+>     };
+>     window.addEventListener('resize', handler);
+>     return () => {
+>       window.removeEventListener('resize', handler);
+>     };
+>   }, []);
+>   
+>   return size;
+> };
+> ```
+>
+> 使用
+>
+> ```jsx
+> 
+> const Demo = () => {
+>   const size = useWindowSize();
+>   if (size === "small") return <SmallComponent />;
+>   else return <LargeComponent />;
+> };
+> ```
+>
+> **窗口大小是一个外部的一个数据状态，我们通过 Hooks 的方式对其进行了封装，从而将其变成一个可绑定的数据源。这样当窗口大小发生变化时，使用这个 Hook 的组件就都会重新渲染。**
+
+### 有助于关注点分离
+
+class 组件中的业务逻辑代码分散在不同的声明周期中，代码是从技术角度组织在一起的，而函数组件中代码是从业务逻辑角度组织在一起的，相关代码能够出现在集中的地方，从而更容易理解和维护。
+
+> ![image-20220617113132724](../pictures/image-20220617113132724.png)
+>
+> 图的左侧是 Class 组件，右侧是函数组件结合 Hooks。蓝色和黄色代表不同的业务功能。可以看到，在 Class 组件中，代码是从技术角度组织在一起的，例如在 componentDidMount 中都去做一些初始化的事情。而在函数组件中，代码是从业务角度组织在一起的，相关代码能够出现在集中的地方，从而更容易理解和维护。
+
 ## useState
 
 适用于与DOM状态改变相关的变量
