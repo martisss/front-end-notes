@@ -125,15 +125,17 @@ class 组件中的业务逻辑代码分散在不同的声明周期中，代码�
 jsx语法 用声明式方式描述数据与UI的关系
 
 ## useEffect
-:question: 函数体也是每次 render 都会执行，那么，需要每次都会 render 执行的语句是放在 无依赖的 useEffect 中呢，还是直接放在函数体中比较好呢？
-- :raised_hands:  这两种情况的语义是不一样的。**useEffect 代表副作用，是在函数 render 完后执行。而函数体中的代码，是直接影响当次 render 的结果。副作用一定是和当前 render 的结果没关系的，而只是 render 完之后做的一些额外的事情。**
-  <br>
 
+### 每次 render 执行的语句是放在 无依赖的 useEffect 中呢，还是直接放在函数体中比较好呢？
+
+- :raised_hands:  这两种情况的语义是不一样的。**useEffect 代表副作用，是在函数 render 完后执行。而函数体中的代码，是直接影响当次 render 的结果。副作用一定是和当前 render 的结果没关系的，而只是 render 完之后做的一些额外的事情。**
+  
 - 每次副作用执行，都会返回一个新的clear函数, **clear函数会在DOM渲染完成之后,下一次副作用逻辑之前执行**
 
 - **组件销毁也会执行一次**
 
-:question: 两种写法的异同
+**两种写法的异同**
+
 ```js
 const handleIncrement = useCallback(() => setCount(count + 1), [count]);
 
@@ -141,11 +143,52 @@ const handleIncrement = useCallback(() => setCount(count + 1), [count]);
 const handleIncrement = useCallback(() => setCount(q => q + 1), []);
 ```
 
-- :raised_hands: 后者是更好的写法，因为 handleIncrement 不会每次在 count 变化时都使用新的。从而接收这个函数的组件 props 就认为没有变化，避免可能的性能问题。但是有时候如果 DOM 结构很简单，其实怎么写都没什么影响。但两种代码实际上都是每次创建函数的，只是第二种写法后面创建的函数是被 useCallback 忽略的。所以这里也看到了 setState 这个 API 的另外一种用法，就是可以接收一个函数作为参数：setSomeState(previousState => {})。这样在这个函数中通过参数就可以直接获取上一次的 state 的值了，而无需将其作为一个依赖项。这样做可以减少一些不必要的回调函数的创建。
+- :raised_hands: 后者是更好的写法，**因为 handleIncrement 不会每次在 count 变化时都使用新的。从而接收这个函数的组件 props 就认为没有变化，避免可能的性能问题**。但是有时候如果 DOM 结构很简单，其实怎么写都没什么影响。**但两种代码实际上都是每次创建函数的，只是第二种写法后面创建的函数是被 useCallback 忽略的。**所以这里也看到了 setState 这个 API 的另外一种用法，就是可以接收一个函数作为参数：setSomeState(previousState => {})。这样在这个函数中通过参数就可以直接获取上一次的 state 的值了，而无需将其作为一个依赖项。这样做可以减少一些不必要的回调函数的创建。
 
 如果在useEffect中调用了一些函数，如果只在这其中调用，可以考虑将其定义到useEffect中，如果该函数中使用了state, props，那么也要把相应的依赖放进依赖数组中；
 
 如果该函数没有使用prop或者state中的值，也可以考虑将其提到组件之外定义，或者将其用useCallback包裹
+
+## Hooks使用规则
+
+### **只能在函数组件的顶级作用域使用；**
+
+所谓顶层作用域，就是 Hooks **不能在循环、条件判断或者嵌套函数内执行**，而必须是在**顶层**。同时 **Hooks 在组件的多次渲染之间，必须按顺序被执行**。
+
+### **只能在函数组件或者其他 Hooks 中使用。**
+
+**在 Class 组件中使用hooks？**
+
+> 利用高阶组件的模式，将 Hooks 封装成高阶组件，从而让类组件使用。
+
+```jsx
+import react from 'react'
+import { useWindowSize  } from '../hooks/useWindowSize'
+export const withWindowSize = (Comp) = {
+    return props => {
+    const windowSizze = useWindowSize()
+    return <Comp windowSize={windowSize} {...props}>
+	}
+}
+```
+
+```jsx
+
+import React from 'react';
+import { withWindowSize } from './withWindowSize';
+
+class MyComp {
+  render() {
+    const { windowSize } = this.props;
+    // ...
+  }
+}
+
+// 通过 withWindowSize 高阶组件给 MyComp 添加 windowSize 属性
+export default withWindowSize(MyComp);
+```
+
+
 
 ## Hooks检查
 ```shell
@@ -169,16 +212,72 @@ ESLint 配置文件中加入两个规则：rules-of-hooks 和 exhaustive-deps。
 }
 ```
 
-## useMemo
-避免重复计算，避免子组件的重复渲染
-## useCallback
+## useMemo  & useCallback
+
+区别在于：useCallback 缓存的是一个函数，而 useMemo 缓存的是计算的结果。
+
+### useMemo
+
+**避免重复计算**
+
+**避免子组件重复渲染**
+
 ## useRef
+
+### 在多次渲染之间共享数据
+
 - ref 的值发生变化时，是不会触发组件的重新渲染的
-- ref 的值发生变化时，是不会触发组件的重新渲染的
+
+```jsx
+
+import React, { useState, useCallback, useRef } from "react";
+
+export default function Timer() {
+  // 定义 time state 用于保存计时的累积时间
+  const [time, setTime] = useState(0);
+
+  // 定义 timer 这样一个容器用于在跨组件渲染之间保存一个变量
+  const timer = useRef(null);
+
+  // 开始计时的事件处理函数
+  const handleStart = useCallback(() => {
+    // 使用 current 属性设置 ref 的值
+    timer.current = window.setInterval(() => {
+      setTime((time) => time + 1);
+    }, 100);
+  }, []);
+
+  // 暂停计时的事件处理函数
+  const handlePause = useCallback(() => {
+    // 使用 clearInterval 来停止计时
+    window.clearInterval(timer.current);
+    timer.current = null;
+  }, []);
+
+  return (
+    <div>
+      {time / 10} seconds.
+      <br />
+      <button onClick={handleStart}>Start</button>
+      <button onClick={handlePause}>Pause</button>
+    </div>
+  );
+}
+```
+
+### 保存某个dom节点的引用
+
+## useContext
+
+为什么不直接使用一个全局变量？
+
+> 为了进行数据绑定，当context的数据发生变化，使用该数据的组件就自动刷新
 
 ## useReduer
 
 **当你想更新一个状态，并且这个状态更新依赖于另一个状态的值时，你可能需要用`useReducer`去替换它们。**
+
+
 
 ## 对比类组件生命周期
 componentDidMount,componentWillUnmount，和 componentDidUpdated **大致可以**对应useEffect，但不是完全对应
@@ -315,31 +414,35 @@ export default function UserList() {
 3. 请求成功后，将返回的数据放到某个 state 中，并将 loading state 设为 false；
 4. 请求失败后，设置 error state 为 true，并将 loading state 设为 false。
 ```js
-import { useState } from 'react'
 
-const useAsyncFunction = (asyncFunction) => {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const execute = useCallback(
-    () => {
-      setLoading(true)
-      setError(null)
-      setData(null)
-      asyncFunction()
-        .then((Response) => {
-          setData(Response)
-          setLoading(false)
-        })
-        .catch((error) => {
-          setError(error)
-          setLoading(false)
-        })
-    },
-    [asyncFunction],
-  )
-  return { execute, loading, data, error }
-}
+import { useState } from 'react';
+
+const useAsync = (asyncFunction) => {
+  // 设置三个异步逻辑相关的 state
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  // 定义一个 callback 用于执行异步逻辑
+  const execute = useCallback(() => {
+    // 请求开始时，设置 loading 为 true，清除已有数据和 error 状态
+    setLoading(true);
+    setData(null);
+    setError(null);
+    return asyncFunction()
+      .then((response) => {
+        // 请求成功时，将数据写进 state，设置 loading 为 false
+        setData(response);
+        setLoading(false);
+      })
+      .catch((error) => {
+        // 请求失败时，设置 loading 为 false，并设置错误状态
+        setError(error);
+        setLoading(false);
+      });
+  }, [asyncFunction]);
+
+  return { execute, loading, data, error };
+};
 ```
 使用新hooks之后的userList
 ```js
@@ -365,6 +468,35 @@ export default function UserList() {
 
 #### 监听浏览器状态
 ```js
+
+//useScroll
+import { useState, useEffect } from 'react';
+
+// 获取横向，纵向滚动条位置
+const getPosition = () => {
+  return {
+    x: document.body.scrollLeft,
+    y: document.body.scrollTop,
+  };
+};
+const useScroll = () => {
+  // 定一个 position 这个 state 保存滚动条位置
+  const [position, setPosition] = useState(getPosition());
+  useEffect(() => {
+    const handler = () => {
+      setPosition(getPosition(document));
+    };
+    // 监听 scroll 事件，更新滚动条位置
+    document.addEventListener("scroll", handler);
+    return () => {
+      // 组件销毁时，取消事件监听
+      document.removeEventListener("scroll", handler);
+    };
+  }, []);
+  return position;
+};
+
+
 
 import React, { useCallback } from 'react';
 import useScroll from './useScroll';
@@ -404,7 +536,120 @@ function ScrollTop() {
 
 **把 Hooks 就看成普通的函数，能隔离的尽量去做隔离，从而让代码更加模块化，更易于理解和维护。**
 ```js
-把 Hooks 就看成普通的函数，能隔离的尽量去做隔离，从而让代码更加模块化，更易于理解和维护。
+
+import React, { useEffect, useCallback, useMemo, useState } from "react";
+import { Select, Table } from "antd";
+import _ from "lodash";
+import useAsync from "./useAsync";
+
+const endpoint = "https://myserver.com/api/";
+const useArticles = () => {
+  // 使用上面创建的 useAsync 获取文章列表
+  const { execute, data, loading, error } = useAsync(
+    useCallback(async () => {
+      const res = await fetch(`${endpoint}/posts`);
+      return await res.json();
+    }, []),
+  );
+  // 执行异步调用
+  useEffect(() => execute(), [execute]);
+  // 返回语义化的数据结构
+  return {
+    articles: data,
+    articlesLoading: loading,
+    articlesError: error,
+  };
+};
+const useCategories = () => {
+  // 使用上面创建的 useAsync 获取分类列表
+  const { execute, data, loading, error } = useAsync(
+    useCallback(async () => {
+      const res = await fetch(`${endpoint}/categories`);
+      return await res.json();
+    }, []),
+  );
+  // 执行异步调用
+  useEffect(() => execute(), [execute]);
+
+  // 返回语义化的数据结构
+  return {
+    categories: data,
+    categoriesLoading: loading,
+    categoriesError: error,
+  };
+};
+const useCombinedArticles = (articles, categories) => {
+  // 将文章数据和分类数据组合到一起
+  return useMemo(() => {
+    // 如果没有文章或者分类数据则返回 null
+    if (!articles || !categories) return null;
+    return articles.map((article) => {
+      return {
+        ...article,
+        category: categories.find(
+          (c) => String(c.id) === String(article.categoryId),
+        ),
+      };
+    });
+  }, [articles, categories]);
+};
+const useFilteredArticles = (articles, selectedCategory) => {
+  // 实现按照分类过滤
+  return useMemo(() => {
+    if (!articles) return null;
+    if (!selectedCategory) return articles;
+    return articles.filter((article) => {
+      console.log("filter: ", article.categoryId, selectedCategory);
+      return String(article?.category?.name) === String(selectedCategory);
+    });
+  }, [articles, selectedCategory]);
+};
+
+const columns = [
+  { dataIndex: "title", title: "Title" },
+  { dataIndex: ["category", "name"], title: "Category" },
+];
+
+export default function BlogList() {
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  // 获取文章列表
+  const { articles, articlesError } = useArticles();
+  // 获取分类列表
+  const { categories, categoriesError } = useCategories();
+  // 组合数据
+  const combined = useCombinedArticles(articles, categories);
+  // 实现过滤
+  const result = useFilteredArticles(combined, selectedCategory);
+
+  // 分类下拉框选项用于过滤
+  const options = useMemo(() => {
+    const arr = _.uniqBy(categories, (c) => c.name).map((c) => ({
+      value: c.name,
+      label: c.name,
+    }));
+    arr.unshift({ value: null, label: "All" });
+    return arr;
+  }, [categories]);
+
+  // 如果出错，简单返回 Failed
+  if (articlesError || categoriesError) return "Failed";
+
+  // 如果没有结果，说明正在加载
+  if (!result) return "Loading...";
+
+  return (
+    <div>
+      <Select
+        value={selectedCategory}
+        onChange={(value) => setSelectedCategory(value)}
+        options={options}
+        style={{ width: "200px" }}
+        placeholder="Select a category"
+      />
+      <Table dataSource={result} columns={columns} />
+    </div>
+  );
+}
 ```
 ## 全局状态管理：redux
 ### redux store特点
@@ -1091,4 +1336,3 @@ function MyForm() {
   // UI 渲染逻辑...
 }
 ```
-
