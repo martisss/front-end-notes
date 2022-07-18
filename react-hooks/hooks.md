@@ -110,6 +110,10 @@ export default function App() {
 }
 ```
 
+## useSearchParam
+
+由于 hisgory.pushState 不会触发页面重新渲染，也不会导致组件更新，所以，默认的 userSearchParams 只会获取第一次的 URL 上的查询字符串。因此，为了解决这个问题，可以通过监听 pushstate、replaceState 等事件，对状态进行同步。 其实去阅读 react-us 的源码实现，也是采用了这种办法。 https://github.com/streamich/react-use/blob/90e72a5340460816e2159b2c461254661b00e1d3/src/useSearchParam.ts#L8
+
 ## 请求用户列表-使用回调函数
 
 ```jsx

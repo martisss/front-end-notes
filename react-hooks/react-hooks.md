@@ -765,12 +765,65 @@ function DataList() {
 
 ## 08 复杂状态管理：保证状态一致性
 ### 保证状态最小化
-在定义一个状态时，要问问自己这个状态是否能够通过其他状态计算得到，如果可以，那么可以用useMemo去缓存这个数据，而不是去重新定义一个新的状态，虽然这样最终也能解决问题，但是却加大了状态管理的难度。保证状态最小化这一原则在面对复杂场景时显得尤为重要
+- 定义的状态是否能够通过其他状态计算得到，如果可以，那么就应该在使用时去计算；
+
+  > 否则就需要保持不同状态的一致性
+
+- 可以使用`useMemo`缓存计算结果；
+
 ### 避免中间状态，确保唯一数据源
 如果某个状态有多个数据来源，那么就要尽量避免设置这样的中间状态，保证数据来源的唯一性
 ![image.png](https://i.loli.net/2021/09/18/uTB5LQ6zkocxsUY.png)
 
+
+
+```jsx
+
+import React, { useState, useCallback } from "react";
+
+function PriceInput({
+  // 定义默认的 value 的数据结构
+  value = { amount: 0, currency: "rmb" },
+  // 默认不处理 onChange 事件
+  onChange = () => {}
+}) {
+  // 定义一个事件处理函数统一处理 amount 或者 currency 变化的场景
+  const handleChange = useCallback(
+    (deltaValue) => {
+      // 直接修改外部的 value 值，而不是定义内部 state
+      onChange({
+        ...value,
+        ...deltaValue
+      });
+    },
+    [value, onChange]
+  );
+  return (
+    <div className="exp-02-price-input">
+      {/* 输入价格的数量 */}
+      <input
+        value={value.amount}
+        onChange={(evt) => handleChange({ amount: evt.target.value })}
+      />
+      {/* 选择货币种类*/}
+      <select
+        value={value.currency}
+        onChange={(evt) => handleChange({ currency: evt.target.value })}
+      >
+        <option value="rmb">RMB</option>
+        <option value="dollar">Dollar</option>
+      </select>
+    </div>
+  );
+}
+```
+
+> 避免多余的状态：我们不需要在 PriceInput 这个自定义组件内部，去定义状态用于保存的 amount 或者 currency。找到准确的唯一数据源：这里内部两个基础组件的值，其准确且唯一的来源就是 value 属性，而不是其它的任何中间状态。
+
+
+
 ## 09 异步处理：向服务器发送请求
+
 ### 实现自己的API client
 ```js
 import axios from 'axios'

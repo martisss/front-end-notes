@@ -163,7 +163,7 @@ var minSubArrayLen = function(target, nums) {
 
 
 
-# 排序
+# 排序 :heavy_check_mark:
 
 [912. 排序数组](https://leetcode-cn.com/problems/sort-an-array/)
 
@@ -638,9 +638,13 @@ var sortArray = function(nums) {
 
 ## 综合
 
-### [23. 合并K个升序链表](https://leetcode-cn.com/problems/merge-k-sorted-lists/)
+### [23. 合并K个升序链表](https://leetcode-cn.com/problems/merge-k-sorted-lists/) :star:
 
 堆
+
+堆中元素不超过k个，最多有kn个点，删除和插入的时间复杂度是logk，总的时间复杂度为 kn * logk
+
+队中元素不超过k个，空间复杂度为 logk
 
 ```js
 class Heap {
@@ -683,6 +687,7 @@ class Heap {
         let {arr, _swap, _child, size, f} = this
         while(_child(k)<size) {
             let child = _child(k)
+            // child + 1 < size 不要忘记判断
             if(child+1<size && f(arr[child+1].val, arr[child].val)) {
                 child++
             }
@@ -765,141 +770,6 @@ var mergeKLists = function(lists) {
     return merge(lists, 0, lists.length-1)
 }
 
-
-
-
-```
-
-### [148. 排序链表](https://leetcode-cn.com/problems/sort-list/)
-
-```js
-// 归并排序 递归实现
-var sortList = function(head) {
-    if(!head || !head.next) return head
-    let head1 = head
-    let head2 = head.next
-    while(head2 && head2.next) {
-        head1 = head1.next
-        head2 = head2.next.next
-    }
-    let head3 = head1.next
-    head1.next = null
-    return merge(sortList(head), sortList(head3))
-}
-
-const merge = (head1, head2) => {
-    if(!head1) return head2
-    if(!head2) return head1
-    if(head1.val < head2.val) {
-        head1.next = merge(head1.next, head2)
-        return head1
-    } else {
-        head2.next = merge(head1, head2.next)
-        return head2
-    }
-}
-
-
-
-//归并排序 迭代实现
-var sortList = function(head) {
-    if(!head || !head.next) return head
-    // 1. 计算链表长度len
-    let len = 0, cur = head
-    while(cur) {
-        cur = cur.next
-        len++
-    }
-    // 2. 初始化，增加虚拟头节点 dummmyHead
-    let dummmyHead = new ListNode(-1, head)
-    // 3. 拆分链表，两两归并，单个长度为subLen, 长度变化为1, 2, 3, 4, 5
-    // 注意此处是sublen<<=1, 而不是sunblen<<1
-    for(let subLen=1; subLen<len; subLen<<=1) {
-        let pre = dummmyHead, curr = pre.next
-        // 一直划分，直到cur为空
-        while(curr) {
-            // 3.1 划分链表 head1
-            let head1 = curr
-            for(let i=1; i<subLen && curr &&  curr.next; i++) {
-                curr = curr.next
-            }
-            // 3.2 将链表head1与后方断开
-            let head2 = curr.next
-            curr.next = null
-            curr = head2
-            // 3.3 划分链表head2
-            for(let i=1; i<subLen && curr && curr.next; i++) {
-                curr = curr.next
-            }
-            // 3.4 将链表head2与后方断开
-            let next = null
-            if(curr) {
-                next = curr.next
-                curr.next = null
-            }
-            // 4. 合并链表
-            pre.next = merge(head1, head2)
-            // 合并完后记得将pre节点移动到合并后链表的最后一个节点，方便后续合并
-            while(pre.next) {
-                pre = pre.next
-            }
-            // curr 指向下一次进行划分的链表的头节点
-            curr = next
-        }
-    }
-    return dummmyHead.next
-}
-
-const merge = (head1, head2) => {
-    let dummmyHead = new ListNode(-1)
-    let cur = dummmyHead
-    while(head1 && head2) {
-        if(head1.val < head2.val) {
-            cur.next = head1
-            head1 = head1.next
-        } else {
-            cur.next = head2
-            head2 = head2.next
-        }
-        cur = cur.next
-    }
-    if(head1) cur.next = head1
-    if(head2) cur.next = head2
-    return dummmyHead.next
-}
-
-
-// 快速排序
-var sortList = function(head) {
-    //排除特殊情况
-    if(!head || !head.next) return head
-    //值小于头节点值的节点放在dummyLeft中,反之放在dummyRight中
-    //left, right分别指向dummyLeft, dummyRight链表的最后一个节点
-    let left = new ListNode(-1), right = new ListNode(-1)
-    let dummyLeft = left, dummyRight = right
-    let node = head.next
-    //根据节点的值将其放在两个不同链表中
-    while(node){
-        if(node.val < head.val) {
-            left.next = node
-            left = left.next
-        } else  {
-            right.next = node
-            right = right.next
-        }
-        node = node.next
-    }
-    right.next = null
-    //dummyLeft链表中节点值都小于头节点的值
-    //因此直接将头节点放在最后即可
-    left.next = head
-    head.next = null
-    left = sortList(dummyLeft.next)
-    right = sortList(dummyRight.next)
-    //因为head在dummyLeft的末尾
-    head.next = right
-    return left
-}
 
 ```
 
@@ -1036,9 +906,9 @@ var removeKdigits = function(num, k) {
 
 
 
-# 链表
+# 链表 :construction_worker:
 
-## 单链表
+## 单链表 :heavy_check_mark:
 
 > with dummyHead
 
@@ -1239,25 +1109,26 @@ LRUCache.prototype.put = function(key, value) {
 
 后面三个都使用了双指针的技巧,注意体会.
 
-### 反转链表
+### 反转链表 :heavy_check_mark:
 
 1. 递归
 
 ```js
-// 递归
 var reverseList = function(head) {
     if(!head || !head.next) return head
-    const newNode = reverseList(head.next)
+    // head之后的都已经反转完毕，此时head应为尾节点
+    let pre = reverseList(head.next)
     head.next.next = head
+    // 尾节点指向null
     head.next = null
-    return newNode
+    return pre
 }
 ```
 
 2. 迭代
 
 ```js
-/* var reverseList = function(head) {
+/var reverseList = function(head) {
     let pre = null
     let cur = head
     while(cur) {
@@ -1269,6 +1140,62 @@ var reverseList = function(head) {
     return pre
 }; 
 ```
+
+#### [92. 反转链表 II](https://leetcode.cn/problems/reverse-linked-list-ii/)
+
+```js
+/**
+ * Definition for singly-linked list.
+ * function ListNode(val, next) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.next = (next===undefined ? null : next)
+ * }
+ */
+/**
+ * @param {ListNode} head
+ * @param {number} left
+ * @param {number} right
+ * @return {ListNode}
+ */
+var reverseBetween = function (head, left, right) {
+    let dummy = new ListNode(-1, head)
+    let preNode = dummy
+    for (let i = 0; i < left - 1; i++) {
+        preNode = preNode.next;
+    }
+    // left， right 居然不可变，使用下方代码会报错
+    // let rightNode = dummy
+    // while(right > 0) {
+    //     right = right.next
+    //     right--
+    // }
+    let rightNode = preNode;
+    for (let i = 0; i < right - left + 1; i++) {
+        rightNode = rightNode.next;
+    }
+
+    let leftNode = preNode.next
+    let curNode = rightNode.next
+    preNode.next = null
+    rightNode.next = null
+
+    const reverse = (head) => {
+        let [pre, cur] = [null, head]
+        while (cur) {
+            let next = cur.next
+            cur.next = pre
+            pre = cur
+            cur = next
+        }
+    }
+    reverse(leftNode)
+    preNode.next = rightNode
+    leftNode.next = curNode
+    return dummy.next
+};
+```
+
+
 
 **反转部分链表**
 
@@ -1288,7 +1215,7 @@ function reverse(start, end) {
 
 注意: 这里的反转后pre指向反转后链表的第一个节点，原链表的第一个节点变为反转后链表的最后一个节点
 
-### 链表的拼接
+### 链表的拼接 :heavy_check_mark:
 
 #### 两个升序链表的合并
 
@@ -1342,42 +1269,43 @@ var mergeTwoLists = function(list1, list2) {
 #### [25. K 个一组翻转链表](https://leetcode-cn.com/problems/reverse-nodes-in-k-group/)
 
 ```js
-//  虚拟头节点的使用；反转链表；尤其是在链表内部反转部分链表，以及反转后链表的拼接
 var reverseKGroup = function(head, k) {
+    // 反转（start,end）链表，不包括end
+    const reverse = (start, end) => {
+        let [pre, cur] = [start, start.next]
+        let next
+        // 待反转链表的第一个节点,反转后变成待反转链表的最后一个节点，first.next = end
+        let first = cur
+        while(cur !== end) {
+            next = cur.next
+            cur.next = pre
+            pre = cur
+            cur = next
+        }
+        // 此时pre指向待反转链表的最后一个节点，也就是反转链表的第一个节点，start.next = pre
+        start.next = pre
+        first.next = end
+        // 返回反转后链表的最后一个节点
+        return first
+    }
     let dummy = new ListNode(-1, head)
-    let [start, end] = [dummy, dummy.next]
+    // 记录当前是第几个节点，当count % k === 0 时应该要反转部分链表
     let count = 0
-    //达到数量k的要求后就反转, 剩下的不足k就结束，返回结果
+    let [start, end] = [dummy, dummy.next]
     while(end) {
         count++
         if(count % k === 0) {
-            // 真正需要的是start.next 到 end， start被当作哨兵节点
-            // 还原成初始状态，start指向前一段的最后一个节点，end指向下一组待翻转链表的第一个节点
-            start = reverseList(start, end.next)
-            end = start.next  
+            // 部分反转链表的最后一个节点
+            start = reverse(start, end.next)
+            // 更新end指针，指向下一组待反转链表的第一个节点
+            end = start.next
         } else {
             end = end.next
         }
     }
     return dummy.next
-
-    function reverseList(start, end){
-        let [pre, cur] = [start, start.next]
-        // 反转后这个指针指向反转后这段链表的最后一个节点
-        // 暂时保存，方便反转后链表的连接
-        let first = cur
-        while(cur !== end) {
-            let next = cur.next
-            cur.next = pre
-            pre = cur
-            cur = next
-        }
-        // 拼接链表 a b c d
-        start.next = pre
-        first.next = cur //  同 first.next = end
-        return first
-    }
 };
+
 ```
 
 > 变形：不足k个也要反转
@@ -1422,9 +1350,7 @@ var reverseKGroup = function(head, k) {
 };
 ```
 
-
-
-### 快慢指针
+### 快慢指针 :heavy_check_mark:
 
 #### 检测链表中的环
 
@@ -1481,7 +1407,7 @@ var hasCycle = function(head) {
 > ```
 >
 
-### [287. 寻找重复数](https://leetcode-cn.com/problems/find-the-duplicate-number/)
+#### [287. 寻找重复数](https://leetcode-cn.com/problems/find-the-duplicate-number/)
 
 ```js
 /**
@@ -1577,6 +1503,19 @@ var removeNthFromEnd = function(head, n) {
 
 #### [链表的中间结点](https://leetcode-cn.com/problems/middle-of-the-linked-list/)
 
+[234. 回文链表](https://leetcode.cn/problems/palindrome-linked-list/)  ：后半部分反转后进行对比，空间复杂度O(1)
+
+
+
+找到链表的中间节点
+
+```sj
+    while(fast.next && fast.next.next){
+        slow = slow.next
+        fast = fast.next.next
+    }
+```
+
 1. 单指针  (n, 1)
 
 ```js
@@ -1635,15 +1574,256 @@ var copyRandomList = function(head) {
 };
 ```
 
+## 综合：
+
+### [143. 重排链表](https://leetcode.cn/problems/reorder-list/)
+
+快慢指针找到链表中点，
+
+反转链表
+
+拼接链表
+
+```js
+var reorderList = function (head) {
+    if (!head) return head
+    let slow = head, fast = head
+    while (fast.next && fast.next.next) {
+        slow = slow.next
+        fast = fast.next.next
+    }
+    let right = slow.next
+    slow.next = null
+    const reverse = (head) => {
+        let pre = null, cur = head
+        let next
+        while (cur) {
+            next = cur.next
+            cur.next = pre
+            pre = cur
+            cur = next
+        }
+        return pre
+    }
+    const merge = (head1, head2) => {
+        if (!head1) return head2
+        if (!head2) return head1
+        head1.next = merge(head2, head1.next)
+        return head1
+    }
+    return merge(head, reverse(right))
+};
+```
+
+### [148. 排序链表](https://leetcode.cn/problems/sort-list/):star2:
+
+```js
+// 归并排序 递归实现
+var sortList = function(head) {
+    if(!head || !head.next) return head
+    let head1 = head
+    let head2 = head.next
+    while(head2 && head2.next) {
+        head1 = head1.next
+        head2 = head2.next.next
+    }
+    let head3 = head1.next
+    head1.next = null
+    return merge(sortList(head), sortList(head3))
+}
+
+const merge = (head1, head2) => {
+    if(!head1) return head2
+    if(!head2) return head1
+    if(head1.val < head2.val) {
+        head1.next = merge(head1.next, head2)
+        return head1
+    } else {
+        head2.next = merge(head1, head2.next)
+        return head2
+    }
+}
 
 
-#### [430. 扁平化多级双向链表](https://leetcode-cn.com/problems/flatten-a-multilevel-doubly-linked-list/)
 
-#### [1600. 皇位继承顺序](https://leetcode-cn.com/problems/throne-inheritance/)
+//归并排序 迭代实现
+var sortList = function(head) {
+    if(!head || !head.next) return head
+    // 1. 计算链表长度len
+    let len = 0, cur = head
+    while(cur) {
+        cur = cur.next
+        len++
+    }
+    // 2. 初始化，增加虚拟头节点 dummmyHead
+    let dummmyHead = new ListNode(-1, head)
+    // 3. 拆分链表，两两归并，单个长度为subLen, 长度变化为1, 2, 4, 8
+    // 注意此处是sublen<<=1, 而不是sunblen<<1
+    for(let subLen=1; subLen<len; subLen<<=1) {
+        let pre = dummmyHead, curr = pre.next
+        // 一直划分，直到cur为空
+        while(curr) {
+            // 3.1 划分链表 head1
+            let head1 = curr
+            for(let i=1; i<subLen && curr &&  curr.next; i++) {
+                curr = curr.next
+            }
+            // 3.2 将链表head1与后方断开
+            let head2 = curr.next
+            curr.next = null
+            curr = head2
+            // 3.3 划分链表head2
+            for(let i=1; i<subLen && curr && curr.next; i++) {
+                curr = curr.next
+            }
+            // 3.4 将链表head2与后方断开
+            let next = null
+            if(curr) {
+                next = curr.next
+                curr.next = null
+            }
+            // 4. 合并链表
+            pre.next = merge(head1, head2)
+            // 合并完后记得将pre节点移动到合并后链表的最后一个节点，方便后续合并
+            while(pre.next) {
+                pre = pre.next
+            }
+            // curr 指向下一次进行划分的链表的头节点
+            curr = next
+        }
+    }
+    return dummmyHead.next
+}
+
+const merge = (head1, head2) => {
+    let dummmyHead = new ListNode(-1)
+    let cur = dummmyHead
+    while(head1 && head2) {
+        if(head1.val < head2.val) {
+            cur.next = head1
+            head1 = head1.next
+        } else {
+            cur.next = head2
+            head2 = head2.next
+        }
+        cur = cur.next
+    }
+    if(head1) cur.next = head1
+    if(head2) cur.next = head2
+    return dummmyHead.next
+}
+
+
+// 快速排序
+var sortList = function(head) {
+    //排除特殊情况
+    if(!head || !head.next) return head
+    //值小于头节点值的节点放在dummyLeft中,反之放在dummyRight中
+    //left, right分别指向dummyLeft, dummyRight链表的最后一个节点
+    let left = new ListNode(-1), right = new ListNode(-1)
+    let dummyLeft = left, dummyRight = right
+    let node = head.next
+    //根据节点的值将其放在两个不同链表中
+    while(node){
+        if(node.val < head.val) {
+            left.next = node
+            left = left.next
+        } else  {
+            right.next = node
+            right = right.next
+        }
+        node = node.next
+    }
+    right.next = null
+    //dummyLeft链表中节点值都小于头节点的值
+    //因此直接将头节点放在最后即可
+    left.next = head
+    head.next = null
+    left = sortList(dummyLeft.next)
+    right = sortList(dummyRight.next)
+    //因为head在dummyLeft的末尾
+    head.next = right
+    return left
+}
+
+//小顶堆实现
+class Heap {
+    constructor() {
+        this.arr = []
+        this.compare = (a, b) => a < b
+    }
+    get size() {
+        return this.arr.length
+    }
+    push(item) {
+        this.arr.push(item)
+        this.shiftUp(this.size - 1)
+    }
+    pop() {
+        if (this.size === 0) return
+        let { swap, size, arr } = this
+        swap(arr, 0, size - 1)
+        let res = arr.pop()
+        this.shiftDown(0)
+        return res
+    }
+    shiftUp(k) {
+        let { parent, arr, compare, swap } = this
+        while (k > 0) {
+            let p = parent(k)
+            if (compare(arr[k], arr[p])) {
+                swap(arr, k, p)
+                k = p
+            } else return
+        }
+    }
+    shiftDown(k) {
+        let { child, arr, compare, swap, size } = this
+        while (child(k) + 1 < size) {
+            let left = child(k)
+            if(compare(arr[left+1], arr[left])) {
+                left++
+            }
+            if(compare(arr[left], arr[k])) {
+                swap(arr, k, left)
+            } else return
+        }
+    }
+    swap(arr, left, right) {
+        ;[arr[left], arr[right]] = [arr[right], arr[left]]
+    }
+    parent(k) {
+        return ((k - 1) >> 1)
+    }
+    child(k) {
+        return 2 * k + 1
+    }
+}
+
+
+var sortList = function (head) {
+    let heap = new Heap()
+    while(head) {
+        heap.push(head.val)
+    }
+    let dummy = new ListNode(-1)
+    let cur = dummy
+    while(heap.size) {
+        cur.next = new ListNode(heap.pop())
+        cur = cur.next
+    }
+    return dummy.next
+};
+
+```
+
+### [430. 扁平化多级双向链表](https://leetcode-cn.com/problems/flatten-a-multilevel-doubly-linked-list/)
+
+### [1600. 皇位继承顺序](https://leetcode-cn.com/problems/throne-inheritance/)
 
 > hard
 
-#### [460. LFU 缓存](https://leetcode-cn.com/problems/lfu-cache/)
+### [460. LFU 缓存](https://leetcode-cn.com/problems/lfu-cache/)
 
 # 堆 与 优先队列
 
@@ -1731,6 +1911,8 @@ while(a.size) {
   console.log(a.pop())
 }
 ```
+
+### 
 
 # 位运算
 
@@ -2271,7 +2453,7 @@ TODO: [904. 水果成篮](https://leetcode.cn/problems/fruit-into-baskets/)
 
 # 二叉树
 
-## **:sparkles: 二叉树：递归函数究竟什么时候需要返回值，什么时候不要返回值？:sparkles:**
+*:sparkles: 二叉树：递归函数究竟什么时候需要返回值，什么时候不要返回值？:sparkles:**
 
 > :man_playing_handball: 递归函数返回值为bool类型是为了搜索一条边，没有返回值是搜索整棵树。
 
@@ -2497,7 +2679,7 @@ var postorderTraversal = function(root, res = []) {
 
 ### 层序遍历
 
-BFS模板
+#### 迭代
 
 ```js
 const visited = {}
@@ -2518,8 +2700,6 @@ function bfs() {
 }
 
 ```
-
-
 
 带有层标记信息 (相当于对距离指定节点距离为0的节点进行操作) => **层序遍历**
 
@@ -2578,47 +2758,40 @@ class Solution:
 
 ```
 
-#### [199. 二叉树的右视图](https://leetcode-cn.com/problems/binary-tree-right-side-view/)
-
-#### [129. 求根节点到叶节点数字之和](https://leetcode-cn.com/problems/sum-root-to-leaf-numbers/)
+#### 递归
 
 ```js
-var sumNumbers = function(root) {
-    if(!root) return 0
-    let nodeQueue = [root]
-    let numQueue = [root.val]
-    let sum=0
-    while(nodeQueue.length) {
-        let node = nodeQueue.shift()
-        let num = numQueue.shift()
-        // 没有左右子节点，将父级传下来的num加到sum上
-        if(!node.left && !node.right) sum += num
-        if(node.left) {
-            nodeQueue.push(node.left)
-            numQueue.push(num*10 + node.left.val)
+var levelOrder = function(root) {
+    const traverse = (index, root, res=[]) => {
+        if(res.length < index) {
+            res.push([])
         }
-        if(node.right) {
-            nodeQueue.push(node.right)
-            numQueue.push(num*10 + node.right.val)
-        }
+        res[index-1].push(root.val)
+        if(root.left) traverse(index+1, root.left, res)
+        if(root.right) traverse(index+1, root.right, res)
     }
-    return sum
-}
-
-var sumNumbers = function(root)  {
-    const dfs = (node, pre) => {
-        if(!node) return 0
-        const sum = pre*10 + node.val
-        if(!node.left && !node.right) return sum
-        return dfs(node.left, sum) + dfs(node.right, sum)
-    }
-    return dfs(root,  0)
+    if(!root) return []
+    let res = []
+    traverse(1, root, res)
+    return res
 }
 ```
+
+#### [199. 二叉树的右视图](https://leetcode-cn.com/problems/binary-tree-right-side-view/) :heavy_check_mark:
+
+层序遍历变形，返回len===0时节点的值
+
+#### [429. N 叉树的层序遍历](https://leetcode.cn/problems/n-ary-tree-level-order-traversal/)  :heavy_check_mark:
+
+相比二叉树子节点变成n个
+
+#### [515. 在每个树行中找最大值](https://leetcode.cn/problems/find-largest-value-in-each-tree-row/) :heavy_check_mark:
 
 
 
 ## 题型
+
+
 
 ### 搜索类
 
@@ -3410,25 +3583,114 @@ def dfs(root, path):
 
 #### todo [1530.好叶子节点对的数量](https://leetcode-cn.com/problems/number-of-good-leaf-nodes-pairs/description/)
 
-## 求二叉树的属性
+### 求深度
 
-[二叉树：是否对称](https://programmercarl.com/0101.对称二叉树.html)
+```js
+class Solution {
+public:
+    int result;
+    void getDepth(TreeNode* node, int depth) {
+        result = depth > result ? depth : result; // 中
+        if (node->left == NULL && node->right == NULL) return ;
+        if (node->left) { // 左
+            getDepth(node->left, depth + 1);
+        }
+        if (node->right) { // 右
+            getDepth(node->right, depth + 1);
+        }
+        return ;
+    }
+    int maxDepth(TreeNode* root) {
+        result = 0;
+        if (root == 0) return result;
+        getDepth(root, 1);
+        return result;
+    }
+};
+```
+
+求高度
+
+```js
+    const getHeight = (root) => {
+        if(!root) return 0
+        let left = getHeight(root.left)
+        if(left === -1) return -1
+        let right = getHeight(root.right)
+        if(right === -1) return -1
+        return Math.abs(left-right) <= 1 ? 1 + Math.max(left, right) : -1
+    }
+```
+
+
+
+## 二叉树的属性
+
+### 对称性
+
+#### [二叉树：是否对称](https://programmercarl.com/0101.对称二叉树.html)
 
 - 递归：后序，递归比较左右节点
+
 - 迭代：将对应节点放入队列或者栈中再进行比较
 
-[二叉树：求最大深度](https://programmercarl.com/0104.二叉树的最大深度.html)
+#### [101. 对称二叉树](https://leetcode.cn/problems/symmetric-tree/) : :heart_eyes:
+
+  - 递归比较**两棵子树**
+
+    ```js
+    var isSymmetric = function(root) {
+        const compare = (left, right) => {
+            if(!left && !right) return true
+            else if(!left) return false
+            else if (!right) return false
+            else if(left.val !== right.val) return false
+            return compare(left.left, right.right) && compare(left.right, right.left)
+        }
+        if(!root) return true
+        return compare(root.left, root.right)
+    };
+    // 顺序 类似后序遍历，左右中
+    ```
+
+  - 迭代
+
+    ```js
+    // 队列，类似层序遍历，核心点在于将要比较的两个节点成对放入，成对取出进行比较，同样原理可以改成栈实现
+    var isSymmetric = function(root) {
+        if(!root) return true
+        const queue = [root.left, root.right]
+        while(queue.length) {
+            let len = queue.length
+            while(len--) {
+                let left = queue.shift()
+                let right = queue.shift()
+                // 说明目前为止还是对称的，继续检查
+                if(!left && !right) continue
+                if(!right || !left || left.val !== right.val) return false
+                // 这里和层序遍历不一样，不管是否为空都要加入队列，因为要判断是否对称
+                queue.push(left.left)
+                queue.push(right.right)
+                queue.push(left.right)
+                queue.push(right.left)
+            }
+        }
+        return true
+    }
+    ```
+
+    **[100. 相同的树](https://leetcode.cn/problems/same-tree/)**   方法如出一辙
+
+    **[572. 另一棵树的子树](https://leetcode.cn/problems/subtree-of-another-tree/)** 类似
+
+### 深度 & 高度
+
+#### [二叉树：求最大深度](https://programmercarl.com/0104.二叉树的最大深度.html)
 
 - 递归：后序，注意最小深度的定义，一定要是叶子节点，方法和求深度类似
 - 层序遍历
 
-[二叉树：求有多少个节点](https://programmercarl.com/0222.完全二叉树的节点个数.html)
-
-- 递归：后序，通过递归函数的返回值计算节点数量
-- 层序遍历
-- 如果是完全二叉树的话，可以利用其性质，完全二叉树只有两种情况，**情况一：就是满二叉树，情况二：最后一层叶子节点没有满。**
-
-[二叉树：是否平衡](https://programmercarl.com/0110.平衡二叉树.html)
+#### [二叉树：是否平衡](https://programmercarl.com/0110.平衡二叉树.html) :heart_eyes:
 
 求深度一般用前序遍历，从上到下，求高度一般用后序遍历，从下到上，但是二叉树的最大深度和也就是根节点的最大高度。
 
@@ -3460,53 +3722,273 @@ public:
 
 :boom:注意上述问题中后序遍历&& 递归的使用
 
+求深度
 
+```js
+class Solution {
+public:
+    int result;
+    void getDepth(TreeNode* node, int depth) {
+        result = depth > result ? depth : result; // 中
+        if (node->left == NULL && node->right == NULL) return ;
+        if (node->left) { // 左
+            getDepth(node->left, depth + 1);
+        }
+        if (node->right) { // 右
+            getDepth(node->right, depth + 1);
+        }
+        return ;
+    }
+    int maxDepth(TreeNode* root) {
+        result = 0;
+        if (root == 0) return result;
+        getDepth(root, 1);
+        return result;
+    }
+};
+```
 
-[二叉树：找所有路径](https://programmercarl.com/0257.二叉树的所有路径.html)
+求高度
 
-- 递归：前序，方便让父节点指向子节点，涉及回溯处理根节点到叶子的所有路径，其中隐藏着回溯
+```js
+    const getHeight = (root) => {
+        if(!root) return 0
+        let left = getHeight(root.left)
+        if(left === -1) return -1
+        let right = getHeight(root.right)
+        if(right === -1) return -1
+        return Math.abs(left-right) <= 1 ? 1 + Math.max(left, right) : -1
+    }
+```
 
-- 迭代：一个栈模拟递归，一个栈来存放对应的遍历路径
+以自顶向下的解法来说，先计算左右节点的高度，然后再判断左右子树的高度差是否不超过1，这样会有很多重复计算
 
-[二叉树：求左叶子之和](https://programmercarl.com/0404.左叶子之和.html)
+而对于自底向上的解法来说，每个节点计算高度的函数只会调用一次，减少了重复计算。
 
-- 递归：后序，必须三层约束条件，才能判断是否是左叶子。
-- 迭代：
+#### [104. 二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/)
 
-[二叉树：求左下角的值](https://programmercarl.com/0513.找树左下角的值.html)
+深度优先和广度优先
+
+#### [111. 二叉树的最小深度](https://leetcode.cn/problems/minimum-depth-of-binary-tree/)
+
+递归 + 迭代
+
+### 求和/值
+
+#### [二叉树：求有多少个节点](https://programmercarl.com/0222.完全二叉树的节点个数.html)
+
+- 递归：后序，通过递归函数的返回值计算节点数量
+- 层序遍历
+- 如果是完全二叉树的话，可以利用其性质，完全二叉树只有两种情况，**情况一：就是满二叉树，情况二：最后一层叶子节点没有满。**
+
+#### [404. 左叶子之和](https://leetcode.cn/problems/sum-of-left-leaves/)
+
+关键在于节点是否是左叶子节点的判断
+
+递归： 后序  思考为什么是后序？
+
+迭代： 前中后 层序都可
+
+#### [二叉树：求左下角的值](https://programmercarl.com/0513.找树左下角的值.html)
 
 - 递归：顺序无所谓，优先左孩子搜索，同时找深度最大的叶子节点。
 - 迭代：层序遍历找最后一行最左边
 
-[二叉树：求路径总和](https://programmercarl.com/0112.路径总和.html)
+#### [129. 求根节点到叶节点数字之和](https://leetcode-cn.com/problems/sum-root-to-leaf-numbers/)
+
+```js
+var sumNumbers = function(root) {
+    if(!root) return 0
+    let nodeQueue = [root]
+    let numQueue = [root.val]
+    let sum=0
+    while(nodeQueue.length) {
+        let node = nodeQueue.shift()
+        let num = numQueue.shift()
+        // 没有左右子节点，将父级传下来的num加到sum上
+        if(!node.left && !node.right) sum += num
+        if(node.left) {
+            nodeQueue.push(node.left)
+            numQueue.push(num*10 + node.left.val)
+        }
+        if(node.right) {
+            nodeQueue.push(node.right)
+            numQueue.push(num*10 + node.right.val)
+        }
+    }
+    return sum
+}
+
+var sumNumbers = function(root)  {
+    const dfs = (node, pre) => {
+        if(!node) return 0
+        const sum = pre*10 + node.val
+        if(!node.left && !node.right) return sum
+        return dfs(node.left, sum) + dfs(node.right, sum)
+    }
+    return dfs(root,  0)
+}
+```
+
+## 二叉树路径
+
+### [257. 二叉树的所有路径](https://leetcode.cn/problems/binary-tree-paths/)  :heavy_check_mark:
+
+- 递归：前序，方便让父节点指向子节点，涉及回溯处理根节点到叶子的所有路径，其中隐藏着回溯
+
+- 迭代：一个栈模拟递归，一个栈来存放对应的遍历路径 （队列也可）
+
+```js
+// 回溯
+var binaryTreePaths = function(root) {
+    let res = []
+    const getPath = (node, path) => {
+        if(!node.left && !node.right) {
+            path += node.val
+            res.push(path)
+            return
+        }
+        node.left && getPath(node.left, path+node.val + '->')
+        node.right && getPath(node.right, path+node.val + '->')
+    }
+    getPath(root, '')
+    return res
+};
+
+// 迭代
+var binaryTreePaths = function (root) {
+if(!root) return []
+    let queue = [root], paths = [''], res = []
+    while (queue.length) {
+        let path = paths.shift()
+        let node = queue.shift()
+        if (!node.left && !node.right) {
+            path += node.val
+            res.push(path)
+            continue
+        }
+        path += (node.val + '->')
+        if (node.left) {
+            queue.push(node.left)
+            paths.push(path)
+        }
+        if (node.right) {
+            queue.push(node.right)
+            paths.push(path)
+        }
+    }
+    return res
+}
+```
+
+### [112. 路径总和](https://leetcode.cn/problems/path-sum/)
 
 - 递归：顺序无所谓，递归函数返回值为bool类型是为了搜索一条边，没有返回值是搜索整棵树。
 - 迭代：栈里元素不仅要记录节点指针，还要记录从头结点到该节点的路径数值总和
 
+```js
+//回溯
+var hasPathSum = function (root, targetSum) {
+    const backtrack = (node, sum) => {
+        if (sum == 0 && !node.left && !node.right) return true
+        if (!node.left && !node.right) return false
+        if(node.left && backtrack(node.left, sum - node.left.val)) return true
+        if(node.right && backtrack(node.right, sum - node.right.val)) return true
+        return false
+    }
+    if (!root) return false
+    return backtrack(root, targetSum-root.val)
+};
+//精简写法
+var hasPathSum = function (root, targetSum) {
+    if (!root) return false
+    if (targetSum === root.val && !root.left && !root.right) return true
+    return hasPathSum(root.left, targetSum - root.val) || hasPathSum(root.right, targetSum - root.val)
+};
 
+//迭代写法  思路类似 [101. 对称二叉树] 的迭代思路， 维护一个与节点数组对应的当前路径和数组
+let hasPathSum = function(root, targetSum) {
+    if(root === null) return false;
+    let nodeArr = [root];
+    let valArr = [0];
+    while(nodeArr.length) {
+        let curNode = nodeArr.shift();
+        let curVal = valArr.shift();
+        curVal += curNode.val;
+        // 为叶子结点，且和等于目标数，返回true
+        if (curNode.left === null && curNode.right === null && curVal === targetSum) {
+            return true;
+        }
+        // 左节点，将当前的数值也对应记录下来
+        if (curNode.left) {
+            nodeArr.push(curNode.left);
+            valArr.push(curVal);
+        }
+        // 右节点，将当前的数值也对应记录下来
+        if (curNode.right) {
+            nodeArr.push(curNode.right);
+            valArr.push(curVal);
+        }
+    }
+    return false;
+};
+```
 
 
 ## 二叉树的修改与构造
 
-[翻转二叉树](https://programmercarl.com/0226.翻转二叉树.html)
+#### [翻转二叉树](https://programmercarl.com/0226.翻转二叉树.html)  :heavy_check_mark:
 
-- 递归：前序，交换左右孩子
-- 迭代：直接模拟前序遍历
+前序遍历 递归 + 迭代  层序遍历均可
 
-[构造二叉树](https://programmercarl.com/0106.从中序与后序遍历序列构造二叉树.html)
+#### [构造二叉树](https://programmercarl.com/0106.从中序与后序遍历序列构造二叉树.html)
 
 - 递归：前序，重点在于找分割点，分左右区间构造
 - 迭代：比较复杂，意义不大
 
-[构造最大的二叉树](https://programmercarl.com/0654.最大二叉树.html)
+#### [构造最大的二叉树](https://programmercarl.com/0654.最大二叉树.html)
 
 - 递归：前序，分割点为数组最大值，分左右区间构造
 - 迭代：比较复杂，意义不大
 
-[合并两个二叉树](https://programmercarl.com/0617.合并二叉树.html)
+#### [合并两个二叉树](https://programmercarl.com/0617.合并二叉树.html)
 
 - 递归：前序，同时操作两个树的节点，注意合并的规则
 - 迭代：使用队列，类似层序遍历
+
+#### [116. 填充每个节点的下一个右侧节点指针](https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/) :heart_eyes:   :heavy_check_mark:   
+
+在普通层序遍历的同时操作next指针，设置一个pre指针就行，初始指向null, 注意初始情况
+
+空间复杂度为1的解法:当前层遍历完的同时设置下一层的next指针
+
+```js
+/**
+ * @param {Node} root
+ * @return {Node}
+ */
+var connect = function (root) {
+  // 队列
+  let queue = [];
+  if (root) queue.push(root);
+  while (queue.length) {
+    let size = queue.length;
+    let pre;
+    while (size) {
+      let cur = queue.shift();
+      // 链接当前层所有节点的 next 指针
+      if (pre) pre.next = cur;
+      pre = cur;
+      // 将下一层节点装入队列
+      if (cur.left) queue.push(cur.left);
+      if (cur.right) queue.push(cur.right);
+      size--;
+    }
+  }
+  return root;
+};
+
+```
 
 
 
@@ -3628,6 +4110,144 @@ var lowestCommonAncestor = function(root, p, q) {
 #### 
 
 ## 二叉搜索树的修改与构造
+
+#### [669. 修剪二叉搜索树](https://leetcode-cn.com/problems/trim-a-binary-search-tree/)
+
+> 递归
+
+```js
+var trimBST = function(root, low, high) {
+    // 返回条件
+    if(!root) return root
+    // 处理根节点，如果子树不符合条件，直接丢弃
+    if(root.val < low) return trimBST(root.right, low, high)
+    if(root.val > high) return trimBST(root.left, low, high)
+    // 递归处理子树
+    root.left = trimBST(root.left, low, high)
+    root.right = trimBST(root.right, low, high)
+    return root
+};
+```
+
+> 迭代
+
+利用二叉搜索树的概念，分为左右两部分处理
+
+```js
+var trimBST = function(root, low, high) {
+    if(!root) return null
+    while(root && (root.val < low || root.val > high)) {
+        if(root.val < low) root = root.right
+        if(root.val > high) root = root.left
+    }
+    let cur = root
+    while(cur) {
+        // 如果cur.right.val > high 那么根据二叉搜索树的性质，cur.right.right.....这部分都是不符合要求的，因此直接将cur.right = cur.right.left,继续循环处理，直到把右半部分处理完
+        while(cur.right && cur.right.val > high) cur.right = cur.right.left
+        cur = cur.right
+    }
+    // 左半部分同
+    cur = root
+    while(cur) {
+        while(cur.left && cur.left.val < low) cur.left = cur.left.right
+        cur = cur.left
+    }
+    return root
+}
+```
+
+
+
+> 本质上是删除叶子节点
+
+[1325. 删除给定值的叶子节点](https://leetcode-cn.com/problems/delete-leaves-with-a-given-value/)
+
+```js
+var removeLeafNodes = function(root, target) {
+    if(!root) return null
+    root.left = removeLeafNodes(root.left, target)
+    root.right = removeLeafNodes(root.right, target)
+    if(!root.left && !root.right && root.val === target) return null
+    return root
+}
+```
+
+[814. 二叉树剪枝](https://leetcode-cn.com/problems/binary-tree-pruning/)
+
+```js
+var pruneTree = function(root) {
+    if(root === null) return null
+    root.left = pruneTree(root.left)
+    root.right = pruneTree(root.right)
+    if(!root.left && !root.right && root.val === 0) return null
+    return root
+};
+```
+
+> 改变节点直接的关系
+
+ [116. 填充每个节点的下一个右侧节点指针](https://leetcode-cn.com/problems/populating-next-right-pointers-in-each-node/)
+
+```js
+// 层次遍历
+// 将每一层加入队列之后不断弹出节点，并不断更新pre 与 cur，
+// 同时将pre.next指向cur
+var connect = function(root) {
+    if(!root) return root
+    let queue = [root]
+    while(queue.length) {
+        let size = queue.length
+        let pre = null
+        let cur = null
+        for(let i=0; i<size; i++) {
+            if(i===0) {
+                pre = queue.shift()
+                cur = pre
+            } else {
+                cur = queue.shift()
+                pre.next = cur
+                pre = pre.next
+            }
+            cur.left && queue.push(cur.left)
+            cur.right && queue.push(cur.right)
+        }
+    }
+    return root
+};
+
+
+// 时间复杂度O(n), 空间复杂度O(1)
+var connect = function(root) {
+    if(!root) return root
+    let leftmost = root
+    while(leftmost.left) {
+        let head = leftmost
+        // 可以通过该层的next指针遍历该层，
+        // 遍历的过程中建立下一层节点之间的关系
+        while(head) {
+            head.left.next = head.right
+            if(head.next) {
+                head.right.next = head.next.left
+            }
+            head = head.next
+        }
+        leftmost = leftmost.left
+    }
+    return root
+}
+```
+
+
+
+### todo
+
+
+
+ [450. 删除二叉搜索树中的节点](https://leetcode-cn.com/problems/delete-node-in-a-bst/) 
+
+ [669. 修剪二叉搜索树](https://leetcode-cn.com/problems/trim-a-binary-search-tree/)
+
+
 
 ### [二叉搜索树中的插入操作](https://programmercarl.com/0701.二叉搜索树中的插入操作.html)
 
@@ -6133,11 +6753,9 @@ var canCompleteCircuit = function(gas, cost) {
 }
 ```
 
+# 模拟
 
-
-
-
-
+## [2. 两数相加](https://leetcode.cn/problems/add-two-numbers/)
 
 
 

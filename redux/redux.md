@@ -55,7 +55,7 @@ action是个具有type属性的普通对象
 
 ## 连接react 与 Redux
 
-react-redux是react与react-redux之间的桥梁，通过react-redux提供的Provider组件与connect函数使得每个组件都能够访问store, Provider组件提层基于context
+react-redux是react与react-redux之间的桥梁，通过react-redux提供的Provider组件与connect函数使得每个组件都能够访问store, Provider组件层基于context
 
 ```jsx
 import { Provider } from 'react-redux'
@@ -82,7 +82,7 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps)(Counter)
 ```
 
-`Connect` 做的是在 Redux 内部 hook，取出整个 state，然后把它传进你提供的 `mapStateToProps` 函数，它是个自定义函数
+`Connect` 做的是在 Redux 内部 hook，取出整个 state，然后把它传进你提供的 `mapStateToProps` 函数，它是个自定义函数 
 
 `mapStateToProps` 返回的对象以 props 形式传给了你的组件。没有 `mapStateToProps` 函数，`connect` 不会传递任何 state。
 
@@ -108,7 +108,7 @@ export const decrement = () => ({ type: DECREMENT });
 
 ```js
   increment = () => {
-    this.props.dispatch(increment()); // << 在这使用 dispatch需要的上一个对象而不是函数
+    this.props.dispatch(increment()); // << 在这使用 dispatch需要的是一个对象而不是函数
   };
 ```
 
@@ -316,7 +316,7 @@ const thunk = ({dispatch, getState}) => next => action => {
 }
 ```
 
-
+异步 Action 并不是一个具体的概念，而可以把它看作是 Redux 的一个使用模式。它通过组合使用同步 Action ，在没有引入新概念的同时，用一致的方式提供了处理异步逻辑的方案。
 
 
 
