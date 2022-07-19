@@ -3628,13 +3628,13 @@ public:
 
 ### 对称性
 
-#### [二叉树：是否对称](https://programmercarl.com/0101.对称二叉树.html)
+#### [二叉树：是否对称](https://programmercarl.com/0101.对称二叉树.html):heavy_check_mark:
 
 - 递归：后序，递归比较左右节点
 
 - 迭代：将对应节点放入队列或者栈中再进行比较
 
-#### [101. 对称二叉树](https://leetcode.cn/problems/symmetric-tree/) : :heart_eyes:
+#### [101. 对称二叉树](https://leetcode.cn/problems/symmetric-tree/) : :heart_eyes::heavy_check_mark:
 
   - 递归比较**两棵子树**
 
@@ -3685,12 +3685,12 @@ public:
 
 ### 深度 & 高度
 
-#### [二叉树：求最大深度](https://programmercarl.com/0104.二叉树的最大深度.html)
+#### [二叉树：求最大深度](https://programmercarl.com/0104.二叉树的最大深度.html):heavy_check_mark:
 
 - 递归：后序，注意最小深度的定义，一定要是叶子节点，方法和求深度类似
 - 层序遍历
 
-#### [二叉树：是否平衡](https://programmercarl.com/0110.平衡二叉树.html) :heart_eyes:
+#### [二叉树：是否平衡](https://programmercarl.com/0110.平衡二叉树.html) :heart_eyes::heavy_check_mark:
 
 求深度一般用前序遍历，从上到下，求高度一般用后序遍历，从下到上，但是二叉树的最大深度和也就是根节点的最大高度。
 
@@ -3765,23 +3765,23 @@ public:
 
 而对于自底向上的解法来说，每个节点计算高度的函数只会调用一次，减少了重复计算。
 
-#### [104. 二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/)
+#### [104. 二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/):heavy_check_mark:
 
 深度优先和广度优先
 
-#### [111. 二叉树的最小深度](https://leetcode.cn/problems/minimum-depth-of-binary-tree/)
+#### [111. 二叉树的最小深度:heavy_check_mark:](https://leetcode.cn/problems/minimum-depth-of-binary-tree/)
 
 递归 + 迭代
 
 ### 求和/值
 
-#### [二叉树：求有多少个节点](https://programmercarl.com/0222.完全二叉树的节点个数.html)
+#### [二叉树：求有多少个节点 ](https://programmercarl.com/0222.完全二叉树的节点个数.html) :heavy_check_mark:
 
 - 递归：后序，通过递归函数的返回值计算节点数量
 - 层序遍历
 - 如果是完全二叉树的话，可以利用其性质，完全二叉树只有两种情况，**情况一：就是满二叉树，情况二：最后一层叶子节点没有满。**
 
-#### [404. 左叶子之和](https://leetcode.cn/problems/sum-of-left-leaves/)
+#### [404. 左叶子之和](https://leetcode.cn/problems/sum-of-left-leaves/):heavy_check_mark:
 
 关键在于节点是否是左叶子节点的判断
 
@@ -3789,12 +3789,12 @@ public:
 
 迭代： 前中后 层序都可
 
-#### [二叉树：求左下角的值](https://programmercarl.com/0513.找树左下角的值.html)
+#### [二叉树：求左下角的值](https://programmercarl.com/0513.找树左下角的值.html):heavy_check_mark:
 
 - 递归：顺序无所谓，优先左孩子搜索，同时找深度最大的叶子节点。
 - 迭代：层序遍历找最后一行最左边
 
-#### [129. 求根节点到叶节点数字之和](https://leetcode-cn.com/problems/sum-root-to-leaf-numbers/)
+#### [129. 求根节点到叶节点数字之和](https://leetcode-cn.com/problems/sum-root-to-leaf-numbers/):heavy_check_mark:
 
 ```js
 var sumNumbers = function(root) {
@@ -3881,7 +3881,7 @@ if(!root) return []
 }
 ```
 
-### [112. 路径总和](https://leetcode.cn/problems/path-sum/)
+### [112. 路径总和](https://leetcode.cn/problems/path-sum/) :heavy_check_mark:
 
 - 递归：顺序无所谓，递归函数返回值为bool类型是为了搜索一条边，没有返回值是搜索整棵树。
 - 迭代：栈里元素不仅要记录节点指针，还要记录从头结点到该节点的路径数值总和
@@ -3934,27 +3934,123 @@ let hasPathSum = function(root, targetSum) {
 };
 ```
 
+### [113. 路径总和 II](https://leetcode.cn/problems/path-sum-ii/)  :heavy_check_mark:
+
+```js
+var pathSum = function(root, targetSum) {
+    let res = []
+    let path = []
+    const backtrack = (node, target) => {
+        if(target === 0 && !node.left && !node.right) {
+            res.push([...path])
+            return
+        }
+        if(!node.left && !node.right) return
+        if(node.left) {
+            path.push(node.left.val)
+            backtrack(node.left, target-node.left.val)
+            path.pop()
+        }
+        if(node.right) {
+            path.push(node.right.val)
+            backtrack(node.right, target-node.right.val)
+            path.pop()
+        }
+        return res
+    }
+    if(!root) return res
+    path.push(root.val)
+    backtrack(root, targetSum-root.val)
+    return res
+};
+```
+
+
 
 ## 二叉树的修改与构造
+
+### 构造二叉树
+
+关键在于找到分割点，然后递归地进行构造
+
+####  [105.从前序与中序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/):heavy_check_mark:
+
+#### [106. 从中序与后序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/):heavy_check_mark:
+
+#### [889. 根据前序和后序遍历构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/):heavy_check_mark:
+
+```js
+var constructFromPrePost = function(preorder, postorder) {
+    if(!preorder.length) return null
+    let node = new TreeNode(preorder[0])
+    if(preorder.length == 1) return node
+    let index = postorder.findIndex(item => item === preorder[1])
+    // 前序： 中 左 右   后序：左 右 中
+    // 前序中 preorder[1] 在 后序遍历中位于左分支的最后一个，
+    // 左分支的长度就是index+1, 
+    // 因此在postorder中切割左分支： postorder.slice(0, index+1)
+    // 对应到preorder中的左分支： preorder.slice(1, index+2)
+    // 然后递归地进行构造
+    node.left = constructFromPrePost(preorder.slice(1,index+2), postorder.slice(0, index+1))
+    node.right = constructFromPrePost(preorder.slice(index+2), postorder.slice(index+1, postorder.length))
+    return node
+};
+```
+
+
+
+#### [654. 最大二叉树](https://leetcode.cn/problems/maximum-binary-tree/)  :heavy_check_mark:   :building_construction:            
+
+- 递归：前序，分割点为数组最大值，分左右区间构造
+- 单调栈  TODO
+
+#### [617. 合并二叉树](https://leetcode.cn/problems/merge-two-binary-trees/) :heavy_check_mark:
+
+- 递归：前序，同时操作两个树的节点，注意合并的规则
+- 迭代：使用队列，类似层序遍历
+
+```js
+//  前中后均可
+var mergeTrees = function(root1, root2) {
+    if(!root2) return root1
+    if(!root1) return root2
+    return new TreeNode(root1.val + root2.val, mergeTrees(root1.left, root2.left), mergeTrees(root1.right, root2.right))
+};
+
+// 迭代  类似 101.对称二叉树
+var mergeTrees = function (root1, root2) {
+    if (!root2) return root1
+    if (!root1) return root2
+    let queue = [root1, root2]
+    while (queue.length) {
+        let node1 = queue.shift()
+        let node2 = queue.shift()
+        node1.val += node2.val
+        if (node1.left && node2.left) {
+            queue.push(node1.left)
+            queue.push(node2.left)
+        }
+        if (node1.right && node2.right) {
+            queue.push(node1.right)
+            queue.push(node2.right)
+        }
+        if (!node1.left && node2.left) {
+            node1.left = node2.left
+        }
+        if (!node1.right && node2.right) {
+            node1.right = node2.right
+        }
+    }
+    return root1
+}
+
+```
 
 #### [翻转二叉树](https://programmercarl.com/0226.翻转二叉树.html)  :heavy_check_mark:
 
 前序遍历 递归 + 迭代  层序遍历均可
 
-#### [构造二叉树](https://programmercarl.com/0106.从中序与后序遍历序列构造二叉树.html)
-
-- 递归：前序，重点在于找分割点，分左右区间构造
-- 迭代：比较复杂，意义不大
-
-#### [构造最大的二叉树](https://programmercarl.com/0654.最大二叉树.html)
-
-- 递归：前序，分割点为数组最大值，分左右区间构造
-- 迭代：比较复杂，意义不大
-
-#### [合并两个二叉树](https://programmercarl.com/0617.合并二叉树.html)
-
-- 递归：前序，同时操作两个树的节点，注意合并的规则
-- 迭代：使用队列，类似层序遍历
+### 二叉树的修改
 
 #### [116. 填充每个节点的下一个右侧节点指针](https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/) :heart_eyes:   :heavy_check_mark:   
 
