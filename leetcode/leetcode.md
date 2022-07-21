@@ -3300,7 +3300,13 @@ var connect = function(root) {
 - 左、右子树也分别为二叉排序树；
 - 没有键值相等的节点。
 
-注意：平衡二叉树**中序遍历**是有序，遍历的值单调递增
+注意：平衡二叉树**中序遍历**是有序，遍历的值单调递增、
+
+
+
+#### [700. 二叉搜索树中的搜索](https://leetcode.cn/problems/search-in-a-binary-search-tree/)
+
+迭代，递归
 
 ### 平衡二叉树
 
@@ -3342,96 +3348,7 @@ var countNodes = function(root) {
 }
 ```
 
-### 路径
-
-[124. 二叉树中的最大路径和](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/)
-
-:sparkles:**树的题目，基本都是考察递归思想的。因此我们需要思考如何去定义我们的递归函数**，在这里我定义了一个递归函数，它的功能是，`返回以当前节点为根节点的MaxPath`但是有两个条件:
-
-1. 根节点必须选择
-2. 左右子树只能选择一个
-
-````
-### 解题思路
-树的题目大多涉及到递归，需要思考如何设计递归函数
-dfs函数的作用：返回以给定节点为根节点的二叉树最大路径和
-需要注意：
-- 最大路径可以从树中任意节点出发
-- 路径至少包含一个节点
-- 以某个节点为根节点的最大路径和有可能为负数。因为`-1000 <= Node.val <= 1000`
-### 代码
-
-//  从任意节点出发 => 选择记录max全局最大值
-// dfs记录以当前节点为根节点的最大路径和，递归左右子节点，更新全局最大值的同时返回以当前节点为根节点的最大路径和
-var maxPathSum = function(root) {
-    let max = -Infinity
-    const dfs = (root) => {
-        if(!root) return 0
-        let left = dfs(root.left) //以左节点为根节点的二叉树最大路径和
-        let right = dfs(root.right) // 以右节点为根节点的二叉树最大路径和
-        max = Math.max(max, Math.max(left, 0) + Math.max(right, 0)+root.val) // 在对子节点进行递归的过程中可能已经出现了原二叉树的最大路径和，因此需要进行比较，更新最大路径和max
-        // 此外，dfs的功能就是计算以当前节点为根节点的最大路径和，因此将 当前节点的值（即root.val） 与 以当前节点的子节点为根节点的子树的最大路径和（即 Math.max(left, right)）返回
-        return Math.max(left, right, 0) + root.val
-    }
-    dfs(root)
-    return max
-};
-```
-````
-
-#### [437. 路径总和 III](https://leetcode-cn.com/problems/path-sum-iii/)
-
-> 给定一个二叉树的根节点 root ，和一个整数 targetSum ，求该二叉树里节点值之和等于 targetSum 的 路径 的数目。
->
-> 路径 不需要从根节点开始，也不需要在叶子节点结束，但是路径方向必须是向下的（只能从父节点到子节点）。
->
->  
->
-> 示例 1：![img](https://assets.leetcode.com/uploads/2021/04/09/pathsum3-1-tree.jpg)
->
-> 
->
-> 输入：root = [10,5,-3,3,2,null,11,3,-2,null,1], targetSum = 8
-> 输出：3
-> 解释：和等于 8 的路径有 3 条，如图所示。
-> 示例 2：
->
-> 输入：root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22
-> 输出：3
->
-> 来源：力扣（LeetCode）
-> 链接：https://leetcode-cn.com/problems/path-sum-iii
-
-```js
-var pathSum = function(root, targetSum) {
-    // dfs计算以当前节点为根节点的二叉树里节点值之和等于targetSum的路径的数目
-    const dfs = (root, target) => {
-        let num = 0
-        if(!root ) return 0
-        // 路径不需要在叶子节点结束，只需要路径方向向下，满足targetSum的要求
-        if(root.val === target) {
-            num++
-        }
-        num += dfs(root.left, target - root.val)
-        num += dfs(root.right, target - root.val)
-        return num
-    }
-    if(!root) return 0
-    // 因为路径不需要从根节点开始，因此递归地对子节点调用pathSum方法
-    let count = dfs(root, targetSum)
-    count += pathSum(root.left, targetSum)
-    count +=  pathSum(root.right, targetSum)
-    return  count
-};
-```
-
-
-
-### 距离 todo
-
-[834.树中距离之和](https://leetcode-cn.com/problems/sum-of-distances-in-tree/description/)
-
-[863.二叉树中所有距离为 K 的结点](https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/description/)
+https://leetcode-cn.com/problems/all-nodes-distance-k-in-binary-tree/description/)
 
 ## 技巧
 
@@ -3773,7 +3690,7 @@ public:
 
 递归 + 迭代
 
-### 求和/值
+## 求和/值
 
 #### [二叉树：求有多少个节点 ](https://programmercarl.com/0222.完全二叉树的节点个数.html) :heavy_check_mark:
 
@@ -3830,7 +3747,7 @@ var sumNumbers = function(root)  {
 }
 ```
 
-## 二叉树路径
+## 二叉树路径 & 距离 :construction:
 
 ### [257. 二叉树的所有路径](https://leetcode.cn/problems/binary-tree-paths/)  :heavy_check_mark:
 
@@ -3965,7 +3882,11 @@ var pathSum = function(root, targetSum) {
 };
 ```
 
+### 距离 todo
 
+[834.树中距离之和](https://leetcode-cn.com/problems/sum-of-distances-in-tree/description/)
+
+[863.二叉树中所有距离为 K 的结点](
 
 ## 二叉树的修改与构造
 
@@ -4017,7 +3938,7 @@ var mergeTrees = function(root1, root2) {
     return new TreeNode(root1.val + root2.val, mergeTrees(root1.left, root2.left), mergeTrees(root1.right, root2.right))
 };
 
-// 迭代  类似 101.对称二叉树
+// 迭代  类似 101.对称二叉树中的做法
 var mergeTrees = function (root1, root2) {
     if (!root2) return root1
     if (!root1) return root2
@@ -4090,15 +4011,56 @@ var connect = function (root) {
 
 ## 求二叉搜索树的属性
 
-[二叉搜索树中的搜索](https://programmercarl.com/0700.二叉搜索树中的搜索.html)
+### [二叉搜索树中的搜索](https://programmercarl.com/0700.二叉搜索树中的搜索.html):heavy_check_mark:
 
 - 递归：二叉搜索树的递归是有方向的，利用其性质进行递归 
 - 迭代：因为有方向，所以迭代法很简单
 
-[是不是二叉搜索树](https://programmercarl.com/0098.验证二叉搜索树.html)
+### [98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/) :heavy_check_mark:
 
-- 递归：中序，相当于变成了判断一个序列是不是递增的，:sparkle:**pre指针**:sparkle:
+关键在于递归和迭代的过程中维护pre指针判断值是否递增
+
+- 递归：中序遍历相当于变成了判断一个序列是不是递增的，:sparkle:**pre指针**:sparkle:
 - 迭代：模拟中序，逻辑相同
+
+```js
+//  递归
+var isValidBST = function(root) {
+    let pre = null
+    const action = (root) => {
+        if(!root) return true
+        let left = action(root.left)
+        if(pre && pre.val >= root.val) return false
+        // 记录前一个节点
+        pre = root
+        let right = action(root.right)
+        return left && right
+    }
+    return action(root)
+};
+
+// 跌打
+var isValidBST = function (root) {
+    if (!root) return true
+    let stack = [root]
+    let pre = null
+    while (stack.length) {
+        let node = stack.pop()
+        if (!node) {
+            node = stack.pop()
+            if (pre && pre.val >= node.val) return false
+            // 记录前一个节点
+            pre = node
+        } else {
+            node.right && stack.push(node.right)
+            stack.push(node)
+            stack.push(null)
+            node.left && stack.push(node.left)
+        }
+    }
+    return true
+}
+```
 
 [求二叉搜索树的众数](https://programmercarl.com/0501.二叉搜索树中的众数.html)
 
@@ -4815,6 +4777,8 @@ let strStr = function(haystack, needle) {
 
 # 回溯法
 
+> # **总体原则： for循环横向遍历，递归纵向遍历，回溯不断调整结果集**
+
 回溯的本质是穷举，所有回溯法的问题都可以抽象为树形结构！
 
 **组合是不强调元素顺序的，排列是强调元素顺序**
@@ -4877,11 +4841,15 @@ void backtracking(参数) {
 }
 ```
 
+> *******************************************************************************************************************************
 
+**如果是一个集合来求组合的话，就需要startIndex，例如：77.组合，216.组合总和III**
+
+**如果是多个集合取组合，各个集合之间相互不影响，那么就不用startIndex，例如：17.电话号码的字母组合**
 
 ## 组合问题
 
-#### [77. 组合](https://leetcode-cn.com/problems/combinations/)
+### [77. 组合](https://leetcode-cn.com/problems/combinations/) :heavy_check_mark:
 
 ```ts
 function combine(n: number, k: number): number[][] {
@@ -4892,6 +4860,7 @@ function combine(n: number, k: number): number[][] {
             res.push([...path])
             return
         }
+        //设置startIndex, 因为同一层同一元素不能重复选取
         for(let i=startIndex; i<=n; i++) {
             path.push(i)
             backtracking(i+1)
@@ -4904,44 +4873,30 @@ function combine(n: number, k: number): number[][] {
 
 
 // 剪枝
-function combine(n: number, k: number): number[][] {
+var combine = function(n, k) {
     let res = []
     let path = []
-    const backtracking = (startIndex: number): number[][] => {
+    const backtrack = (index) => {
         if(path.length === k) {
             res.push([...path])
             return
         }
-        for(let i = startIndex; i <= n; i++) {
+        //剪枝： 由于k的限制，遍历到某一个元素后剩下的元素可能已经无法满足k的要求
+        // 为什么是 n-(k-path.length)+1， 可以自己举个例子
+        for(let i=index; i<=n-(k-path.length)+1; i++) {
             path.push(i)
-            backtracking(i+1)
+            backtrack(i+1)
             path.pop()
         }
     }
-    backtracking(1)
+    backtrack(1)
     return res
-}
+};
 ```
 
-#### [216. 组合总和 III](https://leetcode-cn.com/problems/combination-sum-iii/)
+### [216. 组合总和 III](https://leetcode-cn.com/problems/combination-sum-iii/) :heavy_check_mark:
 
 找出所有相加之和为 n 的 k 个数的组合。组合中只允许含有 1 - 9 的正整数，并且每种组合中不存在重复的数字。
-
-说明：
-
-所有数字都是正整数。
-解集不能包含重复的组合。 
-示例 1:
-
-输入: k = 3, n = 7
-输出: [[1,2,4]]
-示例 2:
-
-输入: k = 3, n = 9
-输出: [[1,2,6], [1,3,5], [2,3,4]]
-
-来源：力扣（LeetCode）
-链接：https://leetcode-cn.com/problems/combination-sum-iii
 
 ```ts
 function combinationSum3(k: number, n: number): number[][] {
@@ -4987,47 +4942,28 @@ function combinationSum3(k: number, n: number): number[][] {
 };
 ```
 
+### [17. 电话号码的字母组合](https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/) :heavy_check_mark:
 
+这里不同的是求不同集合之间的组合，每个数字都代表一个集合，因此要注意单层遍历逻辑的写法
 
-#### [17. 电话号码的字母组合](https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/)
-
-给定一个仅包含数字 2-9 的字符串，返回所有它能表示的字母组合。答案可以按 任意顺序 返回。
-
-给出数字到字母的映射如下（与电话按键相同）。注意 1 不对应任何字母。
-
-示例 1：
-
-输入：digits = "23"
-输出：["ad","ae","af","bd","be","bf","cd","ce","cf"]
-示例 2：
-
-输入：digits = ""
-输出：[]
-示例 3：
-
-输入：digits = "2"
-输出：["a","b","c"]
-
-来源：力扣（LeetCode）
-链接：https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number
+> 给定一个仅包含数字 2-9 的字符串，返回所有它能表示的字母组合。答案可以按 任意顺序 返回。给出数字到字母的映射如下（与电话按键相同）。注意 1 不对应任何字母。
 
 ```ts
-function letterCombinations(digits: string): string[] {
+var letterCombinations = function(digits) {
     const source = {
-        "2": "abc",
-        "3": "def",
-        "4": "ghi",
-        "5": "jkl",
-        "6": "mno",
-        "7": "pqrs",
-        "8": "tuv",
-        "9": "wxyz",
-    };
-    if(!digits.length) return []
-    if(digits.length === 1) return source[digits].split('')
-    let path = []
-    let res: string[] = []
-    const backtrack = (index: number): void => {
+        2: 'abc',
+        3: 'def',
+        4: 'ghi',
+        5: 'jkl',
+        6: 'mno',
+        7: 'pqrs',
+        8: 'tuv',
+        9: 'wxyz',
+    }
+    if(digits.length === 0) return []
+    const res = []
+    const path = []
+    const backtrack = (index) => {
         if(path.length === digits.length) {
             res.push(path.join(''))
             return
@@ -5043,7 +4979,9 @@ function letterCombinations(digits: string): string[] {
 };
 ```
 
-#### [39. 组合总和](https://leetcode-cn.com/problems/combination-sum/)
+### [39. 组合总和](https://leetcode-cn.com/problems/combination-sum/) :heavy_check_mark:
+
+
 
 给定一个无重复元素的正整数数组 candidates 和一个正整数 target ，找出 candidates 中所有可以使数字和为目标数 target 的唯一组合。
 
@@ -5105,7 +5043,7 @@ var combinationSum = function(candidates, target) {
 var combinationSum = function(candidates, target) {
     let res = []
     let path = []
-    // 排序 剪枝
+    // 排序 剪枝   排序的目的就是为了剪枝，因为已经排序过，那么sum - candidates[i]<0, 之后的数字就不用考虑了
     candidates.sort((a,b) => a -b)
     const backtrack = (sum, startIndex) => {
         //终止条件
@@ -5115,7 +5053,7 @@ var combinationSum = function(candidates, target) {
         }
         for(let i = startIndex; i < candidates.length && sum - candidates[i] >= 0; i++) {
             path.push(candidates[i])
-            backtrack(sum-candidates[i], i)  // i 表示下一层可以重复选取，此外，这一步也隐藏了回溯
+            backtrack(sum-candidates[i], i)  // i 表示下一层可以重复选取，此外，这一步也隐藏了回溯，这里注意是下一层
             path.pop() //回溯，
         }
     }
@@ -5124,9 +5062,7 @@ var combinationSum = function(candidates, target) {
 };
 ```
 
-
-
-#### [40. 组合总和 II](https://leetcode-cn.com/problems/combination-sum-ii/)<a name = '40'></a>
+### [40. 组合总和 II](https://leetcode-cn.com/problems/combination-sum-ii/) :heavy_check_mark:
 
 给定一个数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。
 
@@ -5188,9 +5124,9 @@ var combinationSum2 = function(candidates, target) {
 };
 ```
 
-#### [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
+### [22. 括号生成](https://leetcode-cn.com/problems/generate-parentheses/) :heavy_check_mark:  :heart_eyes: 
 
-模板题，关键在理解题意
+有点类似不同集合之间求组合的问题，但要注意回溯终止条件以及剔除生成的括号不满足题意的情况。
 
 ```js
 var generateParenthesis = function(n) {
@@ -5199,8 +5135,8 @@ var generateParenthesis = function(n) {
             res.push(path.join(''))
             return
         }
-        // 剪枝
-        if(left > right) return
+        // left <= right， 这是括号组成有效的前提
+        if(left > right) return 
         if(left>0) {
             path.push('(')
             backtrack(path, left-1, right)
@@ -5224,7 +5160,9 @@ var generateParenthesis = function(n) {
 
 ## 分割问题
 
-#### [131. 分割回文串](https://leetcode-cn.com/problems/palindrome-partitioning/)
+### [131. 分割回文串](https://leetcode-cn.com/problems/palindrome-partitioning/) :heavy_check_mark:
+
+**本质还是[77. 组合](https://leetcode-cn.com/problems/combinations/)问题，是否满足target变成是否是回文，同时同一个字符下一层不能重复选取**
 
 > 给你一个字符串 s，请你将 s 分割成一些子串，使每个子串都是 回文串 。返回 s 所有可能的分割方案。
 >
@@ -5283,7 +5221,9 @@ const check = (s: string, startIndex: number, endIndex: number): boolean => {
     }
 ```
 
-#### [93. 复原 IP 地址](https://leetcode-cn.com/problems/restore-ip-addresses/)
+### [93. 复原 IP 地址](https://leetcode-cn.com/problems/restore-ip-addresses/):heavy_check_mark:
+
+同分割字符串，本质上还是[77. 组合](https://leetcode-cn.com/problems/combinations/)问题，要注意回溯终止条件
 
 > 有效 IP 地址 正好由四个整数（每个整数位于 0 到 255 之间组成，且不能含有前导 0），整数之间用 '.' 分隔。
 >
@@ -5357,7 +5297,7 @@ const check = (s: string, startIndex: number, endIndex: number): boolean => {
 }
 ```
 
-#### [306. 累加数](https://leetcode-cn.com/problems/additive-number/)
+### [306. 累加数](https://leetcode-cn.com/problems/additive-number/) :heavy_check_mark:   :heart_eyes:
 
 累加数是一个字符串，组成它的数字可以形成累加序列。
 
@@ -5385,12 +5325,13 @@ const check = (s: string, startIndex: number, endIndex: number): boolean => {
 ```js
 var isAdditiveNumber = function(num) {
     const backtrack = (index, sum, pre, count, n) => {
-        // 字符串已经遍历完，且分割出至少三个数
+        // 字符串已经遍历完，一个有效的累加序列至少包含 3 个数
         if(index === n) {
             return count >= 3
         }
         for(let i=index; i<n; i++) {
             // 以0开头的非‘0’字符串,不满足要求，也没有必要继续向后拼接
+            // 注意这里是index,
             if( i> index && num[index] === '0') break
             let value = +num.slice(index, i+1)
             // 如果分割出的数字个数大于2，验证value是否满足累加序列
@@ -5419,7 +5360,7 @@ var isAdditiveNumber = function(num) {
 
 子集问题和组合问题、分割问题的的区别，**子集是收集树形结构中树的所有节点的结果**。**而组合问题、分割问题是收集树形结构中叶子节点的结果**。
 
-#### [78. 子集](https://leetcode-cn.com/problems/subsets/)
+### [78. 子集](https://leetcode-cn.com/problems/subsets/) :heavy_check_mark:
 
 > 给你一个整数数组 nums ，数组中的元素 互不相同 。返回该数组所有可能的子集（幂集）。
 >
@@ -5493,8 +5434,6 @@ var isAdditiveNumber = function(num) {
 ```js
 function subsetsWithDup(nums: number[]): number[][] {
     // 给定数组中有重复元素，而解集中不能有重复子集，但子集中允许有重复元素，这说明同一层中元素不能重复，纵向递归的过程中不能重复选取【同一】元素，也就是backtrack(i+1), 但选取的元素的【值】允许一样。
-    // 将原数组做原位排序
-    nums.sort((a, b) => a-b)
     let res: number[][] = []
     let path: number[] = []
     const backtrack = (startIndex: number): void => {
@@ -5511,9 +5450,7 @@ function subsetsWithDup(nums: number[]): number[][] {
 };
 ```
 
-
-
-#### [90. 子集 II](https://leetcode-cn.com/problems/subsets-ii/)
+### [90. 子集 II](https://leetcode-cn.com/problems/subsets-ii/) :heavy_check_mark:
 
 给你一个整数数组 nums ，其中可能包含重复元素，请你返回该数组所有可能的子集（幂集）。
 
@@ -5600,9 +5537,7 @@ function subsetsWithDup(nums: number[]): number[][] {
 }
 ```
 
-
-
-#### [491. 递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/)
+### [491. 递增子序列](https://leetcode-cn.com/problems/increasing-subsequences/)  :heavy_check_mark:
 
 给你一个整数数组 nums ，找出并返回所有该数组中不同的递增子序列，递增子序列中 至少有两个元素 。你可以按 任意顺序 返回答案。
 
@@ -5655,7 +5590,7 @@ function findSubsequences(nums: number[]): number[][] {
 - 每层都是从0开始搜索而不是startIndex
 - 需要used数组记录path里都放了哪些元素了
 
-#### [46. 全排列](https://leetcode-cn.com/problems/permutations/)
+### [46. 全排列](https://leetcode-cn.com/problems/permutations/)   :heavy_check_mark:
 
 给定一个不含重复数字的数组 nums ，返回其 所有可能的全排列 。你可以 按任意顺序 返回答案。
 
@@ -5689,7 +5624,7 @@ function permute(nums: number[]): number[][] {
     let res: number[][] = []
     let path: number[] = []
     // 记录数组中哪些元素已经使用过了，一个排列中不能重复
-    let used: number[] = new Array(nums.length).fill(0)
+    let used: number[] = new Array(nums.length).fill(0)  //这里也可以用set
     const backtrack = (used: number[]): void => {
         // 终止条件
         if(path.length === nums.length) {
@@ -5712,9 +5647,7 @@ function permute(nums: number[]): number[][] {
 };
 ```
 
-
-
-#### [47. 全排列 II](https://leetcode-cn.com/problems/permutations-ii/)
+### [47. 全排列 II](https://leetcode-cn.com/problems/permutations-ii/)  :heart_eyes:  .:heavy_check_mark:
 
 给定一个可包含重复数字的序列 nums ，按任意顺序 返回所有不重复的全排列。
 
@@ -5742,6 +5675,9 @@ function permute(nums: number[]): number[][] {
 链接：https://leetcode-cn.com/problems/permutations-ii
 
 ```ts
+// used + 排序 的方式去重
+// used 保证在纵向上没有重复使用的元素（元素值可能一样，但是不是同一个元素）
+// 数组排序后在同一层保证没有值重复的元素，（这里也可用set去重）
 function permuteUnique(nums: number[]): number[][] {
     nums.sort((a, b) => a - b)
     let res: number[][] = []
@@ -5773,7 +5709,7 @@ function permuteUnique(nums: number[]): number[][] {
 
 
 
-//setj
+//set
 function permuteUnique(nums: number[]): number[][] {
     nums.sort((a, b) => a - b)
     let res: number[][] = []
@@ -5854,6 +5790,7 @@ function solveNQueens(n: number): string[][] {
             res.push([...transform(board)])
             return
         }
+        //row控制棋盘的行，每一层里for循环的col控制棋盘的列
         for(let col = 0; col < n; col++){
             if(isValid(row, col, board)) {
                 board[row][col] = 'Q'
@@ -6122,7 +6059,9 @@ const hash = (x, y) => {
 };
 ```
 
+## 其他 :construction:
 
+### [332. 重新安排行程](https://leetcode.cn/problems/reconstruct-itinerary/)
 
 # 动态规划
 
