@@ -2787,7 +2787,9 @@ var levelOrder = function(root) {
 
 #### [515. 在每个树行中找最大值](https://leetcode.cn/problems/find-largest-value-in-each-tree-row/) :heavy_check_mark:
 
+#### [103. 二叉树的锯齿形层序遍历](https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/) :heavy_check_mark:
 
+层序遍历： 通过记录index层数，分别用push,unshift存值
 
 ## 题型
 
@@ -3304,9 +3306,17 @@ var connect = function(root) {
 
 
 
-#### [700. 二叉搜索树中的搜索](https://leetcode.cn/problems/search-in-a-binary-search-tree/)
+#### [700. 二叉搜索树中的搜索](https://leetcode.cn/problems/search-in-a-binary-search-tree/) :heavy_check_mark:
 
 迭代，递归
+
+#### [501. 二叉搜索树中的众数](https://leetcode.cn/problems/find-mode-in-binary-search-tree/) :heart_eyes:  :heavy_check_mark: 
+
+- 遍历，map记录
+
+- 一次遍历，在遍历过程中更新结果 
+
+- #### Morris 中序遍历  TODO
 
 ### 平衡二叉树
 
@@ -4074,7 +4084,7 @@ var isValidBST = function (root) {
 
 ## 二叉树公共祖先问题
 
-[二叉树的公共祖先问题](https://programmercarl.com/0236.二叉树的最近公共祖先.html)
+### [236. 二叉树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/)  :heart_eyes::heavy_check_mark:         
 
 - 递归：后序，自底向上查找，回溯，找到左子树出现目标值，右子树节点目标值的节点。
 - 迭代：不适合模拟回溯
@@ -4083,14 +4093,28 @@ var isValidBST = function (root) {
 > 2. 在回溯的过程中，必然要遍历整颗二叉树，即使已经找到结果了，依然要把其他节点遍历完，因为要使用递归函数的返回值（也就是代码中的left和right）做逻辑判断。
 > 3. 要理解如果返回值left为空，right不为空为什么要返回right，为什么可以用返回right传给上一层结果。
 
-[二叉搜索树的公共祖先问题](https://programmercarl.com/0235.二叉搜索树的最近公共祖先.html)
+```js
+//  寻找祖先节点需要自下而上，也就是回溯，后序遍历满足这种要求
+// 为了找寻合适节点，需要遍历整棵树
+var lowestCommonAncestor = function(root, p, q) {
+    if(root === p || root === q || root === null) return root
+    let left = lowestCommonAncestor(root.left, p, q)
+    let right = lowestCommonAncestor(root.right, p, q)
+    // 当前root就是最近公共祖先
+    if(left && right) return root
+    // 注意为什么单独返回left 或 right
+    if(left && !right) return left
+    else if (!left && right) return right
+    else return null
+};
+```
+
+
+
+### [235. 二叉搜索树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
 - 递归：顺序无所谓，如果节点的数值在目标区间就是最近公共祖先
 - 迭代：按序遍历
-
-
-
-#### [235. 二叉搜索树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
 > ```js
 > var lowestCommonAncestor = function(root, p, q) {
@@ -4142,30 +4166,6 @@ var isValidBST = function (root) {
 >  return res
 > }
 > ```
-
-#### [236. 二叉树的最近公共祖先](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/)
-
-```js
-var lowestCommonAncestor = function(root, p, q) {
-    // 递归终止条件
-    if(root === p || root === q || !root) return root
-    // 单层逻辑
-    let left = lowestCommonAncestor(root.left, p, q)
-    let right = lowestCommonAncestor(root.right, p, q)
-    // 分别在左右子树中
-    if(left && right) return root
-    // 右子树中没有，
-    if(!right) return left
-    // 左子树中没有
-    return right
-};
-```
-
-
-
-
-
-#### 
 
 ## 二叉搜索树的修改与构造
 
@@ -5331,7 +5331,7 @@ var isAdditiveNumber = function(num) {
         }
         for(let i=index; i<n; i++) {
             // 以0开头的非‘0’字符串,不满足要求，也没有必要继续向后拼接
-            // 注意这里是index,
+            // 注意这里是index,不是i
             if( i> index && num[index] === '0') break
             let value = +num.slice(index, i+1)
             // 如果分割出的数字个数大于2，验证value是否满足累加序列
@@ -6686,7 +6686,53 @@ var numDecodings = function(s) {
 };
 ```
 
-## 
+## 股票系列
+
+### [121. 买卖股票的最佳时机](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/)
+
+```js
+// 确定dp数组及下标的含义
+// 确定递推公式
+// dp数组初始化
+// 确定遍历顺序
+
+// dp[i][0] 表示第i天持有股票所得最多现金
+// 第i-1天就持有股票，那么就保持现状，所得现金就是昨天持有股票的所得现金 即：dp[i - 1][0]
+// 第i天买入股票，所得现金就是买入今天的股票后所得现金即：-prices[i]
+// 那么dp[i][0]应该选所得现金最大的，所以dp[i][0] = max(dp[i - 1][0], -prices[i]);
+
+// 如果第i天不持有股票即dp[i][1]， 也可以由两个状态推出来
+// 第i-1天就不持有股票，那么就保持现状，所得现金就是昨天不持有股票的所得现金 即：dp[i - 1][1]
+// 第i天卖出股票，所得现金就是按照今天股票佳价格卖出后所得现金即：prices[i] + dp[i - 1][0]
+// 同样dp[i][1]取最大的，dp[i][1] = max(dp[i - 1][1], prices[i] + dp[i - 1][0]);
+
+var maxProfit = function (prices) {
+    let len = prices.length
+    if (len === 0) return 0
+    let dp = new Array(len).fill(0).map(item => new Array(2).fill(0))
+    dp[0][0] = -prices[0]
+    for (let i = 1; i < len; i++) {
+        dp[i][0] = Math.max(dp[i - 1][0], -prices[i])
+        dp[i][1] = Math.max(dp[i - 1][1], prices[i] + dp[i - 1][0])
+    }
+    return dp[len - 1][1]
+};
+
+// 优化：dp[i] 只依赖dp[i-1]的状态
+var maxProfit = function (prices) {
+    let len = prices.length
+    if (len === 0) return 0
+    let dp = new Array(2).fill(0).map(item => new Array(2).fill(0))
+    dp[0][0] = -prices[0]
+    for (let i = 1; i < len; i++) {
+        dp[i % 2][0] = Math.max(dp[(i - 1) % 2][0], -prices[i])
+        dp[i % 2][1] = Math.max(dp[(i - 1) % 2][1], prices[i] + dp[(i - 1) % 2][0])
+    }
+    return dp[(len - 1) % 2][1]
+}
+```
+
+
 
 # 贪心
 
